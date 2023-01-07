@@ -1,12 +1,6 @@
 github_users:
-  - torvalds
-  - alshedivat
+  - bennettphon
 
 github_repos:
-  - alshedivat/al-folio
-  - twbs/bootstrap
-  - jekyll/jekyll
-  - jquery/jquery
-  - FortAwesome/Font-Awesome
-  - jpswalsh/academicons
-  - mathjax/MathJax
+  - bennettphon/rime-middle-han
+  - bennettphon/rime-hanja
