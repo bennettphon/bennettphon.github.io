@@ -5,7 +5,9 @@ date: 2023-01-06 16:11:00-0400
 inline: false
 ---
 
-A long announcement.
+A long announcement:
+
+Added social links, created YouTube channel.
 
 ***
 
