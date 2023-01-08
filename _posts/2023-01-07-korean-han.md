@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Korean classical Han 韓傳漢音
-date: 2023-01-07 23:59:00-0400
+date: 2023-01-07
 description: An example of a Korean reading han text with classical pronunciation
 categories: han-nga korean
 giscus_comments: true
