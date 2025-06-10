@@ -10,55 +10,33 @@
     :root{--bg:#fff;--fg:#000}
     body.dark{--bg:#121212;--fg:#f0f0f0}
 
-    /* ------------ GLOBAL ------------ */
-    body{
-      margin:0;display:flex;font-family:sans-serif;
-      background:var(--bg);color:var(--fg);
-    }
+    /* ---------- GLOBAL ---------- */
+    body{margin:0;display:flex;font-family:sans-serif;background:var(--bg);color:var(--fg)}
     .top-bar{
       position:fixed;top:0;left:0;right:0;height:50px;
       background:var(--bg);border-bottom:1px solid #ccc;
       display:flex;align-items:center;justify-content:flex-end;
       padding-right:20px;z-index:1000;
     }
-    .top-bar button{
-      height:32px;padding:0 12px;border:1px solid var(--fg);
-      background:none;color:var(--fg);border-radius:4px;cursor:pointer;
-    }
+    .top-bar button{height:32px;padding:0 12px;border:1px solid var(--fg);background:none;color:var(--fg);border-radius:4px;cursor:pointer}
 
     /* -------- DESKTOP LAYOUT -------- */
     .left-panel{
-      position:fixed;
-      top:50px;left:0;
-      width:30%;height:calc(100% - 50px);
-      padding:20px;box-sizing:border-box;
-      border-right:1px solid #ccc;
-      background:var(--bg);
-      display:flex;flex-direction:column;justify-content:space-between;
-      text-align:center;
+      position:fixed;top:50px;left:0;width:30%;height:calc(100% - 50px);
+      padding:20px;box-sizing:border-box;border-right:1px solid #ccc;background:var(--bg);
+      display:flex;flex-direction:column;justify-content:space-between;text-align:center;
     }
     .main-content{
-      margin:50px 0 0 30%;
-      width:70%;height:calc(100vh - 50px);
+      margin:50px 0 0 30%;width:70%;height:calc(100vh - 50px);
       padding:20px;box-sizing:border-box;overflow-y:auto;
     }
 
     /* ---------- MOBILE (<768px) ---------- */
     @media(max-width:768px){
       body{flex-direction:column}
-
       .top-bar{position:sticky;top:0}
-
-      .left-panel{
-        position:static;        /* no fixed sidebar */
-        width:100%;height:auto;
-        border-right:none;border-bottom:1px solid #ccc;
-        padding:20px;
-      }
-      .main-content{
-        margin:0;width:100%;height:auto;
-        padding:20px;box-sizing:border-box;
-      }
+      .left-panel{position:static;width:100%;height:auto;border-right:none;border-bottom:1px solid #ccc}
+      .main-content{margin:0;width:100%;height:auto;padding:20px;box-sizing:border-box}
     }
   </style>
 </head>
@@ -69,7 +47,7 @@
     <button onclick="document.body.classList.toggle('dark')">Light / Dark</button>
   </div>
 
-  <!-- PROFILE + WIDGET (works for both layouts) -->
+  <!-- PROFILE + WIDGET (single copy, always visible) -->
   <div class="left-panel">
     <div>
       <img src="profilepic.jpg" alt="Bennett Hon"
@@ -86,11 +64,9 @@
       </p>
     </div>
 
-    <!-- ClustrMaps widget (single copy) -->
-    <div style="max-width:150px;margin-inline:auto;">
-      <script id="clstr_globe" type="text/javascript"
-        src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0"></script>
-    </div>
+    <!-- **EXACT** ClustrMaps code — leave unchanged -->
+    <script id="clstr_globe" type="text/javascript"
+      src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0"></script>
   </div>
 
   <!-- MAIN CONTENT -->
