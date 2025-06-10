@@ -80,7 +80,7 @@
     </div>
 
     <!-- **EXACT** ClustrMaps code — leave unchanged -->
-    <div class="globe-wrapper">
+    <div id="globe-wrapper" class="globe-wrapper">
       <script id="clstr_globe" type="text/javascript"
         src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0"></script>
     </div>
@@ -94,5 +94,15 @@
     <p>Scroll down for more…</p>
     <p style="margin-top:1000px;">Bottom of content!</p>
   </div>
+  <div id="globe-mobile-placeholder"></div>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.innerWidth <= 768) {
+        const globe  = document.getElementById('globe-wrapper');
+        const target = document.getElementById('globe-mobile-placeholder');
+        if (globe && target) target.appendChild(globe);   // move it
+      }
+    });
+  </script>
 </body>
 </html>
