@@ -49,6 +49,10 @@
       padding: 20px;
       box-sizing: border-box;
       border-right: 1px solid #ccc;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
     }
 
     .main-content {
@@ -69,6 +73,42 @@
       cursor: pointer;
       border-radius: 4px;
     }
+
+    /* --- MOBILE LAYOUT --- */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+      }
+
+      .top-bar {
+        position: sticky;
+        top: 0;
+      }
+
+      .left-panel {
+        display: none;
+      }
+
+      .mobile-profile {
+        display: block;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .main-content {
+        margin: 0;
+        width: 100%;
+        height: auto;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .mobile-map {
+        margin: 40px auto;
+        max-width: 150px;
+        text-align: center;
+      }
+    }
   </style>
 </head>
 
@@ -77,30 +117,28 @@
   <div class="top-bar">
     <button onclick="toggleMode()">Toggle Light/Dark</button>
   </div>
-  
-    <!-- Left Panel -->
-  <div class="left-panel" style="display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
-    <!-- Top content -->
+
+  <!-- Desktop-only Left Panel -->
+  <div class="left-panel">
     <div>
       <img src="profilepic.jpg" alt="Bennett Hon"
         style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%;
                border: 4px solid white; box-shadow: 0 0 6px rgba(0,0,0,0.2); margin-bottom: 15px;">
-  
+
       <h2 style="margin: 0;">Bennett Hon</h2>
       <p style="font-size: 1.1em; color: gray;">MSc Student @ uOttawa</p>
-  
+
       <p style="margin-top: 15px;">
         📍 Office: STEM 636<br>
         ✉️ bhon@uottawa.ca
       </p>
-  
+
       <p style="margin-top: 15px;">
         <a href="https://github.com/bennettphon" target="_blank" style="text-decoration: none;">🐙 GitHub</a><br>
         <a href="https://www.linkedin.com/in/bennett-hon/" target="_blank" style="text-decoration: none;">🔗 LinkedIn</a>
       </p>
     </div>
-  
-    <!-- Bottom-aligned map -->
+
     <div style="margin-top: 20px;">
       <div style="max-width: 150px; margin: 0 auto;">
         <script type="text/javascript" id="clstr_globe"
@@ -110,8 +148,27 @@
     </div>
   </div>
 
+  <!-- Mobile-only Profile Info -->
+  <div class="mobile-profile">
+    <img src="profilepic.jpg" alt="Bennett Hon"
+      style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;
+             border: 3px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.2); margin-bottom: 10px;">
 
-  <!-- Scrollable Content -->
+    <h2 style="margin: 0;">Bennett Hon</h2>
+    <p style="font-size: 1em; color: gray;">MSc Student @ uOttawa</p>
+
+    <p style="margin-top: 10px;">
+      📍 STEM 636<br>
+      ✉️ bhon@uottawa.ca
+    </p>
+
+    <p style="margin-top: 10px;">
+      <a href="https://github.com/bennettphon" target="_blank" style="text-decoration: none;">🐙 GitHub</a><br>
+      <a href="https://www.linkedin.com/in/bennett-hon/" target="_blank" style="text-decoration: none;">🔗 LinkedIn</a>
+    </p>
+  </div>
+
+  <!-- Main Content -->
   <div class="main-content">
     <h1>Hello, world!</h1>
     <p>This is my new site.</p>
@@ -119,7 +176,14 @@
     <p style="margin-top: 1000px;">Bottom of content!</p>
   </div>
 
-  <!-- Dark Mode Script -->
+  <!-- Mobile-only Map at Page Bottom -->
+  <div class="mobile-map">
+    <script type="text/javascript" id="clstr_globe_mobile"
+      src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0">
+    </script>
+  </div>
+
+  <!-- Dark Mode Toggle -->
   <script>
     function toggleMode() {
       document.body.classList.toggle('dark');
