@@ -7,75 +7,50 @@
   <link rel="icon" href="puonx.png" type="image/png">
 
   <style>
-    :root {
-      --bg-color:#fff;
-      --text-color:#000;
-    }
-    body.dark {
-      --bg-color:#121212;
-      --text-color:#f0f0f0;
-    }
+    :root{--bg:#fff;--fg:#000}
+    body.dark{--bg:#121212;--fg:#f0f0f0}
 
     /* ---------- GLOBAL ---------- */
     body{
-      margin:0;
-      display:flex;
-      font-family:sans-serif;
-      background:var(--bg-color);
-      color:var(--text-color);
+      margin:0;display:flex;font-family:sans-serif;
+      background:var(--bg);color:var(--fg);
     }
     .top-bar{
-      position:fixed;top:0;left:0;
-      width:100%;height:50px;
-      background:var(--bg-color);
-      border-bottom:1px solid #ccc;
+      position:fixed;top:0;left:0;right:0;height:50px;
+      background:var(--bg);border-bottom:1px solid #ccc;
       display:flex;align-items:center;justify-content:flex-end;
-      padding-right:20px;
-      z-index:1000;
+      padding-right:20px;z-index:1000;
     }
     .top-bar button{
-      height:32px;line-height:30px;
-      padding:0 12px;
-      border:1px solid var(--text-color);
-      background:none;
-      color:var(--text-color);
-      border-radius:4px;
-      cursor:pointer;
+      height:32px;padding:0 12px;border:1px solid var(--fg);
+      background:none;color:var(--fg);border-radius:4px;cursor:pointer;
     }
 
-    /* desktop sidebar */
+    /* ---------- DESKTOP ---------- */
     .left-panel{
-      position:fixed;
-      top:50px;left:0;
-      width:30%;height:calc(100% - 50px);
-      padding:20px;box-sizing:border-box;
-      border-right:1px solid #ccc;
-      background:var(--bg-color);
+      position:fixed;top:50px;left:0;width:30%;height:calc(100% - 50px);
+      padding:20px;box-sizing:border-box;border-right:1px solid #ccc;
+      background:var(--bg);text-align:center;
       display:flex;flex-direction:column;justify-content:space-between;
-      text-align:center;
     }
     .main-content{
-      margin:50px 0 0 30%;
-      width:70%;height:calc(100vh - 50px);
-      padding:20px;box-sizing:border-box;
-      overflow-y:auto;
+      margin:50px 0 0 30%;width:70%;height:calc(100vh - 50px);
+      padding:20px;box-sizing:border-box;overflow-y:auto;
     }
 
     /* hide mobile blocks on desktop */
-    .mobile-profile,.mobile-map{display:none;}
+    .mobile-profile,.mobile-map{display:none}
 
     /* ---------- MOBILE ---------- */
     @media(max-width:768px){
-      body{flex-direction:column;}
+      body{flex-direction:column}
 
-      .top-bar{position:sticky;top:0;}
+      .top-bar{position:sticky;top:0}
 
-      .left-panel{display:none;}
+      .left-panel{display:none}          /* hide sidebar */
 
-      .mobile-profile,.mobile-map{
-        display:block;
-        padding:20px;
-        text-align:center;
+      .mobile-profile,.mobile-map{       /* show mobile blocks */
+        display:block;text-align:center;padding:20px;
       }
       .main-content{
         margin:0;width:100%;height:auto;
@@ -86,12 +61,12 @@
 </head>
 
 <body>
-  <!-- Top Bar -->
+  <!-- TOP BAR -->
   <div class="top-bar">
     <button onclick="document.body.classList.toggle('dark')">Light / Dark</button>
   </div>
 
-  <!-- DESKTOP‑ONLY SIDEBAR -->
+  <!-- DESKTOP SIDEBAR -->
   <div class="left-panel">
     <div>
       <img src="profilepic.jpg" alt="Bennett Hon"
@@ -108,11 +83,11 @@
       </p>
     </div>
 
-    <!-- widget placeholder for desktop -->
+    <!-- desktop map placeholder -->
     <div id="desktop-map" style="max-width:150px;margin-inline:auto;"></div>
   </div>
 
-  <!-- MOBILE‑ONLY PROFILE -->
+  <!-- MOBILE PROFILE -->
   <div class="mobile-profile">
     <img src="profilepic.jpg" alt="Bennett Hon"
          style="width:100px;height:100px;object-fit:cover;border-radius:50%;
@@ -134,17 +109,21 @@
     <p style="margin-top:1000px;">Bottom of content!</p>
   </div>
 
-  <!-- widget placeholder for mobile -->
+  <!-- MOBILE map placeholder -->
   <div class="mobile-map" id="mobile-map" style="max-width:150px;margin:40px auto;"></div>
 
-  <!-- ========== JS: load ClustrMaps once, in the right placeholder ========== -->
+  <!-- ========== JS: add ClustrMaps once, in correct placeholder ========== -->
   <script>
-    const targetId   = window.innerWidth <= 768 ? 'mobile-map' : 'desktop-map';
-    const targetDiv  = document.getElementById(targetId);
-    const script     = document.createElement('script');
-    script.src       = '//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0';
-    script.id        = 'clustr_globe_unique';
-    targetDiv.appendChild(script);
+    document.addEventListener('DOMContentLoaded',function(){
+      const target = window.innerWidth <= 768 ? 'mobile-map' : 'desktop-map';
+      const container = document.getElementById(target);
+      if(container){
+        const s = document.createElement('script');
+        s.src = '//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0';
+        s.id  = 'clstr_globe';          /* ClustrMaps expects this exact id */
+        container.appendChild(s);
+      }
+    });
   </script>
 </body>
 </html>
