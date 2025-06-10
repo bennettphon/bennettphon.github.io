@@ -2,8 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- makes the 768 px media‑query work on phones -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Bennett Hon</title>
   <link rel="icon" href="puonx.png" type="image/png">
+
   <style>
     :root {
       --bg-color: #ffffff;
@@ -14,57 +17,14 @@
       --text-color: #f0f0f0;
     }
 
+    /* ==========  GLOBAL  ========== */
     body {
       margin: 0;
       display: flex;
-      background-color: var(--bg-color);
+      background: var(--bg-color);
       color: var(--text-color);
       font-family: sans-serif;
     }
-
-    .top-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50px;
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      padding: 0 20px;
-      border-bottom: 1px solid #ccc;
-      z-index: 1000;
-    }
-
-    .left-panel {
-      position: fixed;
-      top: 50px;
-      left: 0;
-      width: 30%;
-      height: calc(100% - 50px);
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      padding: 20px;
-      box-sizing: border-box;
-      border-right: 1px solid #ccc;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      text-align: center;
-    }
-
-    .main-content {
-      margin-left: 30%;
-      margin-top: 50px;
-      padding: 20px;
-      height: calc(100vh - 50px);
-      overflow-y: auto;
-      width: 70%;
-      box-sizing: border-box;
-    }
-
     button {
       background: none;
       border: 1px solid var(--text-color);
@@ -73,40 +33,60 @@
       cursor: pointer;
       border-radius: 4px;
     }
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 50px;
+      background: var(--bg-color);
+      display: flex; justify-content: flex-end; align-items: center;
+      padding: 0 20px;
+      border-bottom: 1px solid #ccc;
+      z-index: 1000;
+    }
 
-    /* --- MOBILE LAYOUT --- */
+    /* hide mobile‑only blocks on desktop */
+    .mobile-profile, .mobile-map { display: none; }
+
+    /* ======== DESKTOP LEFT SIDEBAR ======== */
+    .left-panel {
+      position: fixed;
+      top: 50px; left: 0;
+      width: 30%;          /* sidebar width */
+      height: calc(100% - 50px);
+      padding: 20px;
+      box-sizing: border-box;
+      border-right: 1px solid #ccc;
+      background: var(--bg-color);
+      display: flex; flex-direction: column; justify-content: space-between;
+      text-align: center;
+    }
+
+    /* ======== MAIN CONTENT (desktop) ======== */
+    .main-content {
+      margin-left: 30%;
+      margin-top: 50px;
+      width: 70%;
+      height: calc(100vh - 50px);
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    /* ==========  MOBILE LAYOUT  ========== */
     @media (max-width: 768px) {
-      body {
-        flex-direction: column;
-      }
+      body { flex-direction: column; }
 
-      .top-bar {
-        position: sticky;
-        top: 0;
-      }
+      .top-bar { position: sticky; top: 0; }
 
-      .left-panel {
-        display: none;
-      }
+      .left-panel { display: none; }             /* hide sidebar */
 
-      .mobile-profile {
-        display: block;
-        padding: 20px;
-        text-align: center;
+      .mobile-profile, .mobile-map {             /* show mobile blocks */
+        display: block; text-align: center; padding: 20px;
       }
 
       .main-content {
-        margin: 0;
-        width: 100%;
-        height: auto;
-        padding: 20px;
-        box-sizing: border-box;
-      }
-
-      .mobile-map {
-        margin: 40px auto;
-        max-width: 150px;
-        text-align: center;
+        margin: 0; width: 100%; height: auto;
+        padding: 20px; box-sizing: border-box;
       }
     }
   </style>
@@ -115,79 +95,61 @@
 <body>
   <!-- Top Bar -->
   <div class="top-bar">
-    <button onclick="toggleMode()">Toggle Light/Dark</button>
+    <button onclick="document.body.classList.toggle('dark')">Toggle Light/Dark</button>
   </div>
 
-  <!-- Desktop-only Left Panel -->
+  <!-- DESKTOP‑ONLY SIDEBAR -->
   <div class="left-panel">
     <div>
       <img src="profilepic.jpg" alt="Bennett Hon"
-        style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%;
-               border: 4px solid white; box-shadow: 0 0 6px rgba(0,0,0,0.2); margin-bottom: 15px;">
+           style="width:140px;height:140px;object-fit:cover;border-radius:50%;
+                  border:4px solid white;box-shadow:0 0 6px rgba(0,0,0,0.2);margin-bottom:15px;">
+      <h2 style="margin:0;">Bennett Hon</h2>
+      <p style="font-size:1.1em;color:gray;">MSc Student @ uOttawa</p>
 
-      <h2 style="margin: 0;">Bennett Hon</h2>
-      <p style="font-size: 1.1em; color: gray;">MSc Student @ uOttawa</p>
-
-      <p style="margin-top: 15px;">
-        📍 Office: STEM 636<br>
+      <p style="margin-top:15px;">
+        📍 STEM 636<br>
         ✉️ bhon@uottawa.ca
       </p>
 
-      <p style="margin-top: 15px;">
-        <a href="https://github.com/bennettphon" target="_blank" style="text-decoration: none;">🐙 GitHub</a><br>
-        <a href="https://www.linkedin.com/in/bennett-hon/" target="_blank" style="text-decoration: none;">🔗 LinkedIn</a>
+      <p style="margin-top:15px;">
+        <a href="https://github.com/bennettphon" target="_blank" style="text-decoration:none;">🐙 GitHub</a><br>
+        <a href="https://www.linkedin.com/in/bennett-hon/" target="_blank" style="text-decoration:none;">🔗 LinkedIn</a>
       </p>
     </div>
 
-    <div style="margin-top: 20px;">
-      <div style="max-width: 150px; margin: 0 auto;">
-        <script type="text/javascript" id="clstr_globe"
-          src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0">
-        </script>
-      </div>
+    <div style="margin-top:20px;max-width:150px;margin-inline:auto;">
+      <script id="clstr_globe" type="text/javascript"
+        src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0"></script>
     </div>
   </div>
 
-  <!-- Mobile-only Profile Info -->
+  <!-- MOBILE‑ONLY PROFILE -->
   <div class="mobile-profile">
     <img src="profilepic.jpg" alt="Bennett Hon"
-      style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;
-             border: 3px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.2); margin-bottom: 10px;">
-
-    <h2 style="margin: 0;">Bennett Hon</h2>
-    <p style="font-size: 1em; color: gray;">MSc Student @ uOttawa</p>
-
-    <p style="margin-top: 10px;">
-      📍 STEM 636<br>
-      ✉️ bhon@uottawa.ca
-    </p>
-
-    <p style="margin-top: 10px;">
-      <a href="https://github.com/bennettphon" target="_blank" style="text-decoration: none;">🐙 GitHub</a><br>
-      <a href="https://www.linkedin.com/in/bennett-hon/" target="_blank" style="text-decoration: none;">🔗 LinkedIn</a>
+         style="width:100px;height:100px;object-fit:cover;border-radius:50%;
+                border:3px solid white;box-shadow:0 0 4px rgba(0,0,0,0.2);margin-bottom:10px;">
+    <h2 style="margin:0;">Bennett Hon</h2>
+    <p style="font-size:1em;color:gray;">MSc Student @ uOttawa</p>
+    <p style="margin-top:10px;">📍 STEM 636<br>✉️ bhon@uottawa.ca</p>
+    <p style="margin-top:10px;">
+      <a href="https://github.com/bennettphon" target="_blank" style="text-decoration:none;">🐙 GitHub</a><br>
+      <a href="https://www.linkedin.com/in/bennett-hon/" target="_blank" style="text-decoration:none;">🔗 LinkedIn</a>
     </p>
   </div>
 
-  <!-- Main Content -->
+  <!-- MAIN CONTENT -->
   <div class="main-content">
     <h1>Hello, world!</h1>
     <p>This is my new site.</p>
-    <p>Scroll down for more...</p>
-    <p style="margin-top: 1000px;">Bottom of content!</p>
+    <p>Scroll down for more…</p>
+    <p style="margin-top:1000px;">Bottom of content!</p>
   </div>
 
-  <!-- Mobile-only Map at Page Bottom -->
+  <!-- MOBILE‑ONLY MAP (bottom of page) -->
   <div class="mobile-map">
-    <script type="text/javascript" id="clstr_globe_mobile"
-      src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0">
-    </script>
+    <script id="clstr_globe_mobile" type="text/javascript"
+      src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0"></script>
   </div>
-
-  <!-- Dark Mode Toggle -->
-  <script>
-    function toggleMode() {
-      document.body.classList.toggle('dark');
-    }
-  </script>
 </body>
 </html>
