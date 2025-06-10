@@ -104,39 +104,6 @@
       }
     });
   </script>
-  <!-- ====== Globe on‑screen start/stop ====== -->
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const globeHost = document.querySelector('#clustr_globe')?.parentNode;
-    if (!globeHost || !window.IntersectionObserver) return;
-  
-    // ensure the globe starts paused
-    if (globeHost.stopAnimation) globeHost.stopAnimation();
-  
-    let timer = null;   // tracks the 1‑second visibility timer
-  
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-  
-        if (entry.isIntersecting) {
-          // begin a 1‑second countdown
-          timer = setTimeout(() => {
-            globeHost.startAnimation && globeHost.startAnimation();
-            timer = null;
-          }, 1000);
-        } else {
-          // left the viewport: cancel timer & pause animation
-          if (timer) { clearTimeout(timer); timer = null; }
-          globeHost.stopAnimation && globeHost.stopAnimation();
-        }
-      },
-      { threshold: 0.1 }  // "visible" when at least 10 % of globe is on screen
-    );
-  
-    observer.observe(globeHost);
-  });
-  </script>
 
 </body>
 </html>
