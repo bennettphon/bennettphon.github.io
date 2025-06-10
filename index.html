@@ -10,7 +10,7 @@
     :root{--bg:#fff;--fg:#000}
     body.dark{--bg:#121212;--fg:#f0f0f0}
 
-    /* ---------- GLOBAL ---------- */
+    /* ------------ GLOBAL ------------ */
     body{
       margin:0;display:flex;font-family:sans-serif;
       background:var(--bg);color:var(--fg);
@@ -26,31 +26,34 @@
       background:none;color:var(--fg);border-radius:4px;cursor:pointer;
     }
 
-    /* ---------- DESKTOP ---------- */
+    /* -------- DESKTOP LAYOUT -------- */
     .left-panel{
-      position:fixed;top:50px;left:0;width:30%;height:calc(100% - 50px);
-      padding:20px;box-sizing:border-box;border-right:1px solid #ccc;
-      background:var(--bg);text-align:center;
+      position:fixed;
+      top:50px;left:0;
+      width:30%;height:calc(100% - 50px);
+      padding:20px;box-sizing:border-box;
+      border-right:1px solid #ccc;
+      background:var(--bg);
       display:flex;flex-direction:column;justify-content:space-between;
+      text-align:center;
     }
     .main-content{
-      margin:50px 0 0 30%;width:70%;height:calc(100vh - 50px);
+      margin:50px 0 0 30%;
+      width:70%;height:calc(100vh - 50px);
       padding:20px;box-sizing:border-box;overflow-y:auto;
     }
 
-    /* hide mobile blocks on desktop */
-    .mobile-profile,.mobile-map{display:none}
-
-    /* ---------- MOBILE ---------- */
+    /* ---------- MOBILE (<768px) ---------- */
     @media(max-width:768px){
       body{flex-direction:column}
 
       .top-bar{position:sticky;top:0}
 
-      .left-panel{display:none}          /* hide sidebar */
-
-      .mobile-profile,.mobile-map{       /* show mobile blocks */
-        display:block;text-align:center;padding:20px;
+      .left-panel{
+        position:static;        /* no fixed sidebar */
+        width:100%;height:auto;
+        border-right:none;border-bottom:1px solid #ccc;
+        padding:20px;
       }
       .main-content{
         margin:0;width:100%;height:auto;
@@ -66,7 +69,7 @@
     <button onclick="document.body.classList.toggle('dark')">Light / Dark</button>
   </div>
 
-  <!-- DESKTOP SIDEBAR -->
+  <!-- PROFILE + WIDGET (works for both layouts) -->
   <div class="left-panel">
     <div>
       <img src="profilepic.jpg" alt="Bennett Hon"
@@ -83,22 +86,11 @@
       </p>
     </div>
 
-    <!-- desktop map placeholder -->
-    <div id="desktop-map" style="max-width:150px;margin-inline:auto;"></div>
-  </div>
-
-  <!-- MOBILE PROFILE -->
-  <div class="mobile-profile">
-    <img src="profilepic.jpg" alt="Bennett Hon"
-         style="width:100px;height:100px;object-fit:cover;border-radius:50%;
-                border:3px solid #fff;box-shadow:0 0 4px rgba(0,0,0,.2);margin-bottom:10px;">
-    <h2 style="margin:0;">Bennett Hon</h2>
-    <p style="font-size:1em;color:gray;">MSc Student @ uOttawa</p>
-    <p style="margin-top:10px;">📍 STEM 636<br>✉️ bhon@uottawa.ca</p>
-    <p style="margin-top:10px;">
-      <a href="https://github.com/bennettphon" target="_blank" style="text-decoration:none;">🐙 GitHub</a><br>
-      <a href="https://www.linkedin.com/in/bennett-hon/" target="_blank" style="text-decoration:none;">🔗 LinkedIn</a>
-    </p>
+    <!-- ClustrMaps widget (single copy) -->
+    <div style="max-width:150px;margin-inline:auto;">
+      <script id="clstr_globe" type="text/javascript"
+        src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0"></script>
+    </div>
   </div>
 
   <!-- MAIN CONTENT -->
@@ -108,22 +100,5 @@
     <p>Scroll down for more…</p>
     <p style="margin-top:1000px;">Bottom of content!</p>
   </div>
-
-  <!-- MOBILE map placeholder -->
-  <div class="mobile-map" id="mobile-map" style="max-width:150px;margin:40px auto;"></div>
-
-  <!-- ========== JS: add ClustrMaps once, in correct placeholder ========== -->
-  <script>
-    document.addEventListener('DOMContentLoaded',function(){
-      const target = window.innerWidth <= 768 ? 'mobile-map' : 'desktop-map';
-      const container = document.getElementById(target);
-      if(container){
-        const s = document.createElement('script');
-        s.src = '//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0';
-        s.id  = 'clstr_globe';          /* ClustrMaps expects this exact id */
-        container.appendChild(s);
-      }
-    });
-  </script>
 </body>
 </html>
