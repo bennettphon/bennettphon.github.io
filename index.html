@@ -39,9 +39,19 @@
       .main-content{margin:0;width:100%;height:auto;padding:20px;box-sizing:border-box}
     }
     /* --- shrink the ClustrMaps globe --- */
+    /* --- force the globe to 120 × 120 px --- */
+    .globe-wrapper iframe,
     .globe-wrapper canvas{
-      transform: scale(0.65);   /* 65 % of original size; adjust as you like */
-      transform-origin: center; /* keep it centred while scaling */
+      width:120px !important;
+      height:120px !important;
+      display:block;
+      margin:0 auto;          /* keep it centred */
+    }
+    
+    /* shrink the whole block’s footprint */
+    .globe-wrapper{
+      width:120px;
+      margin-inline:auto;
     }
   </style>
 </head>
