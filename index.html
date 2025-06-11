@@ -20,14 +20,19 @@
     }
     .top-bar button{height:32px;padding:0 12px;border:1px solid var(--fg);background:none;color:var(--fg);border-radius:4px;cursor:pointer}
 
-    /* -------- DESKTOP LAYOUT -------- */
+    /* --- LEFT / MAIN widths (desktop) --- */
     .left-panel{
-      position:fixed;top:50px;left:0;width:30%;height:calc(100% - 50px);
-      padding:20px;box-sizing:border-box;border-right:1px solid #ccc;background:var(--bg);
-      display:flex;flex-direction:column;justify-content:space-between;text-align:center;
+      position:fixed;top:50px;left:0;width:24%;   /* was 30%  */
+      height:calc(100% - 50px);
+      padding:20px;box-sizing:border-box;
+      border-right:1px solid #ccc;background:var(--bg);
+      display:flex;flex-direction:column;justify-content:space-between;
+      text-align:center;
     }
     .main-content{
-      margin:50px 0 0 30%;width:70%;height:calc(100vh - 50px);
+      margin:50px 0 0 24%;   /* keep in step with the new width  */
+      width:76%;
+      height:calc(100vh - 50px);
       padding:20px;box-sizing:border-box;overflow-y:auto;
     }
 
@@ -73,6 +78,18 @@
       font-family: "DFKai-SB", "KaiTi", "楷体", serif;
     }
 
+    
+    /* --- SOCIAL ICONS (uniform & spaced) --- */
+    .social-icon{
+      width:20px;height:20px;          /* smaller */
+      margin:0 6px;                    /* breathing room */
+      vertical-align:middle;
+    }
+    
+    /* --- Fine‑tune sidebar font sizes --- */
+    .left-panel h2{font-size:1.15rem;}          /* was ~1.3 rem (browser default) */
+    .left-panel p {font-size:0.95rem;}
+
   </style>
 </head>
 
@@ -99,15 +116,11 @@
   
       <div style="margin-top:15px;">
         <a href="https://github.com/bennettphon" target="_blank">
-          <img src="github-light.png"
-               class="github-icon"
-               style="width:28px;height:28px;"
-               alt="GitHub">
+          <img src="github-light.png" class="github-icon social-icon" alt="GitHub">
         </a>
         
-
         <a href="https://www.linkedin.com/in/bennett-hon/" target="_blank">
-          <img src="linkedin-icon.png" alt="LinkedIn" style="width:28px;height:28px;">
+          <img src="linkedin-icon.png" class="social-icon" alt="LinkedIn">
         </a>
       </div>
     </div>
