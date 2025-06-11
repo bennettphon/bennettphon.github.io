@@ -65,7 +65,7 @@
       .mobile-sep{display:block;}
     }
         /* make the icon white when the page is in dark mode */
-    body.dark .github-icon {
+    body:not(.dark) .github-icon {
       filter: invert(1) brightness(1.8);
     }
 
@@ -92,7 +92,7 @@
   
       <div style="margin-top:15px;">
         <a href="https://github.com/bennettphon" target="_blank">
-          <img src="github-black.png"
+          <img src="github-light.png"
                class="github-icon"
                style="width:28px;height:28px;"
                alt="GitHub">
