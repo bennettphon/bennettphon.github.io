@@ -111,12 +111,13 @@
     .ipa-popup {
       display: none;
       position: absolute;
-      top: 1.4em; /* just below the characters */
-      left: 0;    /* aligned under the Chinese name */
+      top: 1.6em;
+      left: 0;
       background: #f9f9f9;
       border: 1px solid #ccc;
       padding: 4px 8px;
       font-size: 0.7em;
+      font-family: 'Segoe UI', 'Arial', 'Helvetica', 'Charis SIL', 'Doulos SIL', sans-serif;
       color: black;
       border-radius: 4px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
@@ -141,13 +142,12 @@
       <!-- 1.  wrap the Chinese part of your name -->
       <h2 style="margin:0;">
         Bennett Hon | 
-        <span class="han-name" style="position: relative;">
+        <span class="han-name" style="position: relative; display: inline-block;">
           韓本一
           <span class="ipa-toggle" onclick="toggleIPA()">ℹ️</span>
           <span id="ipa-popup" class="ipa-popup">[ɦɑn pʷənʔiɪt̚]</span>
         </span>
       </h2>
-
 
       <p style="font-size:1.05em;color:gray;">Master's Student</p>
       <p style="font-size:1.05em;color:gray;">University of Ottawa</p>
