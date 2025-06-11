@@ -64,9 +64,9 @@
     @media(max-width:768px){
       .mobile-sep{display:block;}
     }
-    
+        /* make the icon white when the page is in dark mode */
     body.dark .github-icon {
-      content: url('github-dark.png');
+      filter: invert(1) brightness(1.8);
     }
 
   </style>
