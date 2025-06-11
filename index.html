@@ -64,7 +64,13 @@
     @media(max-width:768px){
       .mobile-sep{display:block;}
     }
-    
+
+    @media (prefers-color-scheme: dark) {
+      .github-icon {
+        content: url('github-dark.png');
+      }
+    }
+
   </style>
 </head>
 
@@ -91,13 +97,6 @@
           <img src="github-light.png" alt="GitHub" class="github-icon" style="width:28px;height:28px;">
         </a>
         
-        <style>
-          @media (prefers-color-scheme: dark) {
-            .github-icon {
-              content: url('github-dark.png');
-            }
-          }
-        </style>
 
         <a href="https://www.linkedin.com/in/bennett-hon/" target="_blank">
           <img src="linkedin-icon.png" alt="LinkedIn" style="width:28px;height:28px;">
