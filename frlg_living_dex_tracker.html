@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRLG Living Dex Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0a0a;--surface:#111;--text:#e0e0e0;--red:#cc3333;--red-light:#ff6644;--green:#4caf50}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
+  .header{background:linear-gradient(135deg,#0a0a1a 0%,#0a1030 40%,#0a0a1a 100%);border-bottom:1px solid #111522;padding:24px 20px 20px;position:sticky;top:0;z-index:100}
+  .header-inner{max-width:960px;margin:0 auto}
+  .title-row{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+  .title{font-size:22px;font-weight:800;letter-spacing:-0.5px;background:linear-gradient(90deg,#4488ff,#44bbff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .subtitle{font-size:12px;color:#666;font-family:'JetBrains Mono',monospace}
+  .progress-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .progress-count{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:#fff}
+  .progress-count span{color:#555;font-size:16px}
+  .progress-pct{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:800;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background:linear-gradient(90deg,#3366cc,#4499ff)}
+  .progress-pct.done{background:linear-gradient(90deg,#4caf50,#88ee88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-shadow:none}
+  .bar-bg{height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;margin-bottom:10px}
+  .bar-fill{height:100%;border-radius:3px;transition:width 0.3s;background:linear-gradient(90deg,#3366cc,#4499ff)}
+  .bar-fill.done{background:linear-gradient(90deg,#4caf50,#66bb6a)}
+  .actions-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  .controls{display:flex;gap:8px;flex-wrap:wrap}
+  .search{flex:1 1 200px;padding:8px 12px;background:#151515;border:1px solid #2a2a2a;border-radius:6px;color:#ddd;font-size:13px;outline:none;font-family:'Outfit',sans-serif}
+  .search:focus{border-color:#444}.search::placeholder{color:#555}
+  .fbtn{padding:8px 14px;border-radius:6px;border:1px solid #2a2a2a;background:#151515;color:#888;font-size:12px;cursor:pointer;font-weight:600;font-family:'Outfit',sans-serif;transition:all 0.15s}
+  .fbtn.active{border-color:var(--red);background:#2a1111;color:var(--red-light)}
+  .tsel{padding:8px 12px;background:#151515;border:1px solid #2a2a2a;border-radius:6px;color:#ddd;font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}
+  .list{max-width:960px;margin:0 auto;padding:12px 20px}
+  .list-info{font-size:11px;color:#555;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+  .row{display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:2px;background:var(--surface);border-left:3px solid #222;border-radius:0 4px 4px 0;cursor:pointer;transition:all 0.15s;user-select:none}
+  .row:hover{background:#161616}.row:active{transform:scale(0.995)}
+  .row.caught{background:#0a1a0a;border-left-color:#2d5a2d;opacity:0.6}
+  .cb{width:22px;height:22px;border-radius:4px;flex-shrink:0;border:2px solid #333;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+  .caught .cb{border-color:var(--green);background:var(--green)}
+  .cb .ck{display:none;color:#fff;font-size:14px;font-weight:700;line-height:1}
+  .caught .cb .ck{display:block}
+  .dxn{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;width:30px;text-align:right;flex-shrink:0}
+  .caught .dxn{color:#664433}
+  .natn{font-family:'JetBrains Mono',monospace;font-size:10px;color:#444;width:38px;text-align:right;flex-shrink:0}
+  .pn{font-weight:600;font-size:14px;min-width:110px}
+  .caught .pn{color:#5a5a5a;text-decoration:line-through;text-decoration-color:#333}
+  .types{display:flex;gap:4px;flex-shrink:0}
+  .tb{font-size:10px;padding:2px 7px;border-radius:3px;color:#fff;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,0.5);white-space:nowrap}
+  .vb{font-size:9px;padding:2px 6px;border-radius:3px;font-weight:700;flex-shrink:0;font-family:'JetBrains Mono',monospace;white-space:nowrap}
+  /* SWAPPED: Blue=Both, Red=FR, Green=LG */
+  .vboth{background:#0f1a2e;border:1px solid #1a3060;color:#5599dd}
+  .vfr{background:#2e1010;border:1px solid #5a2020;color:#dd6655}
+  .vlg{background:#0e2e14;border:1px solid #1a4a26;color:#55cc66}
+  .loc{font-size:11px;color:#666;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .abil{font-size:10px;color:#555;flex-shrink:0;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+  .caught .abil{color:#444}
+  .legend{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;padding:8px 12px;background:#0d0d0d;border-radius:6px;border:1px solid #1a1a1a}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#888}
+  .legend-dot{width:10px;height:10px;border-radius:2px}
+  .footer{margin-top:24px;padding:16px 0;border-top:1px solid #1a1a1a;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+  .footer-text{font-size:11px;color:#444}
+  .rbtn{padding:6px 12px;background:#1a1111;border:1px solid #2a1515;border-radius:4px;color:#884444;font-size:11px;cursor:pointer;font-family:'Outfit',sans-serif}
+  .rbtn:hover{background:#2a1515;color:#aa5555}
+  
+  .row.unstable { opacity:0.45; border-left-color:#ff664440; background:#161111; cursor:default; animation:flicker 2s ease-in-out infinite alternate; }
+  .row.unstable .dxn { color:#ff664466; }
+  .row.unstable .pn { color:#aa6666; font-style:italic; }
+  .row.unstable .cb { visibility:hidden; }
+  @keyframes flicker { 0%{opacity:0.35} 50%{opacity:0.5} 100%{opacity:0.35} }
+  @media(max-width:640px){.loc{display:none}.abil{display:none}.pn{min-width:90px;font-size:13px}.title{font-size:18px}.progress-count{font-size:22px}.natn{display:none}}
+</style>
+</head>
+<body>
+<div class="header" id="mainHeader"><div class="header-inner">
+  <div class="title-row"><h1 class="title" id="mainTitle">FRLG LIVING DEX</h1><span class="subtitle" id="subtext">215 Pokemon · Family Order · FireRed + LeafGreen · Switch</span></div>
+  <div style="display:flex;gap:8px;margin-bottom:16px" id="setupBtns">
+      <button class="setup-btn" data-setup="1lg" style="flex:1;padding:10px;border-radius:6px;border:2px solid #113311;background:#0a1a0a;color:#448844;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.15s">LeafGreen</button>
+      <button class="setup-btn active" data-setup="frlg" style="flex:1;padding:10px;border-radius:6px;border:2px solid #3366cc;background:#0a1030;color:#5599dd;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.15s">FR + LG</button>
+      <button class="setup-btn" data-setup="1fr" style="flex:1;padding:10px;border-radius:6px;border:2px solid #331111;background:#1a0a0a;color:#884444;font-size:13px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.15s">FireRed</button>
+    </div>
+    <div class="progress-row"><div class="progress-count" id="count">0<span>/215</span></div><div class="progress-pct" id="pct">0%</div></div>
+  <div class="bar-bg"><div class="bar-fill" id="bar"></div></div>
+  <div class="actions-row" id="actionsRow"></div>
+  <div class="controls">
+    <input type="text" class="search" id="search" placeholder="Search name, #, location, or ability...">
+    <select class="tsel" id="statusF"><option value="all">All</option><option value="uncaught">Missing</option><option value="caught">Caught</option></select>
+    <select class="tsel" id="dexMode"><option value="all">All Pokemon</option><option value="final">Final Forms</option></select>
+    <select class="tsel" id="typeF"><option value="all">All Types</option></select>
+    <select class="tsel" id="abilF"><option value="all">All Abilities</option></select>
+  </div>
+</div></div>
+<div class="list">
+  <div class="legend" id="legendBar">
+    <div class="legend-item"><div class="legend-dot" style="background:#3366aa"></div>Both versions</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#cc4433"></div>FireRed exclusive</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#33aa44"></div>LeafGreen exclusive</div>
+  </div>
+  
+  <div class="legend" style="flex-direction:column;gap:6px;margin-bottom:8px" id="runNote">
+  </div>
+  <div class="list-info" id="list-info"></div><div id="rows"></div>
+  <div class="footer"><span class="footer-text">Each mode saves separately in your browser</span></div>
+</div>
+<script>
+const TC={Normal:"#A8A878",Fire:"#F08030",Water:"#6890F0",Grass:"#78C850",Electric:"#F8D030",Ice:"#98D8D8",Fighting:"#C03028",Poison:"#A040A0",Ground:"#E0C068",Flying:"#A890F0",Psychic:"#F85888",Bug:"#A8B820",Rock:"#B8A038",Ghost:"#705898",Dragon:"#7038F8",Dark:"#705848",Steel:"#B8B8D0"};
+const P=[
+{d:1,n:1,name:"Bulbasaur",t1:"Grass",t2:"Poison",v:"Both",loc:"Starter from Prof. Oak (choose 1, need 3 playthroughs)",f:0,tr:0,sg:1,a1:"Overgrow",a2:""},
+{d:2,n:2,name:"Ivysaur",t1:"Grass",t2:"Poison",v:"Both",loc:"Evolve Bulbasaur Lv16",f:0,tr:0,sg:2,a1:"Overgrow",a2:""},
+{d:3,n:3,name:"Venusaur",t1:"Grass",t2:"Poison",v:"Both",loc:"Evolve Ivysaur Lv32",f:1,tr:0,sg:3,a1:"Overgrow",a2:""},
+{d:4,n:4,name:"Charmander",t1:"Fire",t2:"",v:"Both",loc:"Starter from Prof. Oak (choose 1, need 3 playthroughs)",f:0,tr:0,sg:1,a1:"Blaze",a2:""},
+{d:5,n:5,name:"Charmeleon",t1:"Fire",t2:"",v:"Both",loc:"Evolve Charmander Lv16",f:0,tr:0,sg:2,a1:"Blaze",a2:""},
+{d:6,n:6,name:"Charizard",t1:"Fire",t2:"Flying",v:"Both",loc:"Evolve Charmeleon Lv36",f:1,tr:0,sg:3,a1:"Blaze",a2:""},
+{d:7,n:7,name:"Squirtle",t1:"Water",t2:"",v:"Both",loc:"Starter from Prof. Oak (choose 1, need 3 playthroughs)",f:0,tr:0,sg:1,a1:"Torrent",a2:""},
+{d:8,n:8,name:"Wartortle",t1:"Water",t2:"",v:"Both",loc:"Evolve Squirtle Lv16",f:0,tr:0,sg:2,a1:"Torrent",a2:""},
+{d:9,n:9,name:"Blastoise",t1:"Water",t2:"",v:"Both",loc:"Evolve Wartortle Lv36",f:1,tr:0,sg:3,a1:"Torrent",a2:""},
+{d:10,n:172,name:"Pichu",t1:"Electric",t2:"",v:"Both",loc:"Breed Pikachu/Raichu",f:0,tr:0,sg:0,a1:"Static",a2:""},
+{d:11,n:25,name:"Pikachu",t1:"Electric",t2:"",v:"Both",loc:"Viridian Forest, Power Plant",f:0,tr:0,sg:0,a1:"Static",a2:""},
+{d:12,n:26,name:"Raichu",t1:"Electric",t2:"",v:"Both",loc:"Evolve Pikachu (Thunder Stone)",f:1,tr:0,sg:0,a1:"Static",a2:""},
+{d:13,n:133,name:"Eevee",t1:"Normal",t2:"",v:"Both",loc:"Celadon Mansion rooftop (1 per game)",f:0,tr:0,sg:0,a1:"Run Away",a2:""},
+{d:14,n:134,name:"Vaporeon",t1:"Water",t2:"",v:"Both",loc:"Evolve Eevee (Water Stone)",f:1,tr:0,sg:0,a1:"Water Absorb",a2:""},
+{d:15,n:135,name:"Jolteon",t1:"Electric",t2:"",v:"Both",loc:"Evolve Eevee (Thunder Stone)",f:1,tr:0,sg:0,a1:"Volt Absorb",a2:""},
+{d:16,n:136,name:"Flareon",t1:"Fire",t2:"",v:"Both",loc:"Evolve Eevee (Fire Stone)",f:1,tr:0,sg:0,a1:"Flash Fire",a2:""},
+{d:17,n:10,name:"Caterpie",t1:"Bug",t2:"",v:"Both",loc:"Route 2, Viridian Forest, Pattern Bush",f:0,tr:0,sg:0,a1:"Shield Dust",a2:""},
+{d:18,n:11,name:"Metapod",t1:"Bug",t2:"",v:"Both",loc:"Viridian Forest / Evolve Caterpie Lv7",f:0,tr:0,sg:0,a1:"Shed Skin",a2:""},
+{d:19,n:12,name:"Butterfree",t1:"Bug",t2:"Flying",v:"Both",loc:"Evolve Metapod Lv10",f:1,tr:0,sg:0,a1:"Compound Eyes",a2:""},
+{d:20,n:13,name:"Weedle",t1:"Bug",t2:"Poison",v:"Both",loc:"Route 2, Viridian Forest, Pattern Bush",f:0,tr:0,sg:0,a1:"Shield Dust",a2:""},
+{d:21,n:14,name:"Kakuna",t1:"Bug",t2:"Poison",v:"Both",loc:"Viridian Forest / Evolve Weedle Lv7",f:0,tr:0,sg:0,a1:"Shed Skin",a2:""},
+{d:22,n:15,name:"Beedrill",t1:"Bug",t2:"Poison",v:"Both",loc:"Evolve Kakuna Lv10",f:1,tr:0,sg:0,a1:"Swarm",a2:""},
+{d:23,n:16,name:"Pidgey",t1:"Normal",t2:"Flying",v:"Both",loc:"Routes 1-3,5-7,24,25",f:0,tr:0,sg:0,a1:"Keen Eye",a2:""},
+{d:24,n:17,name:"Pidgeotto",t1:"Normal",t2:"Flying",v:"Both",loc:"Routes 13-15 / Evolve Pidgey Lv18",f:0,tr:0,sg:0,a1:"Keen Eye",a2:""},
+{d:25,n:18,name:"Pidgeot",t1:"Normal",t2:"Flying",v:"Both",loc:"Evolve Pidgeotto Lv36",f:1,tr:0,sg:0,a1:"Keen Eye",a2:""},
+{d:26,n:19,name:"Rattata",t1:"Normal",t2:"",v:"Both",loc:"Routes 1,2,4,9,16,22",f:0,tr:0,sg:0,a1:"Run Away",a2:"Guts"},
+{d:27,n:20,name:"Raticate",t1:"Normal",t2:"",v:"Both",loc:"Routes 16-18 / Evolve Rattata Lv20",f:1,tr:0,sg:0,a1:"Run Away",a2:"Guts"},
+{d:28,n:21,name:"Spearow",t1:"Normal",t2:"Flying",v:"Both",loc:"Routes 3,4,9-11,16-18,22,23",f:0,tr:0,sg:0,a1:"Keen Eye",a2:""},
+{d:29,n:22,name:"Fearow",t1:"Normal",t2:"Flying",v:"Both",loc:"Route 23 / Evolve Spearow Lv20",f:1,tr:0,sg:0,a1:"Keen Eye",a2:""},
+{d:30,n:27,name:"Sandshrew",t1:"Ground",t2:"",v:"LG",loc:"Routes 4,8-11,23",f:0,tr:0,sg:0,a1:"Sand Veil",a2:""},
+{d:31,n:28,name:"Sandslash",t1:"Ground",t2:"",v:"LG",loc:"Route 23 / Evolve Sandshrew Lv22",f:1,tr:0,sg:0,a1:"Sand Veil",a2:""},
+{d:32,n:23,name:"Ekans",t1:"Poison",t2:"",v:"FR",loc:"Routes 4,8-11,23",f:0,tr:0,sg:0,a1:"Intimidate",a2:"Shed Skin"},
+{d:33,n:24,name:"Arbok",t1:"Poison",t2:"",v:"FR",loc:"Route 23 / Evolve Ekans Lv22",f:1,tr:0,sg:0,a1:"Intimidate",a2:"Shed Skin"},
+{d:34,n:29,name:"Nidoran♀",t1:"Poison",t2:"",v:"Both",loc:"Routes 3,22, Safari Zone",f:0,tr:0,sg:0,a1:"Poison Point",a2:""},
+{d:35,n:30,name:"Nidorina",t1:"Poison",t2:"",v:"Both",loc:"Safari Zone / Evolve Nidoran♀ Lv16",f:0,tr:0,sg:0,a1:"Poison Point",a2:""},
+{d:36,n:31,name:"Nidoqueen",t1:"Poison",t2:"Ground",v:"Both",loc:"Evolve Nidorina (Moon Stone)",f:1,tr:0,sg:0,a1:"Poison Point",a2:""},
+{d:37,n:32,name:"Nidoran♂",t1:"Poison",t2:"",v:"Both",loc:"Routes 3,22, Safari Zone",f:0,tr:0,sg:0,a1:"Poison Point",a2:""},
+{d:38,n:33,name:"Nidorino",t1:"Poison",t2:"",v:"Both",loc:"Safari Zone / Evolve Nidoran♂ Lv16",f:0,tr:0,sg:0,a1:"Poison Point",a2:""},
+{d:39,n:34,name:"Nidoking",t1:"Poison",t2:"Ground",v:"Both",loc:"Evolve Nidorino (Moon Stone)",f:1,tr:0,sg:0,a1:"Poison Point",a2:""},
+{d:40,n:173,name:"Cleffa",t1:"Normal",t2:"",v:"Both",loc:"Breed Clefairy/Clefable",f:0,tr:0,sg:0,a1:"Cute Charm",a2:""},
+{d:41,n:35,name:"Clefairy",t1:"Normal",t2:"",v:"Both",loc:"Mt. Moon",f:0,tr:0,sg:0,a1:"Cute Charm",a2:""},
+{d:42,n:36,name:"Clefable",t1:"Normal",t2:"",v:"Both",loc:"Evolve Clefairy (Moon Stone)",f:1,tr:0,sg:0,a1:"Cute Charm",a2:""},
+{d:43,n:174,name:"Igglybuff",t1:"Normal",t2:"",v:"Both",loc:"Breed Jigglypuff/Wigglytuff",f:0,tr:0,sg:0,a1:"Cute Charm",a2:""},
+{d:44,n:39,name:"Jigglypuff",t1:"Normal",t2:"",v:"Both",loc:"Route 3",f:0,tr:0,sg:0,a1:"Cute Charm",a2:""},
+{d:45,n:40,name:"Wigglytuff",t1:"Normal",t2:"",v:"Both",loc:"Evolve Jigglypuff (Moon Stone)",f:1,tr:0,sg:0,a1:"Cute Charm",a2:""},
+{d:46,n:41,name:"Zubat",t1:"Poison",t2:"Flying",v:"Both",loc:"Mt. Moon, Rock Tunnel, caves",f:0,tr:0,sg:0,a1:"Inner Focus",a2:""},
+{d:47,n:42,name:"Golbat",t1:"Poison",t2:"Flying",v:"Both",loc:"Seafoam Islands, caves / Evolve Zubat Lv22",f:0,tr:0,sg:0,a1:"Inner Focus",a2:""},
+{d:48,n:169,name:"Crobat",t1:"Poison",t2:"Flying",v:"Both",loc:"Evolve Golbat (Friendship, post-Natl Dex)",f:1,tr:0,sg:0,a1:"Inner Focus",a2:""},
+{d:49,n:69,name:"Bellsprout",t1:"Grass",t2:"Poison",v:"LG",loc:"Routes 5-7,12-15,24,25, Berry Forest",f:0,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:50,n:70,name:"Weepinbell",t1:"Grass",t2:"Poison",v:"LG",loc:"Berry Forest / Evolve Bellsprout Lv21",f:0,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:51,n:71,name:"Victreebel",t1:"Grass",t2:"Poison",v:"LG",loc:"Evolve Weepinbell (Leaf Stone)",f:1,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:52,n:43,name:"Oddish",t1:"Grass",t2:"Poison",v:"FR",loc:"Routes 5-7,12-15,24,25, Berry Forest",f:0,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:53,n:44,name:"Gloom",t1:"Grass",t2:"Poison",v:"FR",loc:"Berry Forest / Evolve Oddish Lv21",f:0,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:54,n:45,name:"Vileplume",t1:"Grass",t2:"Poison",v:"FR",loc:"Evolve Gloom (Leaf Stone)",f:1,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:55,n:182,name:"Bellossom",t1:"Grass",t2:"",v:"FR",loc:"Evolve Gloom (Sun Stone)",f:1,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:56,n:46,name:"Paras",t1:"Bug",t2:"Grass",v:"Both",loc:"Mt. Moon, Safari Zone",f:0,tr:0,sg:0,a1:"Effect Spore",a2:"Damp"},
+{d:57,n:47,name:"Parasect",t1:"Bug",t2:"Grass",v:"Both",loc:"Safari Zone / Evolve Paras Lv24",f:1,tr:0,sg:0,a1:"Effect Spore",a2:"Damp"},
+{d:58,n:48,name:"Venonat",t1:"Bug",t2:"Poison",v:"Both",loc:"Routes 12-15, Safari Zone, Berry Forest",f:0,tr:0,sg:0,a1:"Compound Eyes",a2:""},
+{d:59,n:49,name:"Venomoth",t1:"Bug",t2:"Poison",v:"Both",loc:"Safari Zone / Evolve Venonat Lv31",f:1,tr:0,sg:0,a1:"Shield Dust",a2:""},
+{d:60,n:50,name:"Diglett",t1:"Ground",t2:"",v:"Both",loc:"Diglett's Cave",f:0,tr:0,sg:0,a1:"Sand Veil",a2:"Arena Trap"},
+{d:61,n:51,name:"Dugtrio",t1:"Ground",t2:"",v:"Both",loc:"Diglett's Cave / Evolve Diglett Lv26",f:1,tr:0,sg:0,a1:"Sand Veil",a2:"Arena Trap"},
+{d:62,n:52,name:"Meowth",t1:"Normal",t2:"",v:"Both",loc:"Routes 5-8, Bond Bridge, Five Isle Meadow",f:0,tr:0,sg:0,a1:"Pickup",a2:""},
+{d:63,n:53,name:"Persian",t1:"Normal",t2:"",v:"Both",loc:"Evolve Meowth Lv28",f:1,tr:0,sg:0,a1:"Limber",a2:""},
+{d:64,n:54,name:"Psyduck",t1:"Water",t2:"",v:"FR",loc:"Safari Zone, Berry Forest (Surf)",f:0,tr:0,sg:0,a1:"Damp",a2:"Cloud Nine"},
+{d:65,n:55,name:"Golduck",t1:"Water",t2:"",v:"FR",loc:"Safari Zone (Surf) / Evolve Psyduck Lv33",f:1,tr:0,sg:0,a1:"Damp",a2:"Cloud Nine"},
+{d:66,n:79,name:"Slowpoke",t1:"Water",t2:"Psychic",v:"LG",loc:"Cape Brink (Surf/Fish)",f:0,tr:0,sg:0,a1:"Oblivious",a2:"Own Tempo"},
+{d:67,n:80,name:"Slowbro",t1:"Water",t2:"Psychic",v:"LG",loc:"Cape Brink / Evolve Slowpoke Lv37",f:1,tr:0,sg:0,a1:"Oblivious",a2:"Own Tempo"},
+{d:68,n:199,name:"Slowking",t1:"Water",t2:"Psychic",v:"LG",loc:"Evolve Slowpoke (Trade w/ King's Rock)",f:1,tr:1,sg:0,a1:"Oblivious",a2:"Own Tempo"},
+{d:69,n:56,name:"Mankey",t1:"Fighting",t2:"",v:"Both",loc:"Routes 3,4,22,23, Rock Tunnel",f:0,tr:0,sg:0,a1:"Vital Spirit",a2:""},
+{d:70,n:57,name:"Primeape",t1:"Fighting",t2:"",v:"Both",loc:"Route 23 / Evolve Mankey Lv28",f:1,tr:0,sg:0,a1:"Vital Spirit",a2:""},
+{d:71,n:37,name:"Vulpix",t1:"Fire",t2:"",v:"LG",loc:"Routes 7,8, Pokemon Mansion, Mt. Ember",f:0,tr:0,sg:0,a1:"Flash Fire",a2:""},
+{d:72,n:38,name:"Ninetales",t1:"Fire",t2:"",v:"LG",loc:"Evolve Vulpix (Fire Stone)",f:1,tr:0,sg:0,a1:"Flash Fire",a2:""},
+{d:73,n:58,name:"Growlithe",t1:"Fire",t2:"",v:"FR",loc:"Routes 7,8, Pokemon Mansion, Mt. Ember",f:0,tr:0,sg:0,a1:"Intimidate",a2:"Flash Fire"},
+{d:74,n:59,name:"Arcanine",t1:"Fire",t2:"",v:"FR",loc:"Evolve Growlithe (Fire Stone)",f:1,tr:0,sg:0,a1:"Intimidate",a2:"Flash Fire"},
+{d:75,n:60,name:"Poliwag",t1:"Water",t2:"",v:"Both",loc:"Routes 22,25, Viridian City (fish/surf)",f:0,tr:0,sg:0,a1:"Water Absorb",a2:"Damp"},
+{d:76,n:61,name:"Poliwhirl",t1:"Water",t2:"",v:"Both",loc:"Cerulean Cave / Evolve Poliwag Lv25",f:0,tr:0,sg:0,a1:"Water Absorb",a2:"Damp"},
+{d:77,n:62,name:"Poliwrath",t1:"Water",t2:"Fighting",v:"Both",loc:"Evolve Poliwhirl (Water Stone)",f:1,tr:0,sg:0,a1:"Water Absorb",a2:"Damp"},
+{d:78,n:186,name:"Politoed",t1:"Water",t2:"",v:"Both",loc:"Evolve Poliwhirl (Trade w/ King's Rock)",f:1,tr:1,sg:0,a1:"Water Absorb",a2:"Damp"},
+{d:79,n:63,name:"Abra",t1:"Psychic",t2:"",v:"Both",loc:"Routes 24,25, Game Corner",f:0,tr:0,sg:0,a1:"Synchronize",a2:"Inner Focus"},
+{d:80,n:64,name:"Kadabra",t1:"Psychic",t2:"",v:"Both",loc:"Cerulean Cave / Evolve Abra Lv16",f:0,tr:0,sg:0,a1:"Synchronize",a2:"Inner Focus"},
+{d:81,n:65,name:"Alakazam",t1:"Psychic",t2:"",v:"Both",loc:"Evolve Kadabra (Trade)",f:1,tr:1,sg:0,a1:"Synchronize",a2:"Inner Focus"},
+{d:82,n:66,name:"Machop",t1:"Fighting",t2:"",v:"Both",loc:"Rock Tunnel, Victory Road",f:0,tr:0,sg:0,a1:"Guts",a2:""},
+{d:83,n:67,name:"Machoke",t1:"Fighting",t2:"",v:"Both",loc:"Cerulean Cave / Evolve Machop Lv28",f:0,tr:0,sg:0,a1:"Guts",a2:""},
+{d:84,n:68,name:"Machamp",t1:"Fighting",t2:"",v:"Both",loc:"Evolve Machoke (Trade)",f:1,tr:1,sg:0,a1:"Guts",a2:""},
+{d:85,n:72,name:"Tentacool",t1:"Water",t2:"Poison",v:"Both",loc:"Surf most water routes",f:0,tr:0,sg:0,a1:"Clear Body",a2:"Liquid Ooze"},
+{d:86,n:73,name:"Tentacruel",t1:"Water",t2:"Poison",v:"Both",loc:"Surf Routes 19,20 / Evolve Tentacool Lv30",f:1,tr:0,sg:0,a1:"Clear Body",a2:"Liquid Ooze"},
+{d:87,n:74,name:"Geodude",t1:"Rock",t2:"Ground",v:"Both",loc:"Mt. Moon, Rock Tunnel, Victory Road",f:0,tr:0,sg:0,a1:"Rock Head",a2:"Sturdy"},
+{d:88,n:75,name:"Graveler",t1:"Rock",t2:"Ground",v:"Both",loc:"Cerulean Cave / Evolve Geodude Lv25",f:0,tr:0,sg:0,a1:"Rock Head",a2:"Sturdy"},
+{d:89,n:76,name:"Golem",t1:"Rock",t2:"Ground",v:"Both",loc:"Evolve Graveler (Trade)",f:1,tr:1,sg:0,a1:"Rock Head",a2:"Sturdy"},
+{d:90,n:77,name:"Ponyta",t1:"Fire",t2:"",v:"Both",loc:"Kindle Road, Mt. Ember",f:0,tr:0,sg:0,a1:"Run Away",a2:"Flash Fire"},
+{d:91,n:78,name:"Rapidash",t1:"Fire",t2:"",v:"Both",loc:"Kindle Road / Evolve Ponyta Lv40",f:1,tr:0,sg:0,a1:"Run Away",a2:"Flash Fire"},
+{d:92,n:81,name:"Magnemite",t1:"Electric",t2:"Steel",v:"Both",loc:"Power Plant",f:0,tr:0,sg:0,a1:"Magnet Pull",a2:"Sturdy"},
+{d:93,n:82,name:"Magneton",t1:"Electric",t2:"Steel",v:"Both",loc:"Power Plant / Evolve Magnemite Lv30",f:1,tr:0,sg:0,a1:"Magnet Pull",a2:"Sturdy"},
+{d:94,n:83,name:"Farfetch'd",t1:"Normal",t2:"Flying",v:"Both",loc:"Vermilion trade (give Spearow)",f:1,tr:0,sg:0,a1:"Keen Eye",a2:"Inner Focus"},
+{d:95,n:84,name:"Doduo",t1:"Normal",t2:"Flying",v:"Both",loc:"Routes 16-18, Safari Zone",f:0,tr:0,sg:0,a1:"Run Away",a2:"Early Bird"},
+{d:96,n:85,name:"Dodrio",t1:"Normal",t2:"Flying",v:"Both",loc:"Evolve Doduo Lv31",f:1,tr:0,sg:0,a1:"Run Away",a2:"Early Bird"},
+{d:97,n:86,name:"Seel",t1:"Water",t2:"",v:"Both",loc:"Seafoam Islands, Icefall Cave",f:0,tr:0,sg:0,a1:"Thick Fat",a2:""},
+{d:98,n:87,name:"Dewgong",t1:"Water",t2:"Ice",v:"Both",loc:"Seafoam Islands / Evolve Seel Lv34",f:1,tr:0,sg:0,a1:"Thick Fat",a2:""},
+{d:99,n:88,name:"Grimer",t1:"Poison",t2:"",v:"Both",loc:"Pokemon Mansion, Celadon City",f:0,tr:0,sg:0,a1:"Stench",a2:"Sticky Hold"},
+{d:100,n:89,name:"Muk",t1:"Poison",t2:"",v:"Both",loc:"Pokemon Mansion / Evolve Grimer Lv38",f:1,tr:0,sg:0,a1:"Stench",a2:"Sticky Hold"},
+{d:101,n:109,name:"Koffing",t1:"Poison",t2:"",v:"Both",loc:"Pokemon Mansion",f:0,tr:0,sg:0,a1:"Levitate",a2:""},
+{d:102,n:110,name:"Weezing",t1:"Poison",t2:"",v:"Both",loc:"Pokemon Mansion / Evolve Koffing Lv35",f:1,tr:0,sg:0,a1:"Levitate",a2:""},
+{d:103,n:90,name:"Shellder",t1:"Water",t2:"",v:"FR",loc:"Cinnabar Island, Pallet Town (Super Rod)",f:0,tr:0,sg:0,a1:"Shell Armor",a2:""},
+{d:104,n:91,name:"Cloyster",t1:"Water",t2:"Ice",v:"FR",loc:"Evolve Shellder (Water Stone)",f:1,tr:0,sg:0,a1:"Shell Armor",a2:""},
+{d:105,n:120,name:"Staryu",t1:"Water",t2:"",v:"LG",loc:"Cinnabar Island, Pallet Town (Super Rod)",f:0,tr:0,sg:0,a1:"Illuminate",a2:"Natural Cure"},
+{d:106,n:121,name:"Starmie",t1:"Water",t2:"Psychic",v:"LG",loc:"Evolve Staryu (Water Stone)",f:1,tr:0,sg:0,a1:"Illuminate",a2:"Natural Cure"},
+{d:107,n:92,name:"Gastly",t1:"Ghost",t2:"Poison",v:"Both",loc:"Pokemon Tower, Lost Cave",f:0,tr:0,sg:0,a1:"Levitate",a2:""},
+{d:108,n:93,name:"Haunter",t1:"Ghost",t2:"Poison",v:"Both",loc:"Pokemon Tower / Evolve Gastly Lv25",f:0,tr:0,sg:0,a1:"Levitate",a2:""},
+{d:109,n:94,name:"Gengar",t1:"Ghost",t2:"Poison",v:"Both",loc:"Evolve Haunter (Trade)",f:1,tr:1,sg:0,a1:"Levitate",a2:""},
+{d:110,n:95,name:"Onix",t1:"Rock",t2:"Ground",v:"Both",loc:"Rock Tunnel, Victory Road",f:0,tr:0,sg:0,a1:"Rock Head",a2:"Sturdy"},
+{d:111,n:208,name:"Steelix",t1:"Steel",t2:"Ground",v:"Both",loc:"Evolve Onix (Trade w/ Metal Coat)",f:1,tr:1,sg:0,a1:"Rock Head",a2:"Sturdy"},
+{d:112,n:96,name:"Drowzee",t1:"Psychic",t2:"",v:"Both",loc:"Route 11, Berry Forest",f:0,tr:0,sg:0,a1:"Insomnia",a2:""},
+{d:113,n:97,name:"Hypno",t1:"Psychic",t2:"",v:"Both",loc:"Berry Forest / Evolve Drowzee Lv26",f:1,tr:0,sg:0,a1:"Insomnia",a2:""},
+{d:114,n:98,name:"Krabby",t1:"Water",t2:"",v:"Both",loc:"Many routes (Fish)",f:0,tr:0,sg:0,a1:"Hyper Cutter",a2:"Shell Armor"},
+{d:115,n:99,name:"Kingler",t1:"Water",t2:"",v:"Both",loc:"Evolve Krabby Lv28",f:1,tr:0,sg:0,a1:"Hyper Cutter",a2:"Shell Armor"},
+{d:116,n:100,name:"Voltorb",t1:"Electric",t2:"",v:"Both",loc:"Power Plant, Rocket Warehouse",f:0,tr:0,sg:0,a1:"Soundproof",a2:"Static"},
+{d:117,n:101,name:"Electrode",t1:"Electric",t2:"",v:"Both",loc:"Power Plant / Evolve Voltorb Lv30",f:1,tr:0,sg:0,a1:"Soundproof",a2:"Static"},
+{d:118,n:102,name:"Exeggcute",t1:"Grass",t2:"Psychic",v:"Both",loc:"Safari Zone",f:0,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:119,n:103,name:"Exeggutor",t1:"Grass",t2:"Psychic",v:"Both",loc:"Evolve Exeggcute (Leaf Stone)",f:1,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:120,n:104,name:"Cubone",t1:"Ground",t2:"",v:"Both",loc:"Pokemon Tower, Sevault Canyon",f:0,tr:0,sg:0,a1:"Rock Head",a2:"Lightning Rod"},
+{d:121,n:105,name:"Marowak",t1:"Ground",t2:"",v:"Both",loc:"Victory Road / Evolve Cubone Lv28",f:1,tr:0,sg:0,a1:"Rock Head",a2:"Lightning Rod"},
+{d:122,n:115,name:"Kangaskhan",t1:"Normal",t2:"",v:"Both",loc:"Safari Zone (rare)",f:1,tr:0,sg:0,a1:"Early Bird",a2:""},
+{d:123,n:236,name:"Tyrogue",t1:"Fighting",t2:"",v:"Both",loc:"Breed Hitmonlee/Hitmonchan/Hitmontop",f:0,tr:0,sg:0,a1:"Guts",a2:""},
+{d:124,n:106,name:"Hitmonlee",t1:"Fighting",t2:"",v:"Both",loc:"Saffron Dojo (choose 1, need 2 playthroughs)",f:1,tr:0,sg:0,a1:"Limber",a2:""},
+{d:125,n:107,name:"Hitmonchan",t1:"Fighting",t2:"",v:"Both",loc:"Saffron Dojo (choose 1, need 2 playthroughs)",f:1,tr:0,sg:0,a1:"Keen Eye",a2:""},
+{d:126,n:237,name:"Hitmontop",t1:"Fighting",t2:"",v:"Both",loc:"Evolve Tyrogue Lv20 (Atk = Def)",f:1,tr:0,sg:0,a1:"Intimidate",a2:""},
+{d:127,n:108,name:"Lickitung",t1:"Normal",t2:"",v:"Both",loc:"Route 18 trade (give Golduck/Slowbro)",f:1,tr:0,sg:0,a1:"Own Tempo",a2:"Oblivious"},
+{d:128,n:111,name:"Rhyhorn",t1:"Ground",t2:"Rock",v:"Both",loc:"Safari Zone",f:0,tr:0,sg:0,a1:"Lightning Rod",a2:"Rock Head"},
+{d:129,n:112,name:"Rhydon",t1:"Ground",t2:"Rock",v:"Both",loc:"Evolve Rhyhorn Lv42",f:1,tr:0,sg:0,a1:"Lightning Rod",a2:"Rock Head"},
+{d:130,n:113,name:"Chansey",t1:"Normal",t2:"",v:"Both",loc:"Safari Zone (rare)",f:0,tr:0,sg:0,a1:"Natural Cure",a2:"Serene Grace"},
+{d:131,n:242,name:"Blissey",t1:"Normal",t2:"",v:"Both",loc:"Evolve Chansey (Friendship)",f:1,tr:0,sg:0,a1:"Natural Cure",a2:"Serene Grace"},
+{d:132,n:114,name:"Tangela",t1:"Grass",t2:"",v:"Both",loc:"Treasure Beach",f:1,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:133,n:116,name:"Horsea",t1:"Water",t2:"",v:"Both",loc:"Seafoam Islands (Fish)",f:0,tr:0,sg:0,a1:"Swift Swim",a2:""},
+{d:134,n:117,name:"Seadra",t1:"Water",t2:"",v:"Both",loc:"Evolve Horsea Lv32",f:0,tr:0,sg:0,a1:"Poison Point",a2:""},
+{d:135,n:230,name:"Kingdra",t1:"Water",t2:"Dragon",v:"Both",loc:"Evolve Seadra (Trade w/ Dragon Scale)",f:1,tr:1,sg:0,a1:"Swift Swim",a2:""},
+{d:136,n:118,name:"Goldeen",t1:"Water",t2:"",v:"Both",loc:"Many water routes (Fish)",f:0,tr:0,sg:0,a1:"Swift Swim",a2:"Water Veil"},
+{d:137,n:119,name:"Seaking",t1:"Water",t2:"",v:"Both",loc:"Evolve Goldeen Lv33",f:1,tr:0,sg:0,a1:"Swift Swim",a2:"Water Veil"},
+{d:138,n:122,name:"Mr. Mime",t1:"Psychic",t2:"",v:"Both",loc:"Route 2 trade (give Abra)",f:1,tr:0,sg:0,a1:"Soundproof",a2:""},
+{d:139,n:127,name:"Pinsir",t1:"Bug",t2:"",v:"LG",loc:"Safari Zone, Pattern Bush",f:1,tr:0,sg:0,a1:"Hyper Cutter",a2:""},
+{d:140,n:123,name:"Scyther",t1:"Bug",t2:"Flying",v:"FR",loc:"Safari Zone, Pattern Bush",f:0,tr:0,sg:0,a1:"Swarm",a2:""},
+{d:141,n:212,name:"Scizor",t1:"Bug",t2:"Steel",v:"FR",loc:"Evolve Scyther (Trade w/ Metal Coat)",f:1,tr:1,sg:0,a1:"Swarm",a2:""},
+{d:142,n:214,name:"Heracross",t1:"Bug",t2:"Fighting",v:"Both",loc:"Pattern Bush",f:1,tr:0,sg:0,a1:"Swarm",a2:"Guts"},
+{d:143,n:238,name:"Smoochum",t1:"Ice",t2:"Psychic",v:"Both",loc:"Breed Jynx",f:0,tr:0,sg:0,a1:"Oblivious",a2:""},
+{d:144,n:124,name:"Jynx",t1:"Ice",t2:"Psychic",v:"Both",loc:"Cerulean trade (Poliwhirl) / Icefall Cave",f:1,tr:0,sg:0,a1:"Oblivious",a2:""},
+{d:145,n:239,name:"Elekid",t1:"Electric",t2:"",v:"FR",loc:"Breed Electabuzz",f:0,tr:0,sg:0,a1:"Static",a2:""},
+{d:146,n:125,name:"Electabuzz",t1:"Electric",t2:"",v:"FR",loc:"Power Plant",f:1,tr:0,sg:0,a1:"Static",a2:""},
+{d:147,n:240,name:"Magby",t1:"Fire",t2:"",v:"LG",loc:"Breed Magmar",f:0,tr:0,sg:0,a1:"Flame Body",a2:""},
+{d:148,n:126,name:"Magmar",t1:"Fire",t2:"",v:"LG",loc:"Mt. Ember",f:1,tr:0,sg:0,a1:"Flame Body",a2:""},
+{d:149,n:128,name:"Tauros",t1:"Normal",t2:"",v:"Both",loc:"Safari Zone",f:1,tr:0,sg:0,a1:"Intimidate",a2:""},
+{d:150,n:129,name:"Magikarp",t1:"Water",t2:"",v:"Both",loc:"Old Rod everywhere / Route 4 purchase",f:0,tr:0,sg:0,a1:"Swift Swim",a2:""},
+{d:151,n:130,name:"Gyarados",t1:"Water",t2:"Flying",v:"Both",loc:"Fish various / Evolve Magikarp Lv20",f:1,tr:0,sg:0,a1:"Intimidate",a2:""},
+{d:152,n:131,name:"Lapras",t1:"Water",t2:"Ice",v:"Both",loc:"Silph Co. gift / Icefall Cave (Fri)",f:1,tr:0,sg:0,a1:"Water Absorb",a2:"Shell Armor"},
+{d:153,n:132,name:"Ditto",t1:"Normal",t2:"",v:"Both",loc:"Routes 13-15, Cerulean Cave, Pokemon Mansion",f:1,tr:0,sg:0,a1:"Limber",a2:""},
+{d:154,n:137,name:"Porygon",t1:"Normal",t2:"",v:"Both",loc:"Celadon Game Corner (prize)",f:0,tr:0,sg:0,a1:"Trace",a2:""},
+{d:155,n:233,name:"Porygon2",t1:"Normal",t2:"",v:"Both",loc:"Evolve Porygon (Trade w/ Up-Grade)",f:1,tr:1,sg:0,a1:"Trace",a2:""},
+{d:156,n:138,name:"Omanyte",t1:"Rock",t2:"Water",v:"Both",loc:"Helix Fossil (need 2 playthroughs for both fossils)",f:0,tr:0,sg:5,a1:"Swift Swim",a2:"Shell Armor"},
+{d:157,n:139,name:"Omastar",t1:"Rock",t2:"Water",v:"Both",loc:"Evolve Omanyte Lv40",f:1,tr:0,sg:6,a1:"Swift Swim",a2:"Shell Armor"},
+{d:158,n:140,name:"Kabuto",t1:"Rock",t2:"Water",v:"Both",loc:"Dome Fossil (need 2 playthroughs for both fossils)",f:0,tr:0,sg:5,a1:"Swift Swim",a2:"Battle Armor"},
+{d:159,n:141,name:"Kabutops",t1:"Rock",t2:"Water",v:"Both",loc:"Evolve Kabuto Lv40",f:1,tr:0,sg:6,a1:"Swift Swim",a2:"Battle Armor"},
+{d:160,n:142,name:"Aerodactyl",t1:"Rock",t2:"Flying",v:"Both",loc:"Old Amber (Pewter Museum)",f:1,tr:0,sg:0,a1:"Rock Head",a2:"Pressure"},
+{d:161,n:143,name:"Snorlax",t1:"Normal",t2:"",v:"Both",loc:"Route 12 & 16 (2 per game, Poke Flute)",f:1,tr:0,sg:0,a1:"Immunity",a2:"Thick Fat"},
+{d:162,n:161,name:"Sentret",t1:"Normal",t2:"",v:"Both",loc:"Sevii Islands - Five Isle Meadow",f:0,tr:0,sg:0,a1:"Run Away",a2:"Keen Eye"},
+{d:163,n:162,name:"Furret",t1:"Normal",t2:"",v:"Both",loc:"Evolve Sentret Lv15",f:1,tr:0,sg:0,a1:"Run Away",a2:"Keen Eye"},
+{d:164,n:163,name:"Ledyba",t1:"Bug",t2:"Flying",v:"Both",loc:"Sevii Islands - Pattern Bush area",f:0,tr:0,sg:0,a1:"Swarm",a2:"Early Bird"},
+{d:165,n:164,name:"Ledian",t1:"Bug",t2:"Flying",v:"Both",loc:"Evolve Ledyba Lv18",f:1,tr:0,sg:0,a1:"Swarm",a2:"Early Bird"},
+{d:166,n:165,name:"Spinarak",t1:"Bug",t2:"Poison",v:"Both",loc:"Sevii Islands - Pattern Bush area",f:0,tr:0,sg:0,a1:"Swarm",a2:"Insomnia"},
+{d:167,n:166,name:"Ariados",t1:"Bug",t2:"Poison",v:"Both",loc:"Evolve Spinarak Lv22",f:1,tr:0,sg:0,a1:"Swarm",a2:"Insomnia"},
+{d:168,n:175,name:"Togepi",t1:"Normal",t2:"",v:"Both",loc:"Water Labyrinth egg man",f:0,tr:0,sg:0,a1:"Hustle",a2:"Serene Grace"},
+{d:169,n:176,name:"Togetic",t1:"Normal",t2:"Flying",v:"Both",loc:"Evolve Togepi (Friendship)",f:1,tr:0,sg:0,a1:"Hustle",a2:"Serene Grace"},
+{d:170,n:177,name:"Natu",t1:"Psychic",t2:"Flying",v:"Both",loc:"Sevii Islands - Ruin Valley",f:0,tr:0,sg:0,a1:"Synchronize",a2:"Early Bird"},
+{d:171,n:178,name:"Xatu",t1:"Psychic",t2:"Flying",v:"Both",loc:"Evolve Natu Lv25",f:1,tr:0,sg:0,a1:"Synchronize",a2:"Early Bird"},
+{d:172,n:194,name:"Wooper",t1:"Water",t2:"Ground",v:"FR",loc:"Sevii Islands",f:0,tr:0,sg:0,a1:"Damp",a2:"Water Absorb"},
+{d:173,n:195,name:"Quagsire",t1:"Water",t2:"Ground",v:"FR",loc:"Evolve Wooper Lv20",f:1,tr:0,sg:0,a1:"Damp",a2:"Water Absorb"},
+{d:174,n:298,name:"Azurill",t1:"Normal",t2:"",v:"LG",loc:"Breed Marill/Azumarill (Sea Incense)",f:0,tr:0,sg:0,a1:"Thick Fat",a2:"Huge Power"},
+{d:175,n:183,name:"Marill",t1:"Water",t2:"",v:"LG",loc:"Sevii Islands",f:0,tr:0,sg:0,a1:"Thick Fat",a2:"Huge Power"},
+{d:176,n:184,name:"Azumarill",t1:"Water",t2:"",v:"LG",loc:"Evolve Marill Lv18",f:1,tr:0,sg:0,a1:"Thick Fat",a2:"Huge Power"},
+{d:177,n:187,name:"Hoppip",t1:"Grass",t2:"Flying",v:"Both",loc:"Sevii Islands - Five Isle Meadow",f:0,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:178,n:188,name:"Skiploom",t1:"Grass",t2:"Flying",v:"Both",loc:"Evolve Hoppip Lv18",f:0,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:179,n:189,name:"Jumpluff",t1:"Grass",t2:"Flying",v:"Both",loc:"Evolve Skiploom Lv27",f:1,tr:0,sg:0,a1:"Chlorophyll",a2:""},
+{d:180,n:193,name:"Yanma",t1:"Bug",t2:"Flying",v:"Both",loc:"Sevii Islands - Ruin Valley",f:1,tr:0,sg:0,a1:"Speed Boost",a2:"Compound Eyes"},
+{d:181,n:198,name:"Murkrow",t1:"Dark",t2:"Flying",v:"FR",loc:"Sevii Islands - Lost Cave",f:1,tr:0,sg:0,a1:"Insomnia",a2:""},
+{d:182,n:200,name:"Misdreavus",t1:"Ghost",t2:"",v:"LG",loc:"Sevii Islands - Lost Cave",f:1,tr:0,sg:0,a1:"Levitate",a2:""},
+{d:183,n:201,name:"Unown",t1:"Psychic",t2:"",v:"Both",loc:"Tanoby Ruins (Sevii Islands)",f:1,tr:0,sg:0,a1:"Levitate",a2:""},
+{d:184,n:360,name:"Wynaut",t1:"Psychic",t2:"",v:"Both",loc:"Breed Wobbuffet (Lax Incense)",f:0,tr:0,sg:0,a1:"Shadow Tag",a2:""},
+{d:185,n:202,name:"Wobbuffet",t1:"Psychic",t2:"",v:"Both",loc:"Sevii Islands - Ruin Valley",f:1,tr:0,sg:0,a1:"Shadow Tag",a2:""},
+{d:186,n:206,name:"Dunsparce",t1:"Normal",t2:"",v:"Both",loc:"Three Isle Port",f:1,tr:0,sg:0,a1:"Serene Grace",a2:"Run Away"},
+{d:187,n:211,name:"Qwilfish",t1:"Water",t2:"Poison",v:"FR",loc:"Sevii Islands (fish)",f:1,tr:0,sg:0,a1:"Poison Point",a2:"Swift Swim"},
+{d:188,n:223,name:"Remoraid",t1:"Water",t2:"",v:"LG",loc:"Sevii Islands (fish)",f:0,tr:0,sg:0,a1:"Hustle",a2:""},
+{d:189,n:224,name:"Octillery",t1:"Water",t2:"",v:"LG",loc:"Evolve Remoraid Lv25",f:1,tr:0,sg:0,a1:"Suction Cups",a2:""},
+{d:190,n:226,name:"Mantine",t1:"Water",t2:"Flying",v:"LG",loc:"Sevii Islands (surf)",f:1,tr:0,sg:0,a1:"Swift Swim",a2:"Water Absorb"},
+{d:191,n:227,name:"Skarmory",t1:"Steel",t2:"Flying",v:"FR",loc:"Sevii Islands - Sevault Canyon",f:1,tr:0,sg:0,a1:"Keen Eye",a2:"Sturdy"},
+{d:192,n:225,name:"Delibird",t1:"Ice",t2:"Flying",v:"FR",loc:"Sevii Islands - Icefall Cave",f:1,tr:0,sg:0,a1:"Vital Spirit",a2:"Hustle"},
+{d:193,n:215,name:"Sneasel",t1:"Dark",t2:"Ice",v:"LG",loc:"Sevii Islands - Icefall Cave",f:1,tr:0,sg:0,a1:"Inner Focus",a2:"Keen Eye"},
+{d:194,n:220,name:"Swinub",t1:"Ice",t2:"Ground",v:"Both",loc:"Sevii Islands - Icefall Cave",f:0,tr:0,sg:0,a1:"Oblivious",a2:""},
+{d:195,n:221,name:"Piloswine",t1:"Ice",t2:"Ground",v:"Both",loc:"Evolve Swinub Lv33",f:1,tr:0,sg:0,a1:"Oblivious",a2:""},
+{d:196,n:218,name:"Slugma",t1:"Fire",t2:"",v:"Both",loc:"Sevii Islands - Mt. Ember",f:0,tr:0,sg:0,a1:"Magma Armor",a2:"Flame Body"},
+{d:197,n:219,name:"Magcargo",t1:"Fire",t2:"Rock",v:"Both",loc:"Evolve Slugma Lv38",f:1,tr:0,sg:0,a1:"Magma Armor",a2:"Flame Body"},
+{d:198,n:231,name:"Phanpy",t1:"Ground",t2:"",v:"Both",loc:"Sevii Islands - Sevault Canyon",f:0,tr:0,sg:0,a1:"Pickup",a2:""},
+{d:199,n:232,name:"Donphan",t1:"Ground",t2:"",v:"Both",loc:"Evolve Phanpy Lv25",f:1,tr:0,sg:0,a1:"Sturdy",a2:""},
+{d:200,n:147,name:"Dratini",t1:"Dragon",t2:"",v:"Both",loc:"Safari Zone (Super Rod)",f:0,tr:0,sg:0,a1:"Shed Skin",a2:""},
+{d:201,n:148,name:"Dragonair",t1:"Dragon",t2:"",v:"Both",loc:"Safari Zone (rare) / Evolve Dratini Lv30",f:0,tr:0,sg:0,a1:"Shed Skin",a2:""},
+{d:202,n:149,name:"Dragonite",t1:"Dragon",t2:"Flying",v:"Both",loc:"Evolve Dragonair Lv55",f:1,tr:0,sg:0,a1:"Inner Focus",a2:""},
+{d:203,n:246,name:"Larvitar",t1:"Rock",t2:"Ground",v:"Both",loc:"Sevii Islands - Sevault Canyon",f:0,tr:0,sg:0,a1:"Guts",a2:""},
+{d:204,n:247,name:"Pupitar",t1:"Rock",t2:"Ground",v:"Both",loc:"Evolve Larvitar Lv30",f:0,tr:0,sg:0,a1:"Shed Skin",a2:""},
+{d:205,n:248,name:"Tyranitar",t1:"Rock",t2:"Dark",v:"Both",loc:"Evolve Pupitar Lv55",f:1,tr:0,sg:0,a1:"Sand Stream",a2:""},
+{d:206,n:144,name:"Articuno",t1:"Ice",t2:"Flying",v:"Both",loc:"Seafoam Islands",f:1,tr:0,sg:0,a1:"Pressure",a2:""},
+{d:207,n:145,name:"Zapdos",t1:"Electric",t2:"Flying",v:"Both",loc:"Power Plant",f:1,tr:0,sg:0,a1:"Pressure",a2:""},
+{d:208,n:146,name:"Moltres",t1:"Fire",t2:"Flying",v:"Both",loc:"Mt. Ember",f:1,tr:0,sg:0,a1:"Pressure",a2:""},
+{d:209,n:243,name:"Raikou",t1:"Electric",t2:"",v:"Both",loc:"Roaming Kanto — appears if you chose Squirtle",f:1,tr:0,sg:4,a1:"Pressure",a2:""},
+{d:210,n:244,name:"Entei",t1:"Fire",t2:"",v:"Both",loc:"Roaming Kanto — appears if you chose Bulbasaur",f:1,tr:0,sg:4,a1:"Pressure",a2:""},
+{d:211,n:245,name:"Suicune",t1:"Water",t2:"",v:"Both",loc:"Roaming Kanto — appears if you chose Charmander",f:1,tr:0,sg:4,a1:"Pressure",a2:""},
+{d:212,n:150,name:"Mewtwo",t1:"Psychic",t2:"",v:"Both",loc:"Cerulean Cave (postgame)",f:1,tr:0,sg:0,a1:"Pressure",a2:""},
+{d:213,n:249,name:"Lugia",t1:"Psychic",t2:"Flying",v:"Both",loc:"Navel Rock (MysticTicket — auto on Switch)",f:1,tr:0,sg:0,a1:"Pressure",a2:""},
+{d:214,n:250,name:"Ho-Oh",t1:"Fire",t2:"Flying",v:"Both",loc:"Navel Rock (MysticTicket — auto on Switch)",f:1,tr:0,sg:0,a1:"Pressure",a2:""},
+{d:215,n:386,name:"Deoxys",t1:"Psychic",t2:"",v:"Both",loc:"Birth Island (AuroraTicket — auto on Switch)",f:1,tr:0,sg:0,a1:"Pressure",a2:""}
+];
+const TOTAL=P.length;
+let searchVal="",filterVal="all",typeVal="all",abilVal="all",finalOnly=false,setup="frlg",mStarter="none",mFossil="none";
+let measurements={"1fr":{s:"none",f:"none"},"1lg":{s:"none",f:"none"}};
+let caughtAll={"frlg":{},"1fr":{},"1lg":{}};
+try{setup=localStorage.getItem("frlg5-setup")||"frlg"}catch{}
+try{measurements=JSON.parse(localStorage.getItem("frlg5-measures")||JSON.stringify(measurements))}catch{}
+// Migrate old single caught to frlg if present
+try{const old=JSON.parse(localStorage.getItem("frlg5-caught")||"null");if(old){caughtAll.frlg=old;localStorage.removeItem("frlg5-caught")}}catch{}
+try{const stored=JSON.parse(localStorage.getItem("frlg5-caughtAll")||"null");if(stored){if(stored.frlg)caughtAll.frlg=stored.frlg;if(stored["1fr"])caughtAll["1fr"]=stored["1fr"];if(stored["1lg"])caughtAll["1lg"]=stored["1lg"];}}catch{}
+let caught=caughtAll[setup]||{};
+if(setup==="1fr"||setup==="1lg"){mStarter=(measurements[setup]||{}).s||"none";mFossil=(measurements[setup]||{}).f||"none";}
+function saveMeasure(){if(setup==="1fr"||setup==="1lg"){if(!measurements[setup])measurements[setup]={s:"none",f:"none"};measurements[setup].s=mStarter;measurements[setup].f=mFossil;}}
+function save(){saveMeasure();try{localStorage.setItem("frlg5-caughtAll",JSON.stringify(caughtAll));localStorage.setItem("frlg5-setup",setup);localStorage.setItem("frlg5-measures",JSON.stringify(measurements))}catch{}}
+const types=new Set();P.forEach(p=>{types.add(p.t1);if(p.t2)types.add(p.t2)});
+const sel=document.getElementById("typeF");[...types].sort().forEach(t=>{const o=document.createElement("option");o.value=t;o.textContent=t;sel.appendChild(o)});
+const abils=new Set();P.forEach(p=>{if(p.a1)abils.add(p.a1);if(p.a2)abils.add(p.a2)});
+const asel=document.getElementById("abilF");[...abils].sort().forEach(a=>{const o=document.createElement("option");o.value=a;o.textContent=a;asel.appendChild(o)});
+const EVO={1:[2],2:[3],4:[5],5:[6],7:[8],8:[9],172:[25],25:[26],133:[134,135,136],10:[11],11:[12],13:[14],14:[15],16:[17],17:[18],19:[20],21:[22],23:[24],27:[28],29:[30],30:[31],32:[33],33:[34],173:[35],35:[36],37:[38],174:[39],39:[40],41:[42],42:[169],43:[44],44:[45,182],69:[70],70:[71],46:[47],48:[49],50:[51],52:[53],54:[55],79:[80,199],56:[57],58:[59],60:[61],61:[62,186],63:[64],64:[65],66:[67],67:[68],72:[73],74:[75],75:[76],77:[78],81:[82],84:[85],86:[87],88:[89],109:[110],90:[91],120:[121],92:[93],93:[94],95:[208],96:[97],98:[99],100:[101],102:[103],104:[105],236:[106,107,237],111:[112],113:[242],116:[117],117:[230],118:[119],123:[212],238:[124],239:[125],240:[126],129:[130],137:[233],138:[139],140:[141],161:[162],163:[164],165:[166],175:[176],177:[178],298:[183],183:[184],194:[195],187:[188],188:[189],360:[202],223:[224],220:[221],218:[219],231:[232],246:[247],247:[248],147:[148],148:[149]};
+const STARTER_LINES={bulb:[1,2,3],char:[4,5,6],squirt:[7,8,9]};
+const STARTER_BEAST={bulb:244,char:245,squirt:243};
+const FOSSIL_LINES={helix:[138,139],dome:[140,141]};
+const ALL_STARTERS=new Set([1,2,3,4,5,6,7,8,9]);
+const ALL_BEASTS=new Set([243,244,245]);
+const ALL_FOSSILS=new Set([138,139,140,141]);
+function avail(p){
+  if(setup==="frlg")return true;
+  const solo=setup==="1fr"||setup==="1lg";
+  if(setup==="1fr"&&(p.v==="LG"||p.tr))return false;
+  if(setup==="1lg"&&(p.v==="FR"||p.tr))return false;
+  if(solo&&mStarter!=="none"){
+    const kept=new Set([...STARTER_LINES[mStarter],STARTER_BEAST[mStarter]]);
+    if(ALL_STARTERS.has(p.n)&&!kept.has(p.n))return false;
+    if(ALL_BEASTS.has(p.n)&&!kept.has(p.n))return false;
+  }
+  if(solo&&mFossil!=="none"){
+    const kept=new Set(FOSSIL_LINES[mFossil]);
+    if(ALL_FOSSILS.has(p.n)&&!kept.has(p.n))return false;
+  }
+  return true;
+}
+function isFinal(p,pool){
+  const evos=EVO[p.n];
+  if(!evos)return true;
+  return !evos.some(e=>pool.has(e));
+}
+function mf(p,pool){
+  if(!avail(p))return false;
+  if(finalOnly&&!isFinal(p,pool))return false;
+  const q=searchVal.toLowerCase();
+  if(q&&!p.name.toLowerCase().includes(q)&&!String(p.n).includes(q)&&!String(p.d).includes(q)&&!p.loc.toLowerCase().includes(q)&&!(p.a1&&p.a1.toLowerCase().includes(q))&&!(p.a2&&p.a2.toLowerCase().includes(q)))return false;
+  if(filterVal==="caught"&&!caught[p.n])return false;
+  if(filterVal==="uncaught"&&caught[p.n])return false;
+  if(typeVal!=="all"&&p.t1!==typeVal&&p.t2!==typeVal)return false;
+  if(abilVal!=="all"&&p.a1!==abilVal&&p.a2!==abilVal)return false;
+  return true;
+}
+function render(){
+  const base=P.filter(avail);
+  const availSet=new Set(base.map(p=>p.n));
+  const pool=finalOnly?base.filter(p=>isFinal(p,availSet)):base;
+  const setupLabels={frlg:"FR + LG",["1fr"]:"FireRed only (no trade)",["1lg"]:"LeafGreen only (no trade)"};
+  const modeLabel=finalOnly?"Final Forms":"Pokemon";
+  const noteEl=document.getElementById("runNote");
+  document.getElementById("legendBar").style.display=(setup==="1fr"||setup==="1lg")?"none":"flex";
+  const titleEl=document.getElementById("mainTitle");
+  if(setup==="frlg"){
+    titleEl.textContent="FRLG LIVING DEX";
+    titleEl.style.background="linear-gradient(90deg,#4488ff,#44bbff)";
+    titleEl.style.WebkitBackgroundClip="text";
+    titleEl.style.WebkitTextFillColor="transparent";
+  } else if(setup==="1fr"){
+    titleEl.textContent="FIRERED LIVING DEX";
+    titleEl.style.background="linear-gradient(90deg,#ff4444,#ff8844)";
+    titleEl.style.WebkitBackgroundClip="text";
+    titleEl.style.WebkitTextFillColor="transparent";
+  } else {
+    titleEl.textContent="LEAFGREEN LIVING DEX";
+    titleEl.style.background="linear-gradient(90deg,#33aa44,#66dd66)";
+    titleEl.style.WebkitBackgroundClip="text";
+    titleEl.style.WebkitTextFillColor="transparent";
+  }
+  const hdr=document.getElementById("mainHeader");
+  if(setup==="frlg") hdr.style.background="linear-gradient(135deg,#0a0a1a 0%,#0a1030 40%,#0a0a1a 100%)";
+  else if(setup==="1fr") hdr.style.background="linear-gradient(135deg,#1a0a0a 0%,#1e0808 40%,#0a0a1a 100%)";
+  else hdr.style.background="linear-gradient(135deg,#0a1a0a 0%,#081e08 40%,#0a0a1a 100%)";
+  const accent=setup==="1fr"?"#ff6644":setup==="1lg"?"#55cc66":"#5599dd";
+  if(setup==="frlg"){
+    noteEl.innerHTML=`<div style="font-weight:700;font-size:12px;color:${accent};margin-bottom:2px">RUN EXCLUSIVES</div>
+    <div style="font-size:11px;color:#aaa;line-height:1.6">
+      <span style="color:${accent}">★</span> <b>Starter → Roaming Beast:</b>
+      <span style="color:#78C850">Bulbasaur</span> → <span style="color:#F08030">Entei</span> ·
+      <span style="color:#F08030">Charmander</span> → <span style="color:#6890F0">Suicune</span> ·
+      <span style="color:#6890F0">Squirtle</span> → <span style="color:#F8D030">Raikou</span><br>
+      <span style="color:${accent}">★</span> <b>Fossil:</b> Helix (Omanyte) <i>or</i> Dome (Kabuto) — 1 per playthrough, need 2 runs<br>
+      <span style="color:#888;font-size:10px;margin-top:4px;display:inline-block">Minimum 3 playthroughs across both versions to cover all starters, beasts, and fossils</span>
+    </div>`;
+  } else {
+    const ver=setup==="1fr"?"FireRed":"LeafGreen";
+    const other=setup==="1fr"?"LeafGreen":"FireRed";
+    noteEl.innerHTML=`<div style="font-weight:700;font-size:12px;color:${accent};margin-bottom:2px">SINGLE CARTRIDGE — ${ver.toUpperCase()}</div>
+    <div style="font-size:11px;color:#aaa;line-height:1.6">
+      Trade evolutions and ${other} exclusives do not exist in this universe.<br>
+      <div style="margin:8px 0;padding:10px 12px;background:#0a0a0a;border:1px solid #1a1a1a;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:2" id="quantumBox">
+      </div>
+      <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap" id="measureBtns">
+      </div>
+    </div>`;
+    // Render quantum state display
+    const qb=document.getElementById("quantumBox");
+    const mb=document.getElementById("measureBtns");
+    const sc={"bulb":{s:"#78C850",sn:"Bulbasaur",b:"#F08030",bn:"Entei"},"char":{s:"#F08030",sn:"Charmander",b:"#6890F0",bn:"Suicune"},"squirt":{s:"#6890F0",sn:"Squirtle",b:"#F8D030",bn:"Raikou"}};
+    const fc={"helix":"Helix","dome":"Dome"};
+    // Build state string
+    let starterPart,fossilPart,sep=`<span style="color:#555"> ⊗ </span>`;
+    if(mStarter==="none"){
+      starterPart=`<span style="color:#aaa">1/√3</span>(`+Object.entries(sc).map(([k,v])=>`<span style="color:${v.s}">|${v.sn}</span>,<span style="color:${v.b}">${v.bn}⟩</span>`).join(` + `)+`)`;
+    } else {
+      const v=sc[mStarter];
+      starterPart=`<span style="color:${v.s}">|${v.sn}</span>,<span style="color:${v.b}">${v.bn}⟩</span>`;
+    }
+    if(mFossil==="none"){
+      fossilPart=`<span style="color:#aaa">1/√2</span>(<span style="color:#B8A038">|Helix⟩</span> + <span style="color:#B8A038">|Dome⟩</span>)`;
+    } else {
+      fossilPart=`<span style="color:#B8A038">|${fc[mFossil]}⟩</span>`;
+    }
+    const stateLabel=mStarter==="none"&&mFossil==="none"?"Ψ":mStarter!=="none"&&mFossil!=="none"?"Ψʼʼ":"Ψʼ";
+    qb.innerHTML=`<span style="color:${accent}">|${stateLabel}⟩</span> = ${starterPart}${sep}${fossilPart}`;
+    // Build measurement buttons
+    let btnsHtml="";
+    if(mStarter==="none"){
+      btnsHtml+=`<div style="font-size:11px"><span style="color:${accent};font-family:'JetBrains Mono',monospace">M₁ ⊗ I</span> <span style="color:#666">Starter (collapses beast)  →</span> `;
+      btnsHtml+=Object.entries(sc).map(([k,v])=>`<button class="fbtn" style="font-size:12px;padding:8px 16px;border-color:${v.s}80;color:${v.s};background:${v.s}15" data-ms="${k}">|${v.sn}⟩</button>`).join(" ");
+      btnsHtml+=`</div>`;
+    }
+    if(mStarter!=="none"&&mFossil==="none"){
+      btnsHtml+=`<div style="font-size:11px"><span style="color:${accent};font-family:'JetBrains Mono',monospace">I ⊗ M₂</span> <span style="color:#666">Fossil  →</span> `;
+      btnsHtml+=`<button class="fbtn" style="font-size:12px;padding:8px 16px;border-color:#B8A03880;color:#B8A038;background:#B8A03815" data-mf="helix">|Helix⟩</button> `;
+      btnsHtml+=`<button class="fbtn" style="font-size:12px;padding:8px 16px;border-color:#B8A03880;color:#B8A038;background:#B8A03815" data-mf="dome">|Dome⟩</button>`;
+      btnsHtml+=`</div>`;
+    }
+    if(mStarter!=="none"||mFossil!=="none"){
+      btnsHtml+=`<button class="fbtn" style="font-size:10px;padding:4px 10px" id="resetMeasure">↺ Regenerate |Ψ⟩</button>`;
+    }
+    mb.innerHTML=btnsHtml;
+    // Wire measurement buttons
+    mb.querySelectorAll("[data-ms]").forEach(b=>b.addEventListener("click",()=>{mStarter=b.dataset.ms;save();render()}));
+    mb.querySelectorAll("[data-mf]").forEach(b=>b.addEventListener("click",()=>{mFossil=b.dataset.mf;save();render()}));
+    const rm=document.getElementById("resetMeasure");
+    if(rm)rm.addEventListener("click",()=>{mStarter="none";mFossil="none";save();render()});
+  }
+  // Build dex numbering: superposition group members share a number
+  const solo=setup==="1fr"||setup==="1lg";
+  const dexMap=new Map();
+  let di=0;
+  const sgDex=new Map();
+  const numbPool=P.filter(avail).filter(p=>!finalOnly||isFinal(p,availSet));
+  numbPool.forEach(p=>{
+    if(!solo||p.sg===0){
+      di++;dexMap.set(p.n,di);
+    } else {
+      if(!sgDex.has(p.sg)){di++;sgDex.set(p.sg,di);}
+      dexMap.set(p.n,sgDex.get(p.sg));
+    }
+  });
+
+  // Determine which superposition members are "unstable" (uncollapsed)
+  const starterSgs=new Set([1,2,3,4]);
+  const fossilSgs=new Set([5,6]);
+  function isUnstable(p){
+    if(!solo||p.sg===0)return false;
+    if(starterSgs.has(p.sg)&&mStarter==="none")return true;
+    if(fossilSgs.has(p.sg)&&mFossil==="none")return true;
+    return false;
+  }
+
+  const uniqueDex=new Set(pool.map(p=>dexMap.get(p.n)));
+  const total=uniqueDex.size;
+  document.getElementById("subtext").textContent=`${total} ${modeLabel} · Family Order · ${setupLabels[setup]}`;
+  const stablePool=pool.filter(p=>!isUnstable(p));
+  const cn=stablePool.filter(p=>caught[p.n]).length;
+  const pct=Math.round((cn/total)*1000)/10;
+  document.getElementById("count").innerHTML=`${cn}<span>/${total}</span>`;
+  const pe=document.getElementById("pct");pe.textContent=`${pct}%`;
+  if(pct===100){pe.className="progress-pct done";}
+  else{pe.className="progress-pct";
+    if(setup==="frlg") pe.style.background="linear-gradient(90deg,#3366cc,#4499ff)";
+    else if(setup==="1fr") pe.style.background="linear-gradient(90deg,#cc3333,#ff6644)";
+    else pe.style.background="linear-gradient(90deg,#33aa44,#66dd66)";
+    pe.style.WebkitBackgroundClip="text";pe.style.WebkitTextFillColor="transparent";
+  }
+  const bar=document.getElementById("bar");bar.style.width=`${pct}%`;bar.className=pct===100?"bar-fill done":"bar-fill";
+  if(pct<100){
+    if(setup==="frlg") bar.style.background="linear-gradient(90deg,#3366cc,#4499ff)";
+    else if(setup==="1fr") bar.style.background="linear-gradient(90deg,#cc3333,#ff6644)";
+    else bar.style.background="linear-gradient(90deg,#33aa44,#55cc55)";
+  }
+  // Actions row: import buttons (frlg only) + reset
+  const ar=document.getElementById("actionsRow");
+  const nameMap=new Map();P.forEach(p=>nameMap.set(String(p.n),p.name));
+  function getNewNames(src){return Object.keys(src).filter(k=>!caught[k]).map(k=>nameMap.get(k)||`#${k}`);}
+  let arHtml="";
+  if(setup==="frlg"){
+    arHtml+=`<button class="fbtn" id="importLG" style="font-size:11px;padding:5px 12px;border-color:#33aa4480;color:#55cc66;background:#33aa4415">LeafGreen ➜</button>`;
+    arHtml+=`<span style="font-size:9px;color:#444;font-family:'JetBrains Mono',monospace">IMPORT</span>`;
+    arHtml+=`<button class="fbtn" id="importFR" style="font-size:11px;padding:5px 12px;border-color:#cc333380;color:#dd6655;background:#cc333315">⬅ FireRed</button>`;
+  }
+  arHtml+=`<span style="flex:1"></span>`;
+  const rlbl={frlg:"FR+LG","1fr":"FireRed","1lg":"LeafGreen"};
+  const rcol=setup==="1fr"?"#884444":setup==="1lg"?"#448844":"#555588";
+  const rbg=setup==="1fr"?"#1a1111":setup==="1lg"?"#111a11":"#11111a";
+  const rbc=setup==="1fr"?"#2a1515":setup==="1lg"?"#152a15":"#15152a";
+  arHtml+=`<button class="fbtn" id="resetMode" style="font-size:10px;padding:5px 10px;border-color:${rbc};color:${rcol};background:${rbg}">↺ Reset ${rlbl[setup]}</button>`;
+  ar.innerHTML=arHtml;
+  // Wire import buttons
+  const impFR=document.getElementById("importFR");
+  const impLG=document.getElementById("importLG");
+  if(impFR)impFR.addEventListener("click",()=>{
+    const src=caughtAll["1fr"]||{};
+    if(!Object.keys(src).length){alert("No FireRed progress to import.");return;}
+    const nn=getNewNames(src);
+    if(!nn.length){alert("All FireRed Pokemon are already checked in FR+LG.");return;}
+    if(!confirm(`Import ${nn.length} new Pokemon from FireRed:\n\n${nn.join(", ")}`))return;
+    Object.keys(src).forEach(k=>{caught[k]=true;});save();render();
+  });
+  if(impLG)impLG.addEventListener("click",()=>{
+    const src=caughtAll["1lg"]||{};
+    if(!Object.keys(src).length){alert("No LeafGreen progress to import.");return;}
+    const nn=getNewNames(src);
+    if(!nn.length){alert("All LeafGreen Pokemon are already checked in FR+LG.");return;}
+    if(!confirm(`Import ${nn.length} new Pokemon from LeafGreen:\n\n${nn.join(", ")}`))return;
+    Object.keys(src).forEach(k=>{caught[k]=true;});save();render();
+  });
+  // Wire reset
+  document.getElementById("resetMode").addEventListener("click",()=>{
+    if(confirm(`Reset ${rlbl[setup]} progress? This won't affect other modes.`)){
+      caughtAll[setup]={};caught=caughtAll[setup];
+      if(setup==="1fr"||setup==="1lg"){mStarter="none";mFossil="none";if(measurements[setup]){measurements[setup]={s:"none",f:"none"};}}
+      save();render();
+    }
+  });
+  const filtered=P.filter(p=>mf(p,availSet));
+  document.getElementById("list-info").textContent=`${filtered.length} shown · click to toggle`;
+  document.querySelectorAll('.vb-hide').forEach(e=>e.remove());
+  const dxnColor=setup==='frlg'?'#5599dd':setup==='1fr'?'#ff6644':'#55cc66';
+  const dxnDim=setup==='frlg'?'#334466':setup==='1fr'?'#664433':'#336644';
+  if(setup==="1fr"||setup==="1lg"){const s=document.createElement('style');s.className='vb-hide';s.textContent='.vb{display:none}';document.head.appendChild(s);}
+  const c=document.getElementById("rows");c.innerHTML="";
+
+  filtered.forEach(p=>{
+    const ic=!!caught[p.n];
+    const vc=p.v==="Both"?"vboth":p.v==="FR"?"vfr":"vlg";
+    const vl=p.v==="Both"?"FR+LG":p.v;
+    const dn=dexMap.get(p.n)||"?";
+    const unstable=isUnstable(p);
+    const d=document.createElement("div");
+    d.className=`row${ic?" caught":""}${unstable?" unstable":""}`;
+    const abilText=p.a2?`${p.a1} / ${p.a2}`:p.a1;
+    d.innerHTML=`<div class="cb"><span class="ck">✓</span></div><span class="dxn" style="color:${ic?dxnDim:dxnColor}">${dn}</span><span class="natn">#${String(p.n).padStart(3,"0")}</span><span class="pn">${p.name}</span><div class="types"><span class="tb" style="background:${TC[p.t1]||"#666"}">${p.t1}</span>${p.t2?`<span class="tb" style="background:${TC[p.t2]||"#666"}">${p.t2}</span>`:""}</div><span class="abil" title="${abilText}">${abilText}</span><span class="vb ${vc}">${vl}</span><span class="loc">${p.loc}</span>`;
+    if(!unstable){
+      d.addEventListener("click",()=>{caught[p.n]?delete caught[p.n]:caught[p.n]=true;save();render()});
+    }
+    c.appendChild(d);
+  });
+}
+document.getElementById("search").addEventListener("input",e=>{searchVal=e.target.value;render()});
+document.getElementById("statusF").addEventListener("change",e=>{filterVal=e.target.value;render()});
+document.getElementById("typeF").addEventListener("change",e=>{typeVal=e.target.value;render()});
+document.getElementById("abilF").addEventListener("change",e=>{abilVal=e.target.value;render()});
+document.querySelectorAll(".setup-btn").forEach(b=>{b.addEventListener("click",()=>{
+  saveMeasure();setup=b.dataset.setup;
+  caught=caughtAll[setup]||(caughtAll[setup]={});
+  if(setup==="1fr"||setup==="1lg"){mStarter=(measurements[setup]||{}).s||"none";mFossil=(measurements[setup]||{}).f||"none";}else{mStarter="none";mFossil="none";}
+  save();
+  document.querySelectorAll(".setup-btn").forEach(x=>{
+    const s=x.dataset.setup;
+    if(s===setup){
+      x.classList.add("active");
+      if(s==="frlg"){x.style.borderColor="#3366cc";x.style.background="#0a1030";x.style.color="#5599dd"}
+      else if(s==="1fr"){x.style.borderColor="#cc3333";x.style.background="#2a0a0a";x.style.color="#dd6655"}
+      else{x.style.borderColor="#33aa44";x.style.background="#0a2a0a";x.style.color="#55cc66"}
+    } else {
+      x.classList.remove("active");
+      if(s==="frlg"){x.style.borderColor="#331133";x.style.background="#0a0a1a";x.style.color="#334466"}
+      else if(s==="1fr"){x.style.borderColor="#331111";x.style.background="#1a0a0a";x.style.color="#884444"}
+      else{x.style.borderColor="#113311";x.style.background="#0a1a0a";x.style.color="#448844"}
+    }
+  });
+  render();
+})});
+document.getElementById("dexMode").addEventListener("change",e=>{finalOnly=e.target.value==="final";render()});
+// Sync setup button styles on load
+document.querySelectorAll(".setup-btn").forEach(x=>{
+  const s=x.dataset.setup;
+  if(s===setup){
+    x.classList.add("active");
+    if(s==="frlg"){x.style.borderColor="#3366cc";x.style.background="#0a1030";x.style.color="#5599dd"}
+    else if(s==="1fr"){x.style.borderColor="#cc3333";x.style.background="#2a0a0a";x.style.color="#dd6655"}
+    else{x.style.borderColor="#33aa44";x.style.background="#0a2a0a";x.style.color="#55cc66"}
+  } else {
+    x.classList.remove("active");
+    if(s==="frlg"){x.style.borderColor="#331133";x.style.background="#0a0a1a";x.style.color="#334466"}
+    else if(s==="1fr"){x.style.borderColor="#331111";x.style.background="#1a0a0a";x.style.color="#884444"}
+    else{x.style.borderColor="#113311";x.style.background="#0a1a0a";x.style.color="#448844"}
+  }
+});
+render();
+</script>
+</body>
+</html>
