@@ -90,6 +90,24 @@
       color:black;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.1);
       white-space:nowrap;z-index:100;
     }
+
+    .tools-grid{display:flex;flex-direction:column;gap:12px}
+    .tool-card{
+      display:flex;align-items:center;gap:16px;
+      padding:16px 20px;border-radius:8px;
+      border:1px solid #ddd;text-decoration:none;color:var(--fg);
+      transition:all 0.15s;
+    }
+    body.dark .tool-card{border-color:#2a2a2a;background:#1a1a1a}
+    .tool-card:hover{border-color:#3fb5ff;transform:translateX(4px);text-decoration:none}
+    body.dark .tool-card:hover{border-color:#3fb5ff;background:#1a2030}
+    .tool-icon{font-size:2rem;flex-shrink:0}
+    .tool-info{flex:1;min-width:0}
+    .tool-title{font-weight:700;font-size:1.05rem;margin-bottom:4px}
+    .tool-desc{font-size:0.85rem;color:gray;line-height:1.5}
+    .tool-tag{font-size:0.75rem;color:#3fb5ff;margin-top:6px;font-weight:600}
+    .tool-arrow{font-size:1.3rem;color:#888;flex-shrink:0;transition:transform 0.15s}
+    .tool-card:hover .tool-arrow{transform:translateX(4px);color:#3fb5ff}
   </style>
 </head>
 
@@ -140,16 +158,20 @@
   <!-- ✅ MAIN CONTENT (only part that differs from index) -->
   <div class="main-content">
     <h2>Resources</h2>
+    <p style="color:gray;margin-bottom:24px;">Tools and things I've built.</p>
 
-    <h3>Mathematical References</h3>
-    <ul>
-      <li>Etingof, <em>Lie Groups and Lie Algebras</em></li>
-      <li>Etingof–Gelaki–Nikshych–Ostrik, <em>Tensor Categories</em></li>
-      <li>Connes, <em>Noncommutative Geometry</em></li>
-      <li>Maulik–Okounkov, <em>Quantum Groups and Quantum Cohomology</em></li>
-    </ul>
+    <div class="tools-grid">
+      <a href="frlg_living_dex_tracker.html" class="tool-card">
+        <div class="tool-icon">📋</div>
+        <div class="tool-info">
+          <div class="tool-title">FRLG Living Dex Tracker</div>
+          <div class="tool-desc">Track a complete living dex across FireRed &amp; LeafGreen. Separate save files per cartridge, quantum superposition for single-version runs, import between versions.</div>
+          <div class="tool-tag">Pokémon · Gen III · Switch</div>
+        </div>
+        <div class="tool-arrow">→</div>
+      </a>
+    </div>
 
-    <!-- Add more categories if you want -->
   </div>
 
   <hr class="mobile-sep">
