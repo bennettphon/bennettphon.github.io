@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hex time</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0c0f14;--sf:#141820;--sf2:#1a1f2a;--bd:#262d3a;--tx:#d8dce6;--dim:#6b7790;--acc:#6ae4a0;--accD:#3a9b6a;--err:#e46a6a;--blue:#7aacf0;--mono:'IBM Plex Mono',monospace;--sans:'DM Sans',sans-serif}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--tx);line-height:1.5;display:flex;justify-content:center;align-items:center}
+input,select,button{font-family:inherit}
+input:focus,select:focus,button:focus{outline:2px solid var(--acc);outline-offset:1px}
+input[type="date"],input[type="time"]{color-scheme:dark}
+input[type="date"]::-webkit-calendar-picker-indicator,input[type="time"]::-webkit-calendar-picker-indicator{filter:invert(0.7);cursor:pointer}
+input[type="range"]{accent-color:var(--acc)}
+.app{display:flex;flex-direction:column;height:95vh;width:95vw;max-height:95vh;overflow:hidden;border-radius:12px;border:1px solid var(--bd)}
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--bd);padding:10px 20px;flex-shrink:0;background:var(--sf)}
+.topbar-logo{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.topbar-logo h1{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--acc)}
+.topbar-stamp{font-family:var(--mono);font-size:20px;font-weight:700;letter-spacing:0.03em;flex-shrink:0}
+.topbar-stamp .dd{color:var(--acc)}.topbar-stamp .dot{color:var(--dim)}.topbar-stamp .ff{color:var(--blue)}
+.topbar-tabs{display:flex;gap:4px;margin-left:auto}
+.topbar-tab{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--dim);background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:6px 18px;cursor:pointer}
+.topbar-tab.active{color:var(--acc);border-color:var(--accD);background:rgba(106,228,160,0.08)}
+.tab-panel{display:none;flex:1;overflow:hidden}.tab-panel.active{display:flex;flex-direction:column}
+.copy-btn{font-family:var(--mono);font-size:10px;color:var(--accD);background:transparent;border:1px solid var(--bd);border-radius:4px;padding:2px 10px;cursor:pointer;margin-left:8px}
+/* Clock */
+.clock-fill{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 20px;gap:4px;min-height:0;overflow:hidden}
+.clock-core{display:flex;flex-direction:column;align-items:center;flex:1;min-height:0;width:100%;gap:0;overflow:hidden}
+.live-civil{font-family:var(--mono);font-size:min(14px,2vw);color:var(--dim);text-align:center}
+.clock-area{display:flex;justify-content:center;gap:16px;flex:1;min-height:0;align-items:center;width:100%}
+.clock-unit{display:flex;flex-direction:column;align-items:center;min-height:0;flex:1;max-height:100%}
+.clock-unit svg{flex:1;min-height:0;width:auto;display:block}
+.clock-area.dual .clock-unit{max-width:48%}
+.clock-digits{font-family:var(--mono);font-size:clamp(18px,3vh,32px);font-weight:700;letter-spacing:0.04em;text-align:center;flex-shrink:0;padding:2px 0}
+.clock-digits .dd{color:var(--acc)}.clock-digits .ff{color:var(--blue)}.clock-digits .dot{color:var(--dim)}
+.legends-wrap{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;flex-shrink:0}
+.legend{font-family:var(--mono);font-size:10px;color:var(--dim);display:flex;gap:8px;flex-wrap:wrap}
+.legend-group{display:flex;align-items:center;gap:4px;cursor:help}
+.legend-dot{display:inline-block;width:7px;height:7px;border-radius:50%}
+.legend-name{border-bottom:1px dotted rgba(107,119,144,0.5)}
+.clock-switch{display:flex;gap:12px;justify-content:center;flex-shrink:0}
+.clk-sel-wrap{display:flex;flex-direction:column;align-items:center}
+.clk-sel{font-family:var(--mono);font-size:11px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:4px 8px;cursor:pointer;min-width:100px;text-align:center}
+/* Settings */
+.settings-scroll{flex:1;overflow-y:auto;padding:16px 20px}
+.constrained{max-width:1000px;margin:0 auto;width:100%}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.card-title{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--dim);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px}
+.label{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:5px}
+.input{font-family:var(--mono);font-size:13px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:8px 10px;width:100%}
+.select{font-family:var(--mono);font-size:12px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:8px 10px;cursor:pointer;width:100%}
+.btn{font-family:var(--mono);font-size:12px;font-weight:600;background:var(--accD);color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;white-space:nowrap}
+.btn-dim{font-family:var(--mono);font-size:12px;background:transparent;color:var(--dim);border:1px solid var(--bd);border-radius:6px;padding:7px 12px;cursor:pointer}
+.btn-sm{font-family:var(--mono);font-size:11px;color:var(--dim);background:var(--sf2);border:1px solid var(--bd);border-radius:4px;padding:4px 10px;cursor:pointer}
+.btn-sm:hover{color:var(--acc);border-color:var(--accD)}
+.hint{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:8px}
+.settings-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.settings-field{flex:1 1 160px}.settings-field.narrow{flex:0 0 100px}
+.names-row{display:flex;align-items:flex-end;gap:6px;flex-wrap:wrap;margin-top:8px}
+.names-row .nf{display:flex;flex-direction:column;gap:2px}
+.names-row .nf input{width:74px;font-size:11px;padding:4px 6px}
+.names-arrow{font-family:var(--mono);font-size:12px;color:var(--dim);padding:0 2px;align-self:center}
+.conv-wrap{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px}.conv-wrap .card{flex:1 1 300px}
+.conv-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.conv-field{flex:1 1 140px}.conv-field-sm{flex:1 1 100px}
+.res-box{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--acc);background:rgba(106,228,160,0.06);border:1px solid var(--accD);border-radius:6px;padding:10px 14px;margin-top:10px;display:none;align-items:center;gap:12px;flex-wrap:wrap}
+.err-box{font-family:var(--mono);font-size:13px;color:var(--err);background:rgba(228,106,106,0.06);border:1px solid rgba(228,106,106,0.3);border-radius:6px;padding:10px 14px;margin-top:10px;display:none}
+.info-body p{font-size:13px;color:var(--dim);margin-bottom:8px;line-height:1.65}
+.info-body code{font-family:var(--mono);font-size:13px;color:var(--acc);background:var(--sf2);padding:1px 5px;border-radius:3px}
+.footer{font-family:var(--mono);font-size:10px;color:var(--dim);text-align:center;margin-top:20px;opacity:0.5}
+.hex-picker-wrap{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.hex-picker{display:flex;align-items:center;gap:0}
+.hex-digit{display:flex;flex-direction:column;align-items:center;width:36px}
+.hex-digit-val{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--acc);cursor:pointer;padding:4px 0;user-select:none;text-align:center;width:100%;border-radius:4px;transition:background 0.1s;outline:none}
+.hex-digit-val:focus{background:rgba(106,228,160,0.15);box-shadow:0 0 0 2px var(--acc)}
+.hex-digit-val.frac{color:var(--blue)}
+.hex-digit-arrows{display:flex;flex-direction:column;gap:0}
+.hex-digit-arr{font-family:var(--mono);font-size:9px;color:var(--dim);cursor:pointer;padding:1px 8px;border-radius:3px;user-select:none;text-align:center;line-height:1}
+.hex-digit-arr:hover{color:var(--acc);background:rgba(106,228,160,0.1)}
+.hex-picker-dot{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--dim);padding:0 2px;align-self:center}
+/* Calendar */
+.cal-fill{flex:1;display:flex;flex-direction:column;padding:8px 12px;min-height:0;position:relative}
+.cal-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0;margin-bottom:4px}
+.cal-zoom{display:flex;gap:0;flex-shrink:0}
+.cal-zoom-btn{font-family:var(--mono);font-size:10px;color:var(--dim);background:var(--sf2);border:1px solid var(--bd);padding:5px 12px;cursor:pointer;text-align:center;transition:all 0.15s ease}
+.cal-zoom-btn:first-child{border-radius:5px 0 0 5px}
+.cal-zoom-btn:last-child{border-radius:0 5px 5px 0}
+.cal-zoom-btn+.cal-zoom-btn{border-left:none}
+.cal-zoom-btn:hover{color:var(--tx);background:var(--bd)}
+.cal-zoom-btn.active{color:#fff;background:var(--accD);border-color:var(--accD);font-weight:600}
+.cal-zoom-btn.active+.cal-zoom-btn{border-left-color:var(--accD)}
+.cal-title{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--tx);text-align:center;flex-shrink:0}
+.cal-subtitle{font-family:var(--mono);font-size:10px;color:var(--dim);text-align:center;flex-shrink:0;margin-bottom:4px}
+.cal-grid-wrap{flex:1;min-height:0;overflow:hidden}
+.cal-grid{display:grid;grid-template-columns:24px repeat(16,1fr);grid-template-rows:18px repeat(16,1fr);gap:1px;width:100%;height:100%}
+.cal-col-hdr{font-family:var(--mono);font-size:min(8px,1.2vw);color:var(--dim);display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden}
+.cal-row-hdr{font-family:var(--mono);font-size:min(10px,1.4vw);color:var(--dim);display:flex;align-items:center;justify-content:flex-end;padding-right:3px}
+.cal-cell{border-radius:2px;cursor:pointer;position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cal-cell:hover{opacity:0.8;z-index:1}
+.civil-overlay{font-family:var(--mono);font-size:min(7px,1vw);color:rgba(255,255,255,0.6);line-height:1.1;text-align:center;pointer-events:none}
+.evt-pip{height:2px;width:70%;border-radius:1px;flex-shrink:0}
+.picking-end .cal-cell{cursor:crosshair}
+/* Overlay panel */
+.cal-panel-overlay{position:absolute;bottom:8px;left:8px;right:8px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:16px;display:none;z-index:10;box-shadow:0 -4px 20px rgba(0,0,0,0.5);max-height:50%;overflow-y:auto}
+.cal-panel-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.cal-panel-close{font-family:var(--mono);font-size:16px;color:var(--dim);background:transparent;border:none;cursor:pointer;padding:2px 8px}
+.cal-panel-body{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.cal-input{font-family:var(--mono);font-size:13px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:8px 12px;flex:1 1 200px}
+.color-dot{width:20px;height:20px;border-radius:50%;cursor:pointer;display:inline-block}
+.range-label{font-family:var(--mono);font-size:11px;color:var(--dim)}.range-hex{font-family:var(--mono);font-size:12px;color:var(--acc);font-weight:600}
+.evt-list{margin-top:6px}.evt-item{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;margin-bottom:4px;font-family:var(--mono);font-size:11px}
+.evt-item-color{width:8px;height:8px;border-radius:50%;flex-shrink:0}.evt-item-title{flex:1;color:var(--tx)}.evt-item-range{color:var(--dim);font-size:9px}
+.evt-item-del{color:var(--dim);cursor:pointer;background:none;border:none;font-size:14px;font-family:var(--mono);padding:0 4px}.evt-item-del:hover{color:var(--err)}
+.cal-tab{font-family:var(--mono);font-size:10px;color:var(--dim);background:var(--sf2);border:1px solid var(--bd);border-radius:4px;padding:3px 8px;cursor:pointer}
+.cal-tab.active{color:var(--acc);border-color:var(--accD);background:rgba(106,228,160,0.08)}
+.rhythm-pop{position:absolute;top:36px;right:8px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;z-index:15;box-shadow:0 4px 20px rgba(0,0,0,0.5);width:min(380px,90vw)}
+.rhythm-pop-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.rhythm-section{margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)}
+.rhythm-section:first-of-type{margin-top:0;padding-top:0;border-top:none}
+.panel-range-row{display:flex;gap:6px;align-items:flex-start}
+.panel-range-group{flex:1;display:flex;flex-direction:column;gap:3px}
+.panel-range-sep{font-family:var(--mono);font-size:14px;color:var(--dim);padding-top:18px;flex-shrink:0}
+.panel-hex-in{font-family:var(--mono);font-size:13px;font-weight:600;padding:5px 8px}
+.panel-civil-row{display:flex;gap:3px}
+.panel-civil-in{font-family:var(--mono);font-size:10px;padding:3px 5px;flex:1;min-width:0}
+.rest-day-btn{font-family:var(--mono);font-size:10px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);color:var(--dim)}
+.rest-day-btn.active{background:rgba(180,140,240,0.25);color:#b48cf0;border-color:#b48cf0}
+.sleep-grid{display:grid;grid-template-columns:22px repeat(16,1fr);grid-template-rows:14px repeat(2,22px);gap:1px;margin-top:4px}
+.sleep-col-hdr{font-family:var(--mono);font-size:7px;color:var(--dim);display:flex;align-items:center;justify-content:center}
+.sleep-cell{border-radius:2px;cursor:pointer;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.03);transition:background 0.1s}
+.sleep-cell:hover{opacity:0.8}
+.sleep-cell.active{background:rgba(100,120,200,0.35);border-color:rgba(100,120,200,0.4)}
+.sleep-row-hdr{font-family:var(--mono);font-size:7px;color:var(--dim);display:flex;align-items:center;justify-content:flex-end;padding-right:2px}
+.evt-item-edit{color:var(--dim);cursor:pointer;background:none;border:none;font-size:11px;font-family:var(--mono);padding:0 4px}.evt-item-edit:hover{color:var(--acc)}
+.disclosure{margin-top:12px;border-top:1px solid var(--bd);padding-top:12px}
+.disclosure-toggle{display:flex;align-items:center;gap:6px;cursor:pointer;padding:4px 0;user-select:none}
+.disclosure-toggle:hover .disclosure-label{color:var(--tx)}
+.disclosure-arrow{font-family:var(--mono);font-size:10px;color:var(--dim);transition:transform 0.2s ease;display:inline-block}
+.disclosure-toggle.open .disclosure-arrow{transform:rotate(90deg)}
+.disclosure-label{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:0.03em;transition:color 0.15s}
+.disclosure-body{max-height:0;overflow:hidden;transition:max-height 0.3s ease,opacity 0.2s ease;opacity:0}
+.disclosure-body.open{max-height:200px;opacity:1;margin-top:10px}
+.cal-grid.dragging .cal-cell{user-select:none;-webkit-user-select:none}
+.cal-cell.drag-preview{outline:2px solid var(--acc);outline-offset:-1px;z-index:2}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-logo"><span style="font-size:18px;color:var(--acc)">⬡</span><h1>hex time</h1></div>
+    <div class="topbar-stamp"><span class="dd" id="liveDay">----</span><span class="dot">.</span><span class="ff" id="liveFrac">----</span><button class="copy-btn" id="copyStamp">copy</button></div>
+    <div class="topbar-tabs">
+      <button class="topbar-tab" data-tab="clock">Clock</button>
+      <button class="topbar-tab" data-tab="calendar">Calendar</button>
+      <button class="topbar-tab" data-tab="settings">Settings</button>
+    </div>
+  </div>
+  <!-- CLOCK -->
+  <div class="tab-panel" id="tabClock">
+    <div class="clock-fill">
+      <div class="live-civil" id="liveCivil"></div>
+      <div class="live-civil" id="liveDayStart" style="display:none"></div>
+      <div class="clock-core">
+        <div class="clock-area single" id="clockArea">
+          <div class="clock-unit" id="clockUnitL">
+            <svg id="clockL" viewBox="0 0 260 272"></svg>
+            <div class="clock-digits" id="digitsL"></div>
+          </div>
+          <div class="clock-unit" id="clockUnitR" style="display:none">
+            <svg id="clockR" viewBox="0 0 260 272"></svg>
+            <div class="clock-digits" id="digitsR"></div>
+          </div>
+        </div>
+      </div>
+      <div class="legends-wrap" id="legendsWrap"></div>
+      <div class="clock-switch">
+        <div class="clk-sel-wrap"><div class="label" style="margin-bottom:2px;text-align:center">left</div><select class="select clk-sel" id="clkSelL"></select></div>
+        <div class="clk-sel-wrap"><div class="label" style="margin-bottom:2px;text-align:center">right</div><select class="select clk-sel" id="clkSelR"></select></div>
+      </div>
+    </div>
+  </div>
+  <!-- CALENDAR -->
+  <div class="tab-panel" id="tabCalendar">
+    <div class="cal-fill">
+      <div class="cal-bar">
+        <div class="cal-zoom" id="zoomBtns"></div>
+        <div style="display:flex;gap:4px;align-items:center">
+          <button class="btn-sm" id="calPrev">◁</button><button class="btn-sm" id="calNow">now</button><button class="btn-sm" id="calNext">▷</button>
+          <button class="cal-tab" id="civilToggle">civil</button>
+          <button class="cal-tab" id="rhythmToggle">rhythm</button>
+        </div>
+      </div>
+      <!-- Rhythm popover -->
+      <div class="rhythm-pop" id="rhythmPop" style="display:none">
+        <div class="rhythm-pop-header"><span style="font-family:var(--mono);font-size:11px;color:var(--dim)">Rhythm</span><button class="cal-panel-close" id="rhythmClose">✕</button></div>
+        <div class="rhythm-section">
+          <div class="label">Sleep <span id="sleepDur" style="color:var(--dim);font-weight:400"></span></div>
+          <div class="sleep-grid" id="sleepGrid"></div>
+        </div>
+        <div class="rhythm-section">
+          <div class="label">Rest days (hex wêek position)</div>
+          <div style="display:flex;gap:2px;margin-top:3px" id="restDayBtns"></div>
+        </div>
+      </div>
+      <div class="cal-title" id="calTitle"></div>
+      <div class="cal-subtitle" id="calSub"></div>
+      <div class="cal-grid-wrap"><div class="cal-grid" id="calGrid"></div></div>
+      <!-- Overlay panel -->
+      <div class="cal-panel-overlay" id="calPanel">
+        <div class="cal-panel-header"><div id="panelLabel" style="font-family:var(--mono);font-size:11px;color:var(--dim)">New event</div><button class="cal-panel-close" id="panelClose">✕</button></div>
+        <div class="evt-list" id="evtList"></div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)">
+          <div class="panel-range-row">
+            <div class="panel-range-group">
+              <div class="label">start</div>
+              <input type="text" class="input panel-hex-in" id="panelStartHex" placeholder="0000.0000">
+              <div class="panel-civil-row"><input type="date" class="input panel-civil-in" id="panelStartDate"><input type="time" class="input panel-civil-in" id="panelStartTime" step="1"></div>
+            </div>
+            <div class="panel-range-sep">→</div>
+            <div class="panel-range-group">
+              <div class="label">end</div>
+              <input type="text" class="input panel-hex-in" id="panelEndHex" placeholder="0000.0000">
+              <div class="panel-civil-row"><input type="date" class="input panel-civil-in" id="panelEndDate"><input type="time" class="input panel-civil-in" id="panelEndTime" step="1"></div>
+            </div>
+          </div>
+          <div class="cal-panel-body" style="margin-top:8px"><input type="text" class="cal-input" id="panelInput" placeholder="Event title..."></div>
+          <div class="cal-panel-body">
+            <div id="colorPicker" style="display:flex;gap:4px;align-items:center"></div>
+            <button class="btn-dim" id="panelCancel" style="margin-left:auto;display:none;font-size:10px;padding:5px 10px">Cancel</button>
+            <button class="btn" id="panelSave">Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- SETTINGS -->
+  <div class="tab-panel" id="tabSettings">
+    <div class="settings-scroll"><div class="constrained">
+    <section class="card"><h2 class="card-title">Anchor</h2>
+      <div class="hint" style="margin-top:0;margin-bottom:10px">Set which civil date corresponds to hex timestamp <code style="font-family:var(--mono);color:var(--acc);background:var(--sf2);padding:1px 5px;border-radius:3px">0000.0000</code>. Default: Jan 1, 2000.</div>
+      <div class="settings-row">
+        <div class="settings-field"><div class="label">0000.0000 = this date</div><input type="date" class="input" id="anchorDate" value="2000-01-01"></div>
+        <div class="settings-field"><div class="label">Timezone</div><select class="select" id="tzSelect"><option value="-4">UTC−4 — Montréal / Toronto / Miami</option><option value="8">UTC+8 — Hong Kong / Shanghai / Singapore</option><option value="2">UTC+2 — Geneva / Paris / Rome</option></select></div>
+        <div class="settings-field narrow"><div class="label">Day starts</div><input type="time" class="input" id="dayStart" value="00:00"></div>
+      </div>
+      <div class="disclosure">
+        <div class="disclosure-toggle" id="bdToggle" onclick="this.classList.toggle('open');document.getElementById('bdBody').classList.toggle('open')">
+          <span class="disclosure-arrow">▸</span>
+          <span class="disclosure-label">✦ Set anchor from birthday</span>
+        </div>
+        <div class="disclosure-body" id="bdBody">
+          <div class="hint" style="margin-top:0;margin-bottom:8px">Enter your birth date — the anchor adjusts so your birthday = <code style="font-family:var(--mono);color:var(--acc);background:var(--sf2);padding:1px 5px;border-radius:3px">0100</code> (day 256).</div>
+          <div class="settings-row">
+            <div class="settings-field" style="flex:0 0 180px"><div class="label">Birthday</div><input type="date" class="input" id="bdHelper" value="2000-09-13"></div>
+            <div style="display:flex;align-items:flex-end"><button class="btn" id="bdApply">Apply</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="card"><h2 class="card-title">Unit names</h2>
+      <div class="hint" style="margin-top:0;margin-bottom:10px"><strong style="color:var(--acc)">day</strong> (16⁰ = 1 civil day) is the anchor. Larger units go left (×16 each), smaller go right (÷16 each).</div>
+      <div class="names-row" id="namesRow"></div>
+    </section>
+    <div class="conv-wrap">
+      <section class="card"><h2 class="card-title">Datetime → Hex</h2><div class="conv-row"><div class="conv-field"><div class="label">Date</div><input type="date" class="input" id="fwdDate"></div><div class="conv-field-sm"><div class="label">Time</div><input type="time" class="input" id="fwdTime" value="12:00" step="1"></div><div style="display:flex;align-items:flex-end"><button class="btn" id="fwdBtn">Convert</button></div></div><div class="res-box" id="fwdRes"></div><div class="err-box" id="fwdErr"></div><div class="hint" id="fwdHint"></div></section>
+      <section class="card"><h2 class="card-title">Hex → Datetime</h2>
+        <div class="hex-picker-wrap">
+          <div class="hex-picker" id="hexPicker"></div>
+          <button class="btn" id="revBtn" style="align-self:center">Convert</button>
+        </div>
+        <div class="res-box" id="revRes"></div><div class="err-box" id="revErr"></div></section>
+    </div>
+    <section class="card"><h2 class="card-title">How it works</h2><div class="info-body" style="display:block">
+      <p><strong>DDDD.TTTT</strong> — DDDD = hex day count from anchor. TTTT = fraction of day from day-start.</p>
+      <p><strong>Anchor:</strong> The civil date you set as <code>0000.0000</code>. With the birthday helper, your birth date becomes day <code>0100</code> (= 256).</p>
+      <p><strong>Scale k:</strong> grid = 16<sup>k</sup> days, row = 16<sup>k−1</sup>, cell = 16<sup>k−2</sup>. Column-major order.</p>
+    </div></section>
+    <footer class="footer">hex time · no DST · no accounts · no tracking</footer>
+    </div></div>
+  </div>
+</div>
+<script>
+(function(){"use strict";
+var H="0123456789ABCDEF";
+var EC=[{bg:"rgba(106,228,160,0.35)",b:"#6ae4a0"},{bg:"rgba(122,172,240,0.35)",b:"#7aacf0"},{bg:"rgba(240,140,120,0.35)",b:"#f08c78"},{bg:"rgba(255,179,71,0.35)",b:"#ffb347"},{bg:"rgba(180,140,240,0.35)",b:"#b48cf0"},{bg:"rgba(80,200,200,0.35)",b:"#50c8c8"}];
+// Palettes indexed by k (0=day .. 4=life)
+var PALS=[
+  {ring:"#2a2e3a",tM:"#4a5a7a",tN:"#2e3448",lM:"#7aacf0",lN:"#3a4d6b",n:["#7aacf0","#b0c8e8","#6688b0","#4a6488"],c:"#141820"},
+  {ring:"#2e2a3a",tM:"#5a4a7a",tN:"#342e48",lM:"#b48cf0",lN:"#5a3d6b",n:["#b48cf0","#d0b8e8","#8866b0","#664a88"],c:"#141820"},
+  {ring:"#3a3428",tM:"#7a6a42",tN:"#483e28",lM:"#f0c050",lN:"#6b5a30",n:["#f0c050","#e8d8a0","#b09050","#886830"],c:"#141820"},
+  {ring:"#283a38",tM:"#427a74",tN:"#284844",lM:"#50c8c0",lN:"#306b66",n:["#50c8c0","#a0e8e0","#508880","#306860"],c:"#141820"},
+  {ring:"#2a3a2e",tM:"#4a6b50",tN:"#2e4433",lM:"#6ae4a0",lN:"#3d6b4a",n:["#6ae4a0","#a8e6c4","#5aad7a","#3a7a55"],c:"#141820"}
+];
+var DEF_N=["lîfe","dêcade","yêar","wêek","day","hôur","mârk","mînute","sêcond"];
+var N_EXP=[4,3,2,1,0,-1,-2,-3,-4];
+var N_CIV=["≈179yr","≈11.2yr","256d","16d","1d","90min","≈5.6min","≈21s","≈1.3s"];
+function kToNI(k){return 4-k;}
+function kLabel(k,n){var i=kToNI(k);return(i>=0&&i<n.length)?n[i]:"k="+k;}
+
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function p2(n){return String(n).padStart(2,"0");}
+function cpT(t){try{navigator.clipboard.writeText(t);}catch(e){}}
+function ldJ(k,fb){try{var s=localStorage.getItem(k);return s?JSON.parse(s):fb;}catch(e){return fb;}}
+function svJ(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function dSr(y,m,d){return Math.floor(Date.UTC(y,m-1,d)/86400000);}
+function sD(s){var d=new Date(s*86400000);return{y:d.getUTCFullYear(),mo:d.getUTCMonth()+1,d:d.getUTCDate()};}
+function serialToISO(s){var c=sD(s);return c.y+"-"+p2(c.mo)+"-"+p2(c.d);}
+function gCT(d,o){var t=new Date(d.getTime()+o*3600000);return{y:t.getUTCFullYear(),mo:t.getUTCMonth()+1,d:t.getUTCDate(),h:t.getUTCHours(),m:t.getUTCMinutes(),s:t.getUTCSeconds(),ms:t.getUTCMilliseconds()};}
+// Anchor-based: hexDay = targetSerial - anchorSerial
+function computeHD(tY,tM,tD,aY,aM,aD){return dSr(tY,tM,tD)-dSr(aY,aM,aD);}
+function aDS(hd,h,m,s,ms,dss){var a=h*3600+m*60+s+ms/1000-dss,sh=0;if(a<0){a+=86400;sh=-1;}var f=a/86400;return{hd:hd+sh,fs:f,fi:Math.min(Math.floor(f*65536),0xffff)};}
+function fD(n){return n<0?"-"+Math.abs(n).toString(16).toUpperCase().padStart(4,"0"):n.toString(16).toUpperCase().padStart(4,"0");}
+function fF(n){return(n&0xffff).toString(16).toUpperCase().padStart(4,"0");}
+function fSt(d,f){return fD(d)+"."+fF(f);}
+function fC(y,mo,d,h,m,s,o){return y+"-"+p2(mo)+"-"+p2(d)+" "+p2(h)+":"+p2(m)+":"+p2(s)+" UTC"+(o>=0?"+":"−")+Math.abs(o);}
+function h2C(hd,aY,aM,aD){return sD(dSr(aY,aM,aD)+hd);}
+function cCV(hd,fr,aY,aM,aD,dss){var sr=dSr(aY,aM,aD)+hd,cs=fr*86400+dss,ed=0;if(cs>=86400){cs-=86400;ed=1;}var d=new Date((sr+ed)*86400000);var h=Math.floor(cs/3600),m=Math.floor((cs%3600)/60);return{ds:d.getUTCFullYear()+"-"+p2(d.getUTCMonth()+1)+"-"+p2(d.getUTCDate()),ts:p2(h)+":"+p2(m),fs:d.getUTCFullYear()+"-"+p2(d.getUTCMonth()+1)+"-"+p2(d.getUTCDate())+" "+p2(h)+":"+p2(m)};}
+function revCV(di,fi,aY,aM,aD,o,dss){var sr=dSr(aY,aM,aD)+di,cs=(fi/65536)*86400+dss,ed=0;if(cs>=86400){cs-=86400;ed=1;}var d=new Date((sr+ed)*86400000);return{y:d.getUTCFullYear(),mo:d.getUTCMonth()+1,d:d.getUTCDate(),h:Math.floor(cs/3600),m:Math.floor((cs%3600)/60),s:Math.floor(cs%60)};}
+function pDSv(v){if(!v)return 0;var p=v.split(":").map(Number);return(p[0]||0)*3600+(p[1]||0)*60;}
+function dLbl(d){if(d<1/1440)return(d*86400).toFixed(1)+"s";if(d<1/24)return(d*1440).toFixed(1)+"min";if(d<1)return(d*24).toFixed(1)+"hr";if(d<400)return Math.round(d)+"d";var y=d/365.25;return y<20?y.toFixed(1)+"yr":Math.round(y)+"yr";}
+
+var cfg=ldJ("hx-c8",{ad:"2000-01-01",tz:-4,ds:"00:00",names:DEF_N.slice(),clkL:2,clkR:0,tab:"clock",k:1,civil:0,sleep:[30,31,0,1,2,3,4,5,6,7,8,9],restDays:[0,7,8,15]});
+if(cfg.civil===true)cfg.civil=1;if(cfg.civil===false)cfg.civil=0;
+// Migrate old clk format
+if(cfg.clk!==undefined){if(cfg.clk==="life"){cfg.clkL=4;cfg.clkR=-1;}else if(cfg.clk==="day"){cfg.clkL=0;cfg.clkR=-1;}else{cfg.clkL=4;cfg.clkR=0;}delete cfg.clk;}
+if(cfg.clkL===undefined)cfg.clkL=2;if(cfg.clkR===undefined)cfg.clkR=0;
+if(!Array.isArray(cfg.sleep))cfg.sleep=[];
+if(!Array.isArray(cfg.restDays))cfg.restDays=[0,7,8,15];
+// Migrate old civil sleep strings to slot array
+if(cfg.sleepS||cfg.sleepE){delete cfg.sleepS;delete cfg.sleepE;saveCfg();}
+while(cfg.names.length<9)cfg.names.push(DEF_N[cfg.names.length]);
+var evts=ldJ("hx-eD",[]);
+var st={hd:0,fs:0,fi:0,stamp:"",mode:"idle",ds:0,de:0,ec:0,anchor:null,editEvt:null};
+
+document.getElementById("anchorDate").value=cfg.ad;document.getElementById("tzSelect").value=String(cfg.tz);document.getElementById("dayStart").value=cfg.ds;
+function saveCfg(){cfg.ad=document.getElementById("anchorDate").value;cfg.tz=+document.getElementById("tzSelect").value;cfg.ds=document.getElementById("dayStart").value;svJ("hx-c8",cfg);}
+document.getElementById("anchorDate").onchange=saveCfg;document.getElementById("tzSelect").onchange=saveCfg;document.getElementById("dayStart").onchange=saveCfg;
+function gS(){var p=cfg.ad.split("-").map(Number);var a=(p.length===3&&p.every(function(n){return!isNaN(n);}))?{y:p[0],m:p[1],d:p[2]}:null;return{a:a,o:cfg.tz,dss:pDSv(cfg.ds)};}
+
+// Birthday helper
+document.getElementById("bdApply").onclick=function(){
+  var bd=document.getElementById("bdHelper").value;if(!bd)return;
+  var p=bd.split("-").map(Number);if(p.length!==3)return;
+  var bdSerial=dSr(p[0],p[1],p[2]);
+  var anchorSerial=bdSerial-0x100; // so birthday = 0x100
+  document.getElementById("anchorDate").value=serialToISO(anchorSerial);
+  saveCfg();
+};
+
+// Names
+function buildNE(){
+  var el=document.getElementById("namesRow");el.innerHTML="";
+  cfg.names.forEach(function(n,i){
+    if(i===4){var ar=document.createElement("span");ar.className="names-arrow";ar.textContent="◂";el.appendChild(ar);}
+    var d=document.createElement("div");d.className="nf";
+    var lb=document.createElement("div");lb.className="label";lb.style.fontSize="8px";lb.style.marginBottom="0";
+    lb.textContent="16"+(N_EXP[i]>=0?"⁺":"")+N_EXP[i]+" ≈"+N_CIV[i];
+    if(i===4){lb.style.color="var(--acc)";lb.textContent="16⁰ = 1 day";}
+    var inp=document.createElement("input");inp.className="input";inp.value=n;inp.style.width="74px";inp.style.fontSize="11px";inp.style.padding="4px 6px";
+    if(i===4)inp.style.borderColor="var(--acc)";
+    inp.onchange=(function(idx){return function(){cfg.names[idx]=inp.value.trim()||DEF_N[idx];saveCfg();rAll();};})(i);
+    d.appendChild(lb);d.appendChild(inp);el.appendChild(d);
+    if(i===4){var ar2=document.createElement("span");ar2.className="names-arrow";ar2.textContent="▸";el.appendChild(ar2);}
+  });
+}
+function rAll(){rLeg();buildZB();buildClkSel(selL,cfg.clkL);buildClkSel(selR,cfg.clkR);rebuildClocks();}
+buildNE();
+
+// Rhythm: sleep grid (2×16 = 32 slots, 45min each, non-contiguous), rest days
+document.getElementById("rhythmToggle").onclick=function(){
+  var pop=document.getElementById("rhythmPop");
+  var show=pop.style.display==="none";
+  pop.style.display=show?"block":"none";
+  this.classList.toggle("active",show);
+};
+document.getElementById("rhythmClose").onclick=function(){
+  document.getElementById("rhythmPop").style.display="none";
+  document.getElementById("rhythmToggle").classList.remove("active");
+};
+
+var NSLOTS=32,SLOT_SEC=2700;
+function slotCivil(sl){
+  var dss=pDSv(cfg.ds),sec=((sl*SLOT_SEC+dss)%86400+86400)%86400;
+  return p2(Math.floor(sec/3600))+":"+p2(Math.floor((sec%3600)/60));
+}
+function updSleepDur(){
+  var n=cfg.sleep.length;
+  if(n===0){document.getElementById("sleepDur").textContent="";return;}
+  var set={};cfg.sleep.forEach(function(s){set[s]=true;});
+  // Find a gap to start scanning from (so contiguous wrap-arounds stay together)
+  var scanStart=0;
+  for(var i=0;i<NSLOTS;i++){if(!set[i]){scanStart=(i+1)%NSLOTS;break;}}
+  var runs=[],visited={};
+  for(var j=0;j<NSLOTS;j++){
+    var i=(scanStart+j)%NSLOTS;
+    if(!set[i]||visited[i])continue;
+    var start=i,cur=i;visited[cur]=true;
+    while(set[(cur+1)%NSLOTS]&&!visited[(cur+1)%NSLOTS]){
+      cur=(cur+1)%NSLOTS;visited[cur]=true;
+    }
+    runs.push(slotCivil(start)+"–"+slotCivil((cur+1)%NSLOTS));
+  }
+  var total=Math.floor(n*45/60)+"h"+p2((n*45)%60)+"m";
+  document.getElementById("sleepDur").textContent=runs.join(", ")+" ("+total+")";
+}
+var sleepDrag={active:false,adding:true};
+function buildSleepGrid(){
+  var el=document.getElementById("sleepGrid");el.innerHTML="";
+  el.appendChild(document.createElement("div"));
+  for(var c=0;c<16;c++){var ch=document.createElement("div");ch.className="sleep-col-hdr";ch.textContent=H[c];el.appendChild(ch);}
+  var rowLabels=["0–7","8–F"];
+  for(var r=0;r<2;r++){
+    var rh=document.createElement("div");rh.className="sleep-row-hdr";rh.textContent=rowLabels[r];el.appendChild(rh);
+    for(var c2=0;c2<16;c2++){
+      var slot=c2*2+r;
+      (function(sl){
+        var on=cfg.sleep.indexOf(sl)>=0;
+        var cell=document.createElement("div");
+        cell.className="sleep-cell"+(on?" active":"");
+        cell.title=slotCivil(sl)+"–"+slotCivil((sl+1)%NSLOTS);
+        cell.addEventListener("mousedown",function(e){
+          e.preventDefault();
+          sleepDrag.active=true;sleepDrag.adding=!on;
+          toggleSleep(sl,sleepDrag.adding);
+        });
+        cell.addEventListener("mouseenter",function(){
+          if(!sleepDrag.active)return;
+          toggleSleep(sl,sleepDrag.adding);
+        });
+        el.appendChild(cell);
+      })(slot);
+    }
+  }
+}
+function toggleSleep(sl,on){
+  var idx=cfg.sleep.indexOf(sl);
+  if(on&&idx<0)cfg.sleep.push(sl);
+  else if(!on&&idx>=0)cfg.sleep.splice(idx,1);
+  saveCfg();buildSleepGrid();updSleepDur();bCal();
+}
+document.addEventListener("mouseup",function(){sleepDrag.active=false;});
+buildSleepGrid();updSleepDur();
+
+function buildRestBtns(){var el=document.getElementById("restDayBtns");el.innerHTML="";
+for(var i=0;i<16;i++){(function(idx){var b=document.createElement("div");b.className="rest-day-btn"+(cfg.restDays.indexOf(idx)>=0?" active":"");b.textContent=H[idx];b.onclick=function(){var p=cfg.restDays.indexOf(idx);if(p>=0)cfg.restDays.splice(p,1);else cfg.restDays.push(idx);saveCfg();buildRestBtns();bCal();};el.appendChild(b);})(i);}}
+buildRestBtns();
+
+// Rhythm cell check helpers
+// Sleep: only relevant at day (k=0) and week (k=1) scales
+function cellIsSleep(k,base,fl){
+  if(k>1||cfg.sleep.length===0)return false;
+  var cd=cellDays(k);
+  if(cd>=1)return true;
+  var fStart=(fl*cd)%1;if(fStart<0)fStart+=1;
+  var fEnd=fStart+cd;
+  for(var i=0;i<cfg.sleep.length;i++){
+    var slo=cfg.sleep[i]/NSLOTS,shi=(cfg.sleep[i]+1)/NSLOTS;
+    if(fEnd>slo&&fStart<shi)return true;
+    if(fEnd>slo+1&&fStart<shi+1)return true;
+  }
+  return false;
+}
+// Rest days: only relevant at week (k=1) and year (k=2) scales
+function cellIsRest(k,base,fl){
+  if(k>2||cfg.restDays.length===0)return false;
+  var cd=cellDays(k);
+  if(cd>=16)return true;
+  if(cd>=1){var dayOff=base+fl*cd;var pos=((dayOff%16)+16)%16;
+    if(cd===1)return cfg.restDays.indexOf(pos)>=0;
+    for(var d=0;d<cd;d++){if(cfg.restDays.indexOf(((pos+d)%16+16)%16)>=0)return true;}return false;}
+  var dayVal=base+Math.floor(fl*cd);var pos2=((dayVal%16)+16)%16;
+  return cfg.restDays.indexOf(pos2)>=0;
+}
+
+// Tabs
+function activateTab(t){cfg.tab=t;svJ("hx-c8",cfg);
+  document.querySelectorAll(".topbar-tab").forEach(function(b){b.classList.toggle("active",b.dataset.tab===t);});
+  document.querySelectorAll(".tab-panel").forEach(function(p){p.classList.remove("active");});
+  document.getElementById(t==="clock"?"tabClock":t==="calendar"?"tabCalendar":"tabSettings").classList.add("active");
+  if(t==="calendar"){lCK="";bCal();}
+}
+document.querySelectorAll(".topbar-tab").forEach(function(btn){btn.onclick=function(){activateTab(btn.dataset.tab);};});
+activateTab(cfg.tab||"clock");
+
+// Clock mode — generalized for any k
+var SN="http://www.w3.org/2000/svg";
+function mkC(svg,pl,lb){svg.innerHTML="";var cx=130,cy=130,r=115;var rg=document.createElementNS(SN,"circle");rg.setAttribute("cx",cx);rg.setAttribute("cy",cy);rg.setAttribute("r",r);rg.setAttribute("fill","none");rg.setAttribute("stroke",pl.ring);rg.setAttribute("stroke-width","1.5");svg.appendChild(rg);
+for(var i=0;i<16;i++){var a=(i/16)*360-90,rd=a*Math.PI/180,mj=i%4===0,md=i%2===0&&!mj,tl=mj?13:md?9:5,lr=r-22;var ln=document.createElementNS(SN,"line");ln.setAttribute("x1",cx+(r-1)*Math.cos(rd));ln.setAttribute("y1",cy+(r-1)*Math.sin(rd));ln.setAttribute("x2",cx+(r-tl)*Math.cos(rd));ln.setAttribute("y2",cy+(r-tl)*Math.sin(rd));ln.setAttribute("stroke",mj?pl.tM:pl.tN);ln.setAttribute("stroke-width",mj?2:md?1.2:0.7);ln.setAttribute("stroke-linecap","round");svg.appendChild(ln);
+var tx=document.createElementNS(SN,"text");tx.setAttribute("x",cx+lr*Math.cos(rd));tx.setAttribute("y",cy+lr*Math.sin(rd));tx.setAttribute("fill",mj?pl.lM:pl.lN);tx.setAttribute("font-size",mj?"12":"9");tx.setAttribute("font-family","'IBM Plex Mono',monospace");tx.setAttribute("font-weight",mj?"600":"400");tx.setAttribute("text-anchor","middle");tx.setAttribute("dominant-baseline","central");tx.textContent=H[i];svg.appendChild(tx);}
+var cf=[{l:48,w:3.2,t:10},{l:65,w:2.4,t:10},{l:82,w:1.6,t:8},{l:100,w:1,t:8}],nl=[];for(var ni=0;ni<4;ni++){var l2=document.createElementNS(SN,"line");l2.setAttribute("stroke",pl.n[ni]);l2.setAttribute("stroke-width",cf[ni].w);l2.setAttribute("stroke-linecap","round");l2._l=cf[ni].l;l2._t=cf[ni].t;svg.appendChild(l2);nl.push(l2);}
+var cp2=document.createElementNS(SN,"circle");cp2.setAttribute("cx",cx);cp2.setAttribute("cy",cy);cp2.setAttribute("r","5");cp2.setAttribute("fill",pl.c);cp2.setAttribute("stroke",pl.n[0]);cp2.setAttribute("stroke-width","1.5");svg.appendChild(cp2);
+var lb2=document.createElementNS(SN,"text");lb2.setAttribute("x",cx);lb2.setAttribute("y",cy+r+16);lb2.setAttribute("fill",pl.lM);lb2.setAttribute("font-size","10");lb2.setAttribute("font-family","'IBM Plex Mono',monospace");lb2.setAttribute("font-weight","600");lb2.setAttribute("text-anchor","middle");lb2.setAttribute("letter-spacing","2");lb2.textContent=lb;svg.appendChild(lb2);return nl;}
+function uN(n,a){var cx=130,cy=130;for(var i=0;i<4;i++){var an=a[i]-90,rd=an*Math.PI/180;n[i].setAttribute("x1",cx-n[i]._t*Math.cos(rd));n[i].setAttribute("y1",cy-n[i]._t*Math.sin(rd));n[i].setAttribute("x2",cx+n[i]._l*Math.cos(rd));n[i].setAttribute("y2",cy+n[i]._l*Math.sin(rd));}}
+function handAngle(hd,fs,sc){
+  if(sc>=0){var total=hd+fs,cyc=Math.pow(16,sc);return((total%cyc)/cyc)*360;}
+  return((fs*Math.pow(16,-sc))%1)*360;
+}
+function clockAngles(hd,fs,k){return[handAngle(hd,fs,k),handAngle(hd,fs,k-1),handAngle(hd,fs,k-2),handAngle(hd,fs,k-3)];}
+function clockNames(k){var r=[];for(var i=0;i<4;i++){var ni=kToNI(k-i);r.push(ni>=0&&ni<cfg.names.length?cfg.names[ni]:"k="+(k-i));}return r;}
+function clockTips(k){var r=[];for(var i=0;i<4;i++){var ni=kToNI(k-i);r.push(ni>=0&&ni<N_CIV.length?N_CIV[ni]+"/tick":"");}return r;}
+
+// Build clock selectors
+var clkScales=[4,3,2,1,0];
+function buildClkSel(selEl,val){
+  selEl.innerHTML='<option value="-1">off</option>';
+  clkScales.forEach(function(k){
+    var opt=document.createElement("option");opt.value=k;opt.textContent=kLabel(k,cfg.names);
+    selEl.appendChild(opt);
+  });
+  selEl.value=String(val);
+}
+var selL=document.getElementById("clkSelL"),selR=document.getElementById("clkSelR");
+buildClkSel(selL,cfg.clkL);buildClkSel(selR,cfg.clkR);
+
+var needlesL=null,needlesR=null;
+function rebuildClocks(){
+  var unitL=document.getElementById("clockUnitL"),unitR=document.getElementById("clockUnitR");
+  var lk=cfg.clkL,rk=cfg.clkR,showL=lk>=0,showR=rk>=0;
+  if(!showL&&!showR){cfg.clkL=0;lk=0;showL=true;selL.value="0";}
+  unitL.style.display=showL?"flex":"none";
+  unitR.style.display=showR?"flex":"none";
+  document.getElementById("clockArea").className="clock-area "+(showL&&showR?"dual":"single");
+  if(showL){var pl=PALS[lk]||PALS[0];needlesL=mkC(document.getElementById("clockL"),pl,kLabel(lk,cfg.names).toUpperCase());}else needlesL=null;
+  if(showR){var pr=PALS[rk]||PALS[0];needlesR=mkC(document.getElementById("clockR"),pr,kLabel(rk,cfg.names).toUpperCase());}else needlesR=null;
+  rLeg();
+}
+// Per-clock digit display: 4 digits from the full DDDDFFF with period in the right place
+function clockDigitsHTML(k,dd,ff){
+  var all=dd+ff;// 8 chars: 0-3=day, 4-7=frac
+  var startPos=4-k;// leftmost position for this clock
+  var htm="";
+  // Period between pos 3 and 4. Relative to our window: goes before digit index (4-startPos)
+  var dotAt=4-startPos;// insert period before this index in our 4-digit window
+  if(dotAt<=0)htm+='<span class="dot">.</span>';// period before all digits
+  for(var i=0;i<4;i++){
+    if(i===dotAt&&dotAt>0&&dotAt<4)htm+='<span class="dot">.</span>';
+    var pos=startPos+i;
+    if(pos<0||pos>=8)htm+='<span class="dot">-</span>';
+    else htm+='<span class="'+(pos<4?"dd":"ff")+'">'+all[pos]+'</span>';
+  }
+  if(dotAt>=4)htm+='<span class="dot">.</span>';// period after all digits
+  return htm;
+}
+function mkL(container,names,tips,pl){var el=document.createElement("div");el.className="legend";names.forEach(function(n,i){var g=document.createElement("span");g.className="legend-group";g.title=tips[i];var d=document.createElement("span");d.className="legend-dot";d.style.background=pl.n[i];var nm=document.createElement("span");nm.className="legend-name";nm.textContent=n;g.appendChild(d);g.appendChild(nm);el.appendChild(g);});container.appendChild(el);}
+function rLeg(){var w=document.getElementById("legendsWrap");w.innerHTML="";
+  if(cfg.clkL>=0)mkL(w,clockNames(cfg.clkL),clockTips(cfg.clkL),PALS[cfg.clkL]||PALS[0]);
+  if(cfg.clkR>=0)mkL(w,clockNames(cfg.clkR),clockTips(cfg.clkR),PALS[cfg.clkR]||PALS[0]);}
+
+selL.onchange=function(){cfg.clkL=+this.value;saveCfg();rebuildClocks();};
+selR.onchange=function(){cfg.clkR=+this.value;saveCfg();rebuildClocks();};
+rebuildClocks();
+
+// Tick
+var lCK="";
+function tick(){var s=gS();
+  if(!s.a){document.getElementById("liveDay").textContent="----";document.getElementById("liveFrac").textContent="----";document.getElementById("digitsL").innerHTML='<span class="dot">----</span>';document.getElementById("digitsR").innerHTML="";requestAnimationFrame(tick);return;}
+  var now=new Date(),c=gCT(now,s.o),rawHD=computeHD(c.y,c.mo,c.d,s.a.y,s.a.m,s.a.d);
+  var r=aDS(rawHD,c.h,c.m,c.s,c.ms,s.dss);
+  st.hd=r.hd;st.fs=r.fs;st.fi=r.fi;var dd=fD(r.hd),ff=fF(r.fi);st.stamp=dd+"."+ff;
+  document.getElementById("liveDay").textContent=dd;document.getElementById("liveFrac").textContent=ff;
+  document.getElementById("liveCivil").textContent=fC(c.y,c.mo,c.d,c.h,c.m,c.s,s.o);
+  var de=document.getElementById("liveDayStart");
+  if(s.dss>0){de.textContent="day starts at "+p2(Math.floor(s.dss/3600))+":"+p2(Math.floor((s.dss%3600)/60))+" civil";de.style.display="block";}else de.style.display="none";
+  if(needlesL){uN(needlesL,clockAngles(r.hd,r.fs,cfg.clkL));document.getElementById("digitsL").innerHTML=clockDigitsHTML(cfg.clkL,dd,ff);}
+  if(needlesR){uN(needlesR,clockAngles(r.hd,r.fs,cfg.clkR));document.getElementById("digitsR").innerHTML=clockDigitsHTML(cfg.clkR,dd,ff);}
+  var ck=cfg.k+":"+r.hd+":"+(r.fi>>8);if(ck!==lCK&&st.mode==="idle"){lCK=ck;bCal();}
+  requestAnimationFrame(tick);}
+requestAnimationFrame(tick);
+document.getElementById("copyStamp").onclick=function(){cpT(st.stamp);var b=this;b.textContent="✓";setTimeout(function(){b.textContent="copy";},1200);};
+
+// Calendar
+function buildZB(){var el=document.getElementById("zoomBtns");el.innerHTML="";for(var k=4;k>=0;k--){(function(kk){var b=document.createElement("button");b.className="cal-zoom-btn"+(kk===cfg.k?" active":"");b.textContent=kLabel(kk,cfg.names);b.onclick=function(){setK(kk);};el.appendChild(b);})(k);}}
+buildZB();
+function setK(k){cfg.k=k;saveCfg();clPnl();st.anchor=null;buildZB();lCK="";bCal();}
+function cellDays(k){return Math.pow(16,k-2);}
+function gridDays(k){return Math.pow(16,k);}
+function getBase(){var dd=st.anchor!==null?st.anchor:st.hd;var gd=gridDays(cfg.k);if(gd<1)return dd;return Math.floor(dd/gd)*gd;}
+document.getElementById("calPrev").onclick=function(){var gd=gridDays(cfg.k);if(gd<1)st.anchor=(st.anchor!==null?st.anchor:st.hd)-1;else st.anchor=getBase()-gd;lCK="";clPnl();bCal();};
+document.getElementById("calNext").onclick=function(){var gd=gridDays(cfg.k);if(gd<1)st.anchor=(st.anchor!==null?st.anchor:st.hd)+1;else st.anchor=getBase()+gd;lCK="";clPnl();bCal();};
+document.getElementById("calNow").onclick=function(){st.anchor=null;lCK="";clPnl();bCal();};
+var civLabels=["off","civil","hex"];
+function updCivBtn(){var b=document.getElementById("civilToggle");b.textContent=civLabels[cfg.civil];b.classList.toggle("active",cfg.civil>0);}
+document.getElementById("civilToggle").onclick=function(){cfg.civil=(cfg.civil+1)%3;saveCfg();updCivBtn();bCal();};
+updCivBtn();
+
+function cellInfo(k,base,flat,s){var aY=s.a.y,aM=s.a.m,aD=s.a.d,dss=s.dss,cd=cellDays(k);
+if(cd<1){var tf=flat*cd,dOff=Math.floor(tf),dFrac=tf-dOff;var cv=cCV(base+dOff,dFrac,aY,aM,aD,dss);return{hex:fD(base+dOff)+"."+fF(Math.floor(dFrac*65536)),cv:cv};}
+var cd2=base+flat*cd;var cv2=h2C(cd2,aY,aM,aD);return{hex:fD(cd2),cv:{ds:cv2.y+"-"+p2(cv2.mo)+"-"+p2(cv2.d),ts:"",fs:cv2.y+"-"+p2(cv2.mo)+"-"+p2(cv2.d)}};}
+function civilLabel(k,base,flat,s){var ci=cellInfo(k,base,flat,s),cd=cellDays(k);if(cd<1)return ci.cv.ts;if(cd<16)return ci.cv.ds.slice(5);if(cd<400)return ci.cv.ds.slice(2);return ci.cv.ds.slice(0,4);}
+function cellHexPat(k,base,flat){return mkPat(k,base,flat,k+2);}
+function gridHexPat(k,base){return mkPat(k,base,0,k+4);}
+function colHexPat(k,base,col){return mkPat(k,base,col*16,k+3);}
+function fmtDayComma(s){
+  var neg=s.charAt(0)==="-",d=neg?s.substring(1):s;
+  if(d.length<=4)return s;
+  return(neg?"-":"")+d.substring(0,d.length-4)+","+d.substring(d.length-4);
+}
+function mkPat(k,base,flat,nVar){
+  var dayVal,fracVal=0;
+  if(k>=2){dayVal=base+flat*Math.pow(16,k-2);}
+  else if(k===1){dayVal=base+Math.floor(flat/16);fracVal=(flat%16)*0x1000;}
+  else{dayVal=base;fracVal=flat*0x100;}
+  var dS=fD(dayVal),fS=fF(fracVal);
+  if(nVar<=0)return fmtDayComma(dS)+"."+fS;
+  if(nVar<=4)return fmtDayComma(dS)+"."+fS.substring(0,4-nVar)+"_";
+  // nVar>4: underscores in day part, no frac shown
+  var neg=dS.charAt(0)==="-",digits=neg?dS.substring(1):dS;
+  var nDayVar=nVar-4,fixedCount=Math.max(0,digits.length-nDayVar);
+  var r=digits.substring(0,fixedCount);
+  for(var i=0;i<digits.length-fixedCount;i++)r+="_";
+  // If all 4 standard digits are _, show page prefix with comma
+  if(fixedCount===0&&digits.length===4){
+    var page=Math.floor(Math.abs(dayVal)/65536);
+    r=page.toString(16).toUpperCase()+","+r;
+  }else if(r.length>4){r=fmtDayComma(r);}
+  return(neg?"-":"")+r+".";
+}
+// Template: X = fixed-per-item, _ = varies within item
+function mkTemplate(nVar){
+  if(nVar<=0)return"XXXX.XXXX";
+  if(nVar<=4)return"XXXX."+"X".repeat(4-nVar)+"_";
+  var nDV=nVar-4,fixC=Math.max(0,4-nDV);
+  var r="";for(var i=0;i<fixC;i++)r+="X";for(var i=0;i<Math.min(nDV,4);i++)r+="_";
+  if(nDV>=4)r="X,"+r;
+  return r+".";
+}
+function colLabel(k,base,col){
+  var cp=colHexPat(k,base,col),grid=gridHexPat(k,base);
+  var uIdx=grid.indexOf("_");if(uIdx<=0)return cp;
+  var prefix=grid.substring(0,uIdx);
+  if(cp.indexOf(prefix)===0)return cp.substring(prefix.length);
+  return cp;
+}
+function hexLabel(k,base,flat){
+  var cell=cellHexPat(k,base,flat);
+  var grid=gridHexPat(k,base);
+  var uIdx=grid.indexOf("_");
+  if(uIdx<=0)return cell;
+  var prefix=grid.substring(0,uIdx);
+  if(cell.indexOf(prefix)===0)return cell.substring(prefix.length);
+  return cell;
+}
+
+// Absolute day range for a cell
+function cellRange(k,base,flat){var cd=cellDays(k);return{lo:base+flat*cd,hi:base+(flat+1)*cd};}
+// Format absolute day value as hex stamp
+function absToHex(v){var d=Math.floor(v),f=Math.floor((v-d)*65536);return fD(d)+"."+fF(f);}
+
+// Migrate old events from {z,p,s,e} format to absolute {ds,de}
+function migrateEvts(){
+  var changed=false;
+  evts=evts.map(function(ev){
+    if(ev.ds!==undefined)return ev;// already new format
+    changed=true;
+    var parts=ev.p.split(":");var ok=+parts[0],ob=+parts[1];
+    var ocd=Math.pow(16,ok-2);
+    var lo=Math.min(ev.s,ev.e),hi=Math.max(ev.s,ev.e);
+    return{ds:ob+lo*ocd,de:ob+(hi+1)*ocd,t:ev.t,c:ev.c};
+  });
+  if(changed)svJ("hx-eD",evts);
+}
+migrateEvts();
+
+// Drag-select state (module scope)
+var dragActive=false,dragStart=-1,dragEnd=-1;
+function highlightDrag(lo,hi){var g=document.getElementById("calGrid");g.querySelectorAll(".cal-cell").forEach(function(el){var f=+el.dataset.f;el.classList.toggle("drag-preview",f>=lo&&f<=hi);});}
+function finishDrag(){
+  if(!dragActive)return;
+  dragActive=false;
+  var g=document.getElementById("calGrid");
+  g.classList.remove("dragging");
+  g.querySelectorAll(".cal-cell").forEach(function(el){el.classList.remove("drag-preview");});
+  var lo=Math.min(dragStart,dragEnd),hi=Math.max(dragStart,dragEnd);
+  if(lo===hi){cellClick(lo);}
+  else{
+    var k=cfg.k,base=getBase(),cd=cellDays(k);
+    st.ds=base+lo*cd;st.de=base+(hi+1)*cd;st.mode="editing";st.ec=0;
+    document.getElementById("panelInput").value="";updCP();syncPanelFields();
+    document.getElementById("evtList").innerHTML="";
+    document.getElementById("calPanel").style.display="block";bCal();
+    setTimeout(function(){document.getElementById("panelInput").focus();},50);
+  }
+}
+document.addEventListener("mouseup",finishDrag);
+
+function bCal(){var s=gS();if(!s.a)return;
+var k=cfg.k,base=getBase(),cd=cellDays(k),gd=gridDays(k),dd=st.hd,fs=st.fs,fi=Math.floor(fs*65536);
+var curFlat=-1;
+if(cd<1){var fDays=(dd-base)+fs;var ci2=Math.floor(fDays/cd);if(ci2>=0&&ci2<256)curFlat=ci2;}
+else{var off=dd-base;if(off>=0){var ci3=Math.floor(off/cd);if(ci3<256)curFlat=ci3;}}
+var te=document.getElementById("calTitle");
+var gPat=gridHexPat(k,base);
+if(gd<=1){var cv=h2C(base,s.a.y,s.a.m,s.a.d);te.innerHTML=esc(gPat)+" <span style='color:var(--dim);font-size:12px;font-weight:400'>"+cv.y+"-"+p2(cv.mo)+"-"+p2(cv.d)+"</span>";}
+else{var cvS=h2C(base,s.a.y,s.a.m,s.a.d),cvE=h2C(base+gd-1,s.a.y,s.a.m,s.a.d);te.innerHTML=esc(gPat)+" <span style='color:var(--dim);font-size:12px;font-weight:400'>"+cvS.y+"-"+p2(cvS.mo)+"-"+p2(cvS.d)+" … "+cvE.y+"-"+p2(cvE.mo)+"-"+p2(cvE.d)+"</span>";}
+var gridTpl=mkTemplate(k+4),colTpl=mkTemplate(k+3),cellTpl=mkTemplate(k+2);
+document.getElementById("calSub").innerHTML="grid "+esc(gridTpl)+" · col "+esc(colTpl)+" · cell "+esc(cellTpl);
+var g=document.getElementById("calGrid");g.className="cal-grid";
+// Build event map: for each flat cell, find intersecting events
+var gridLo=base,gridHi=base+gd;
+var visEvts=evts.filter(function(e){return e.de>gridLo&&e.ds<gridHi;});
+var em={};
+for(var fi=0;fi<256;fi++){
+  var cr=cellRange(k,base,fi);
+  visEvts.forEach(function(e){
+    if(e.de>cr.lo&&e.ds<cr.hi){if(!em[fi])em[fi]=[];em[fi].push(e);}
+  });
+}
+var pLo=-1,pHi=-1;
+if(st.ds<st.de&&st.mode!=="idle"){pLo=st.ds;pHi=st.de;}
+var htm='<div></div>';
+for(var c=0;c<16;c++){var cPat=colHexPat(k,base,c),cLbl=colLabel(k,base,c);htm+='<div class="cal-col-hdr" title="'+esc(cPat)+'">'+esc(cLbl)+'</div>';}
+for(var r=0;r<16;r++){htm+='<div class="cal-row-hdr">'+H[r]+'</div>';
+for(var c2=0;c2<16;c2++){var fl=c2*16+r;
+var cr2=cellRange(k,base,fl);
+var isN=fl===curFlat,evL=em[fl]||[],hasE=evL.length>0,isP=pLo>=0&&cr2.hi>pLo&&cr2.lo<pHi;
+var bg,bd;
+if(isP&&!hasE){bg=EC[st.ec].bg;bd=EC[st.ec].b;}
+else if(hasE){bg=EC[evL[0].c].bg;bd=EC[evL[0].c].b;}
+else if(isN){bg="#6ae4a0";bd="#6ae4a0";}
+else if(curFlat>=0&&fl<curFlat){bg="rgba(106,228,160,0.10)";bd="rgba(255,255,255,0.04)";}
+else{
+  var isSl=cellIsSleep(k,base,fl),isRe=cellIsRest(k,base,fl);
+  if(isSl){bg="rgba(100,120,200,0.15)";bd="rgba(100,120,200,0.08)";}
+  else if(isRe){bg="rgba(180,140,240,0.12)";bd="rgba(180,140,240,0.08)";}
+  else{bg="rgba(255,255,255,0.03)";bd="rgba(255,255,255,0.04)";}
+}
+var ci=cellInfo(k,base,fl,s);var inn="";
+if(hasE)inn=evL.slice(0,3).map(function(e){return'<div class="evt-pip" style="background:'+EC[e.c].b+'"></div>';}).join("");
+else if(cfg.civil===1&&!isP)inn='<div class="civil-overlay">'+esc(civilLabel(k,base,fl,s))+'</div>';
+else if(cfg.civil===2&&!isP)inn='<div class="civil-overlay">'+esc(hexLabel(k,base,fl))+'</div>';
+htm+='<div class="cal-cell" data-f="'+fl+'" style="background:'+bg+';border:1px solid '+bd+'" title="'+esc(cellHexPat(k,base,fl))+" — "+esc(ci.cv.fs)+(hasE?evL.map(function(e){return"\n• "+e.t;}).join(""):"")+'">'+inn+'</div>';}}
+g.innerHTML=htm;
+g.querySelectorAll(".cal-cell").forEach(function(el){
+  el.addEventListener("mousedown",function(e){
+    if(e.button!==0)return;
+    e.preventDefault();
+    dragActive=true;dragStart=+el.dataset.f;dragEnd=dragStart;
+    g.classList.add("dragging");
+    highlightDrag(dragStart,dragStart);
+  });
+  el.addEventListener("mouseenter",function(){
+    if(!dragActive)return;
+    dragEnd=+el.dataset.f;
+    highlightDrag(Math.min(dragStart,dragEnd),Math.max(dragStart,dragEnd));
+  });
+});}
+
+function cellClick(fl){var s=gS();if(!s.a)return;
+var k=cfg.k,base=getBase();
+var cr=cellRange(k,base,fl);
+st.ds=cr.lo;st.de=cr.hi;st.mode="editing";st.ec=0;st.editEvt=null;
+document.getElementById("panelInput").value="";updCP();syncPanelFields();setPanelMode(false);
+var el=document.getElementById("evtList");el.innerHTML="";
+evts.filter(function(e){return e.de>cr.lo&&e.ds<cr.hi;}).forEach(function(ev){
+var d=document.createElement("div");d.className="evt-item";
+var cdot=document.createElement("div");cdot.className="evt-item-color";cdot.style.background=EC[ev.c].b;
+var tt=document.createElement("span");tt.className="evt-item-title";tt.textContent=ev.t;
+var rng=document.createElement("span");rng.className="evt-item-range";
+rng.textContent=absToHex(ev.ds)+" → "+absToHex(ev.de);
+var edt=document.createElement("button");edt.className="evt-item-edit";edt.textContent="✎";edt.title="Edit";
+edt.onclick=function(){loadEvtForEdit(ev);};
+var del=document.createElement("button");del.className="evt-item-del";del.textContent="✕";
+del.onclick=function(){evts=evts.filter(function(x){return x!==ev;});svJ("hx-eD",evts);bCal();cellClick(fl);};
+d.appendChild(cdot);d.appendChild(tt);d.appendChild(rng);d.appendChild(edt);d.appendChild(del);el.appendChild(d);});
+document.getElementById("calPanel").style.display="block";bCal();
+setTimeout(function(){document.getElementById("panelInput").focus();},50);}
+
+function loadEvtForEdit(ev){
+  st.editEvt=ev;st.ds=ev.ds;st.de=ev.de;st.ec=ev.c;
+  document.getElementById("panelInput").value=ev.t==="(untitled)"?"":ev.t;
+  updCP();syncPanelFields();setPanelMode(true);
+}
+function setPanelMode(isEdit){
+  document.getElementById("panelLabel").textContent=isEdit?"Edit event":"New event";
+  document.getElementById("panelSave").textContent=isEdit?"Save":"Add";
+  document.getElementById("panelCancel").style.display=isEdit?"inline-block":"none";
+}
+
+// Convert absolute day value → hex stamp string
+function absToStamp(v){var d=Math.floor(v),f=Math.round((v-d)*65536);if(f>=65536){f=0;d++;}return fD(d)+"."+fF(f);}
+// Parse hex stamp string → absolute day value (or NaN)
+function parseStamp(s){s=s.trim().toUpperCase();var m=s.match(/^(-?[0-9A-F]+)\.([0-9A-F]{1,4})$/);if(!m)return NaN;var d=parseInt(m[1],16),f=parseInt(m[2].padEnd(4,"0"),16);if(isNaN(d)||isNaN(f))return NaN;return d+f/65536;}
+// Absolute day value → civil {date, time} strings using anchor
+function absToCivil(v,s){var d=Math.floor(v),fr=v-d;var cv=cCV(d,fr,s.a.y,s.a.m,s.a.d,s.dss);return{date:cv.ds,time:cv.ts+":00"};}
+// Civil date+time → absolute day value
+function civilToAbs(dateStr,timeStr,s){
+  var dp=dateStr.split("-").map(Number);if(dp.length!==3||dp.some(isNaN))return NaN;
+  var tp=(timeStr||"00:00:00").split(":").map(function(x){return parseInt(x||"0",10);});
+  var rawHD=computeHD(dp[0],dp[1],dp[2],s.a.y,s.a.m,s.a.d);
+  var r=aDS(rawHD,tp[0]||0,tp[1]||0,tp[2]||0,0,s.dss);
+  return r.hd+r.fs;
+}
+
+function syncPanelFields(){
+  var s=gS();if(!s.a)return;
+  document.getElementById("panelStartHex").value=absToStamp(st.ds);
+  document.getElementById("panelEndHex").value=absToStamp(st.de);
+  var sc=absToCivil(st.ds,s),ec=absToCivil(st.de,s);
+  document.getElementById("panelStartDate").value=sc.date;
+  document.getElementById("panelStartTime").value=sc.time;
+  document.getElementById("panelEndDate").value=ec.date;
+  document.getElementById("panelEndTime").value=ec.time;
+  bCal();
+}
+// Hex input → update civil + grid
+document.getElementById("panelStartHex").onchange=function(){var v=parseStamp(this.value);if(!isNaN(v)){st.ds=v;syncPanelFields();}};
+document.getElementById("panelEndHex").onchange=function(){var v=parseStamp(this.value);if(!isNaN(v)){st.de=v;syncPanelFields();}};
+// Civil input → update hex + grid
+function onCivilStartChange(){var s=gS();if(!s.a)return;var v=civilToAbs(document.getElementById("panelStartDate").value,document.getElementById("panelStartTime").value,s);if(!isNaN(v)){st.ds=v;syncPanelFields();}}
+function onCivilEndChange(){var s=gS();if(!s.a)return;var v=civilToAbs(document.getElementById("panelEndDate").value,document.getElementById("panelEndTime").value,s);if(!isNaN(v)){st.de=v;syncPanelFields();}}
+document.getElementById("panelStartDate").onchange=onCivilStartChange;
+document.getElementById("panelStartTime").onchange=onCivilStartChange;
+document.getElementById("panelEndDate").onchange=onCivilEndChange;
+document.getElementById("panelEndTime").onchange=onCivilEndChange;
+
+function updCP(){var el=document.getElementById("colorPicker");el.innerHTML="";EC.forEach(function(c,i){var d=document.createElement("div");d.className="color-dot"+(st.ec===i?" active":"");d.style.background=c.b;d.style.opacity=st.ec===i?"1":"0.5";d.style.border=st.ec===i?"2px solid #fff":"2px solid transparent";d.onclick=function(){st.ec=i;updCP();bCal();};el.appendChild(d);});}
+document.getElementById("panelClose").onclick=clPnl;
+document.getElementById("panelSave").onclick=svEvt;
+document.getElementById("panelCancel").onclick=function(){st.editEvt=null;setPanelMode(false);};
+document.getElementById("panelInput").onkeydown=function(e){if(e.key==="Enter")svEvt();};
+function clPnl(){st.mode="idle";st.ds=0;st.de=0;st.editEvt=null;document.getElementById("calPanel").style.display="none";bCal();}
+function svEvt(){if(st.ds>=st.de)return;var t=document.getElementById("panelInput").value.trim()||"(untitled)";var lo=Math.min(st.ds,st.de),hi=Math.max(st.ds,st.de);
+  if(st.editEvt){st.editEvt.ds=lo;st.editEvt.de=hi;st.editEvt.t=t;st.editEvt.c=st.ec;st.editEvt=null;setPanelMode(false);}
+  else{evts.push({ds:lo,de:hi,t:t,c:st.ec});}
+  svJ("hx-eD",evts);document.getElementById("panelInput").value="";bCal();}
+setTimeout(bCal,150);
+
+// Converters
+// Default fwd converter to current civil time
+(function(){var s=gS();if(!s.a)return;var now=new Date(),c=gCT(now,s.o);
+document.getElementById("fwdDate").value=c.y+"-"+p2(c.mo)+"-"+p2(c.d);
+document.getElementById("fwdTime").value=p2(c.h)+":"+p2(c.m)+":"+p2(c.s);})();
+
+document.getElementById("fwdBtn").onclick=function(){var s=gS(),fR=document.getElementById("fwdRes"),fE=document.getElementById("fwdErr");fR.style.display="none";fE.style.display="none";if(!s.a){fE.textContent="Set an anchor date.";fE.style.display="block";return;}var dv=document.getElementById("fwdDate").value;if(!dv){fE.textContent="Pick a date.";fE.style.display="block";return;}var dp=dv.split("-").map(Number),tv=(document.getElementById("fwdTime").value||"00:00:00").split(":").map(function(x){return parseInt(x||"0",10);});var rawHD=computeHD(dp[0],dp[1],dp[2],s.a.y,s.a.m,s.a.d),r=aDS(rawHD,tv[0],tv[1],tv[2]||0,0,s.dss);var stamp=fSt(r.hd,r.fi);fR.textContent=stamp;fR.style.display="flex";var cb=document.createElement("button");cb.className="copy-btn";cb.textContent="copy";cb.onclick=function(){cpT(stamp);cb.textContent="✓";setTimeout(function(){cb.textContent="copy";},1200);};fR.appendChild(cb);document.getElementById("fwdHint").textContent="As "+document.getElementById("tzSelect").options[document.getElementById("tzSelect").selectedIndex].text;};
+
+// Hex digit picker — keyboard-navigable
+var hpDigits=[0,0,0,0,0,0,0,0];// 4 day + 4 frac
+function buildHexPicker(){
+  var wrap=document.getElementById("hexPicker");wrap.innerHTML="";
+  for(var i=0;i<8;i++){
+    if(i===4){var dot=document.createElement("span");dot.className="hex-picker-dot";dot.textContent=".";wrap.appendChild(dot);}
+    (function(idx){
+      var d=document.createElement("div");d.className="hex-digit";
+      var up=document.createElement("div");up.className="hex-digit-arr";up.textContent="▲";
+      up.onclick=function(){hpDigits[idx]=(hpDigits[idx]+1)%16;updHPDisp();focusHP(idx);};
+      var val=document.createElement("div");
+      val.className="hex-digit-val"+(idx>=4?" frac":"");
+      val.id="hpD"+idx;val.textContent=H[hpDigits[idx]];
+      val.setAttribute("tabindex","0");
+      val.onclick=function(){this.focus();};
+      val.onkeydown=function(e){
+        var c=e.key.toUpperCase();
+        if("0123456789ABCDEF".indexOf(c)>=0){
+          hpDigits[idx]=parseInt(c,16);updHPDisp();
+          focusHP(idx<7?idx+1:idx);// auto-advance
+          e.preventDefault();
+        }else if(e.key==="ArrowUp"){hpDigits[idx]=(hpDigits[idx]+1)%16;updHPDisp();e.preventDefault();
+        }else if(e.key==="ArrowDown"){hpDigits[idx]=(hpDigits[idx]+15)%16;updHPDisp();e.preventDefault();
+        }else if(e.key==="ArrowRight"){focusHP(Math.min(7,idx+1));e.preventDefault();
+        }else if(e.key==="ArrowLeft"){focusHP(Math.max(0,idx-1));e.preventDefault();
+        }else if(e.key==="Backspace"){hpDigits[idx]=0;updHPDisp();focusHP(Math.max(0,idx-1));e.preventDefault();}
+      };
+      var dn=document.createElement("div");dn.className="hex-digit-arr";dn.textContent="▼";
+      dn.onclick=function(){hpDigits[idx]=(hpDigits[idx]+15)%16;updHPDisp();focusHP(idx);};
+      d.appendChild(up);d.appendChild(val);d.appendChild(dn);wrap.appendChild(d);
+    })(i);
+  }
+}
+function focusHP(idx){var el=document.getElementById("hpD"+idx);if(el)el.focus();}
+function updHPDisp(){for(var i=0;i<8;i++)document.getElementById("hpD"+i).textContent=H[hpDigits[i]];}
+function setHPFromStamp(dd,ff){
+  var ds=fD(dd),fs=fF(ff);
+  for(var i=0;i<4;i++)hpDigits[i]=parseInt(ds[i],16)||0;
+  for(var i=0;i<4;i++)hpDigits[4+i]=parseInt(fs[i],16)||0;
+  updHPDisp();
+}
+buildHexPicker();
+setTimeout(function(){setHPFromStamp(st.hd,st.fi);},200);
+
+document.getElementById("revBtn").onclick=doRev;
+function doRev(){var s=gS(),rR=document.getElementById("revRes"),rE=document.getElementById("revErr");rR.style.display="none";rE.style.display="none";if(!s.a){rE.textContent="Set an anchor date.";rE.style.display="block";return;}
+var di=0,fi=0;for(var i=0;i<4;i++){di=di*16+hpDigits[i];fi=fi*16+hpDigits[4+i];}
+var rv=revCV(di,fi,s.a.y,s.a.m,s.a.d,s.o,s.dss);var cv=fC(rv.y,rv.mo,rv.d,rv.h,rv.m,rv.s,s.o);rR.textContent=cv;rR.style.display="flex";var cb=document.createElement("button");cb.className="copy-btn";cb.textContent="copy";cb.onclick=function(){cpT(cv);cb.textContent="✓";setTimeout(function(){cb.textContent="copy";},1200);};rR.appendChild(cb);}
+
+// Tests (anchor-based: anchor = 1998-05-13 - 0x100 days = 1997-09-29)
+(function(){
+  // With anchor such that 1998-05-13 = 0x100:
+  // anchorSerial = dSr(1998,5,13) - 0x100
+  var aS=dSr(1998,5,13)-0x100;var ac=sD(aS);
+  function t(ty,tm,td,h,m,s,dss,exp){
+    var rawHD=dSr(ty,tm,td)-aS;
+    var r=aDS(rawHD,h,m,s,0,dss);
+    var got=fSt(r.hd,r.fi);
+    if(got!==exp)console.error("FAIL: expected "+exp+", got "+got);
+  }
+  t(1998,5,13,0,0,0,0,"0100.0000");
+  t(1998,5,13,12,0,0,0,"0100.8000");
+  t(1998,5,14,0,0,0,0,"0101.0000");
+  t(1998,5,12,0,0,0,0,"00FF.0000");
+  t(1998,5,13,6,0,0,21600,"0100.0000");
+  console.log("✓ All sanity tests passed");
+})();
+})();
+</script>
+</body>
+</html>
