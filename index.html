@@ -137,6 +137,31 @@
     .top-link:hover {
       background: rgba(0,0,0,0.06);
     }
+
+    .games-grid{display:flex;flex-direction:column;gap:14px;margin-top:16px}
+    .game-card{
+      display:flex;align-items:center;gap:18px;
+      padding:20px 24px;border-radius:10px;
+      border:1px solid #333;text-decoration:none;color:var(--fg);
+      transition:all 0.15s;background:#1a1a1a;
+    }
+    body:not(.dark) .game-card{border-color:#ddd;background:#f8f8f8}
+    .game-card:hover{border-color:#3fb5ff;transform:translateX(4px);text-decoration:none}
+    body:not(.dark) .game-card:hover{border-color:#3fb5ff;background:#eef6ff}
+    body.dark .game-card:hover{background:#1a2030}
+    .game-card.coming-soon{opacity:0.6;cursor:default}
+    .game-card.coming-soon:hover{border-color:#333;transform:none;background:#1a1a1a}
+    body:not(.dark) .game-card.coming-soon:hover{border-color:#ddd;background:#f8f8f8}
+    .game-icon{font-size:2.2rem;flex-shrink:0}
+    .game-info{flex:1;min-width:0}
+    .game-title{font-weight:700;font-size:1.1rem;margin-bottom:4px}
+    .game-desc{font-size:0.85rem;color:gray;line-height:1.5}
+    .game-tag{font-size:0.75rem;color:#3fb5ff;margin-top:6px;font-weight:600}
+    .game-arrow{font-size:1.3rem;color:#888;flex-shrink:0;transition:transform 0.15s}
+    .game-card:hover .game-arrow{transform:translateX(4px);color:#3fb5ff}
+    .game-card.coming-soon .game-arrow{display:none}
+    .game-badge{font-size:0.7rem;color:#888;border:1px solid #555;border-radius:4px;padding:2px 8px;margin-left:8px;font-weight:400}
+    body:not(.dark) .game-badge{border-color:#ccc;color:#999}
   </style>
 </head>
 
@@ -228,6 +253,42 @@
       Prof. A. Mehta, 
       and Prof. M. Nevins.
     </p>
+
+    <hr style="border:none;border-top:1px solid #ccc;margin:36px 0 24px;">
+
+    <h2>Interactive Games</h2>
+
+    <div class="games-grid">
+      <a href="chsh.html" class="game-card coming-soon">
+        <div class="game-icon">🔔</div>
+        <div class="game-info">
+          <div class="game-title">CHSH Game <span class="game-badge">coming soon</span></div>
+          <div class="game-desc">The Clauser–Horne–Shimony–Holt nonlocal game.</div>
+          <div class="game-tag">Quantum Information</div>
+        </div>
+        <div class="game-arrow">→</div>
+      </a>
+
+      <a href="lattice.html" class="game-card coming-soon">
+        <div class="game-icon">🔷</div>
+        <div class="game-info">
+          <div class="game-title">Lattice Game <span class="game-badge">coming soon</span></div>
+          <div class="game-desc">Interactive lattice problems.</div>
+          <div class="game-tag">Cryptography</div>
+        </div>
+        <div class="game-arrow">→</div>
+      </a>
+
+      <a href="isomorphism.html" class="game-card coming-soon">
+        <div class="game-icon">🔀</div>
+        <div class="game-info">
+          <div class="game-title">Isomorphism Game <span class="game-badge">coming soon</span></div>
+          <div class="game-desc">The isomorphism game.</div>
+          <div class="game-tag">Quantum Information</div>
+        </div>
+        <div class="game-arrow">→</div>
+      </a>
+    </div>
 
   </div>
 
