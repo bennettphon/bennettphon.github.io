@@ -499,8 +499,8 @@ function handAngle(hd,fs,sc){
   return((fs*Math.pow(16,-sc))%1)*360;
 }
 function clockAngles(hd,fs,k){return[handAngle(hd,fs,k),handAngle(hd,fs,k-1),handAngle(hd,fs,k-2),handAngle(hd,fs,k-3)];}
-function clockNames(k){var r=[];for(var i=0;i<4;i++){var ni=kToNI(k-i);r.push(ni>=0&&ni<cfg.names.length?cfg.names[ni]:"k="+(k-i));}return r;}
-function clockTips(k){var r=[];for(var i=0;i<4;i++){var ni=kToNI(k-i);r.push(ni>=0&&ni<N_CIV.length?N_CIV[ni]+"/tick":"");}return r;}
+function clockNames(k){var r=[];for(var i=0;i<4;i++){var ni=kToNI(k-i)+1;r.push(ni>=0&&ni<cfg.names.length?cfg.names[ni]:"k="+(k-i-1));}return r;}
+function clockTips(k){var r=[];for(var i=0;i<4;i++){var ni=kToNI(k-i)+1;r.push(ni>=0&&ni<N_CIV.length?N_CIV[ni]+"/tick":"");}return r;}
 
 // Build clock selectors
 var clkScales=[4,3,2,1,0];
