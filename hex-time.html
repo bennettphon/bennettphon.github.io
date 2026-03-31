@@ -112,8 +112,13 @@ input[type="range"]{accent-color:var(--acc)}
 .color-dot{width:20px;height:20px;border-radius:50%;cursor:pointer;display:inline-block}
 .range-label{font-family:var(--mono);font-size:11px;color:var(--dim)}.range-hex{font-family:var(--mono);font-size:12px;color:var(--acc);font-weight:600}
 .evt-list{margin-top:6px}.evt-item{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--sf2);border:1px solid var(--bd);border-radius:6px;margin-bottom:4px;font-family:var(--mono);font-size:11px}
-.evt-item-color{width:8px;height:8px;border-radius:50%;flex-shrink:0}.evt-item-title{flex:1;color:var(--tx)}.evt-item-range{color:var(--dim);font-size:9px}
+.evt-item-color{width:8px;height:8px;border-radius:50%;flex-shrink:0}.evt-item-title{flex:1;color:var(--tx);cursor:text;padding:1px 4px;border-radius:3px;border:1px solid transparent}.evt-item-title:hover{border-color:var(--bd)}.evt-item-title:focus{outline:none;border-color:var(--acc);background:var(--sf)}.evt-item-range{color:var(--dim);font-size:9px}
 .evt-item-del{color:var(--dim);cursor:pointer;background:none;border:none;font-size:14px;font-family:var(--mono);padding:0 4px}.evt-item-del:hover{color:var(--err)}
+.dur-pill{display:none}
+.panel-3row{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
+.panel-row{flex:1 1 120px;min-width:100px}
+.panel-civil-sub{display:flex;gap:2px;margin-top:3px}.panel-civil-sub.hidden{display:none}
+.dur-lock-btn{font-family:var(--mono);font-size:10px;color:var(--dim);background:none;border:1px solid var(--bd);border-radius:3px;padding:0 4px;cursor:pointer;line-height:1.4}.dur-lock-btn:hover{color:var(--acc)}.dur-lock-btn.locked{color:var(--acc);border-color:var(--accD);background:rgba(106,228,160,0.1)}
 .cal-tab{font-family:var(--mono);font-size:10px;color:var(--dim);background:var(--sf2);border:1px solid var(--bd);border-radius:4px;padding:3px 8px;cursor:pointer}
 .cal-tab.active{color:var(--acc);border-color:var(--accD);background:rgba(106,228,160,0.08)}
 .rhythm-pop{position:absolute;top:36px;right:8px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;z-index:15;box-shadow:0 4px 20px rgba(0,0,0,0.5);width:min(380px,90vw)}
@@ -127,12 +132,12 @@ input[type="range"]{accent-color:var(--acc)}
 .panel-civil-row{display:flex;gap:3px}
 .panel-civil-in{font-family:var(--mono);font-size:10px;padding:3px 5px;flex:1;min-width:0}
 .rest-day-btn{font-family:var(--mono);font-size:10px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);color:var(--dim)}
-.rest-day-btn.active{background:rgba(180,140,240,0.25);color:#b48cf0;border-color:#b48cf0}
+.rest-day-btn.active{background:rgba(200,100,160,0.25);color:#c864a0;border-color:#c864a0}
 .sleep-grid{display:grid;grid-template-columns:22px repeat(16,1fr);grid-template-rows:14px repeat(2,22px);gap:1px;margin-top:4px}
 .sleep-col-hdr{font-family:var(--mono);font-size:7px;color:var(--dim);display:flex;align-items:center;justify-content:center}
 .sleep-cell{border-radius:2px;cursor:pointer;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.03);transition:background 0.1s}
 .sleep-cell:hover{opacity:0.8}
-.sleep-cell.active{background:rgba(100,120,200,0.35);border-color:rgba(100,120,200,0.4)}
+.sleep-cell.active{background:rgba(106,228,160,0.3);border-color:rgba(106,228,160,0.4)}
 .sleep-row-hdr{font-family:var(--mono);font-size:7px;color:var(--dim);display:flex;align-items:center;justify-content:flex-end;padding-right:2px}
 .evt-item-edit{color:var(--dim);cursor:pointer;background:none;border:none;font-size:11px;font-family:var(--mono);padding:0 4px}.evt-item-edit:hover{color:var(--acc)}
 .disclosure{margin-top:12px;border-top:1px solid var(--bd);padding-top:12px}
@@ -191,6 +196,7 @@ input[type="range"]{accent-color:var(--acc)}
           <button class="btn-sm" id="calPrev">◁</button><button class="btn-sm" id="calNow">now</button><button class="btn-sm" id="calNext">▷</button>
           <button class="cal-tab" id="civilToggle">civil</button>
           <button class="cal-tab" id="rhythmToggle">rhythm</button>
+          <button class="cal-tab" id="clearPageEvts" style="color:var(--err);border-color:rgba(228,106,106,0.3)">clear</button>
         </div>
       </div>
       <!-- Rhythm popover -->
@@ -210,26 +216,38 @@ input[type="range"]{accent-color:var(--acc)}
       <div class="cal-grid-wrap"><div class="cal-grid" id="calGrid"></div></div>
       <!-- Overlay panel -->
       <div class="cal-panel-overlay" id="calPanel">
-        <div class="cal-panel-header"><div id="panelLabel" style="font-family:var(--mono);font-size:11px;color:var(--dim)">New event</div><button class="cal-panel-close" id="panelClose">✕</button></div>
+        <div class="cal-panel-header">
+          <div id="panelLabel" style="font-family:var(--mono);font-size:11px;color:var(--dim)">New event</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <button class="btn-sm" id="panelCivilToggle" style="font-size:9px;padding:2px 6px">civil</button>
+            <button class="cal-panel-close" id="panelClose">✕</button>
+          </div>
+        </div>
         <div class="evt-list" id="evtList"></div>
         <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)">
-          <div class="panel-range-row">
-            <div class="panel-range-group">
+          <div class="panel-3row">
+            <div class="panel-row">
               <div class="label">start</div>
               <input type="text" class="input panel-hex-in" id="panelStartHex" placeholder="0000.0000">
-              <div class="panel-civil-row"><input type="date" class="input panel-civil-in" id="panelStartDate"><input type="time" class="input panel-civil-in" id="panelStartTime" step="1"></div>
+              <div class="panel-civil-sub"><input type="date" class="input panel-civil-in" id="panelStartDate"><input type="time" class="input panel-civil-in" id="panelStartTime" step="1"></div>
             </div>
-            <div class="panel-range-sep">→</div>
-            <div class="panel-range-group">
+            <div class="panel-row">
+              <div class="label" style="display:flex;align-items:center;gap:4px"><span>duration</span><button class="dur-lock-btn" id="durLockBtn" title="Lock duration">⌁</button></div>
+              <input type="text" class="input panel-hex-in" id="panelDurHex" placeholder="0001.0000">
+              <div class="panel-civil-sub"><input type="text" class="input panel-civil-in" id="panelDurCivil" placeholder="0d 0h 0m" style="flex:1"></div>
+            </div>
+            <div class="panel-row">
               <div class="label">end</div>
               <input type="text" class="input panel-hex-in" id="panelEndHex" placeholder="0000.0000">
-              <div class="panel-civil-row"><input type="date" class="input panel-civil-in" id="panelEndDate"><input type="time" class="input panel-civil-in" id="panelEndTime" step="1"></div>
+              <div class="panel-civil-sub"><input type="date" class="input panel-civil-in" id="panelEndDate"><input type="time" class="input panel-civil-in" id="panelEndTime" step="1"></div>
             </div>
           </div>
-          <div class="cal-panel-body" style="margin-top:8px"><input type="text" class="cal-input" id="panelInput" placeholder="Event title..."></div>
-          <div class="cal-panel-body">
-            <div id="colorPicker" style="display:flex;gap:4px;align-items:center"></div>
-            <button class="btn-dim" id="panelCancel" style="margin-left:auto;display:none;font-size:10px;padding:5px 10px">Cancel</button>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:8px">
+            <input type="text" class="cal-input" id="panelInput" placeholder="Event title..." style="flex:1">
+            <div id="colorPicker" style="display:flex;gap:4px;align-items:center;flex-shrink:0"></div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;margin-top:8px;justify-content:flex-end">
+            <button class="btn-dim" id="panelCancel" style="display:none;font-size:10px;padding:5px 10px">Cancel</button>
             <button class="btn" id="panelSave">Add</button>
           </div>
         </div>
@@ -273,6 +291,21 @@ input[type="range"]{accent-color:var(--acc)}
         </div>
         <div class="res-box" id="revRes"></div><div class="err-box" id="revErr"></div></section>
     </div>
+    <section class="card"><h2 class="card-title">Backup / Restore</h2>
+      <div class="hint" style="margin-top:0;margin-bottom:10px">Export your settings and events as a JSON file. Paste it back to restore if your browser data gets wiped.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start">
+        <button class="btn" id="exportBtn">Download backup</button>
+        <button class="btn-dim" id="importBtn">Restore from backup</button>
+        <button class="btn-dim" id="resetBtn" style="color:var(--err);border-color:rgba(228,106,106,0.3)">Reset to defaults</button>
+      </div>
+      <textarea class="input" id="importArea" style="display:none;margin-top:10px;height:100px;font-size:11px;resize:vertical" placeholder="Paste your backup JSON here, then click Apply restore..."></textarea>
+      <div style="display:none;margin-top:8px;gap:8px" id="importActions">
+        <button class="btn" id="importConfirm">Apply restore</button>
+        <button class="btn-dim" id="importCancel">Cancel</button>
+      </div>
+      <div class="err-box" id="importErr"></div>
+      <div class="res-box" id="importOk"></div>
+    </section>
     <section class="card"><h2 class="card-title">How it works</h2><div class="info-body" style="display:block">
       <p><strong>DDDD.TTTT</strong> — DDDD = hex day count from anchor. TTTT = fraction of day from day-start.</p>
       <p><strong>Anchor:</strong> The civil date you set as <code>0000.0000</code>. With the birthday helper, your birth date becomes day <code>0100</code> (= 256).</p>
@@ -285,7 +318,14 @@ input[type="range"]{accent-color:var(--acc)}
 <script>
 (function(){"use strict";
 var H="0123456789ABCDEF";
-var EC=[{bg:"rgba(106,228,160,0.35)",b:"#6ae4a0"},{bg:"rgba(122,172,240,0.35)",b:"#7aacf0"},{bg:"rgba(240,140,120,0.35)",b:"#f08c78"},{bg:"rgba(255,179,71,0.35)",b:"#ffb347"},{bg:"rgba(180,140,240,0.35)",b:"#b48cf0"},{bg:"rgba(80,200,200,0.35)",b:"#50c8c8"}];
+var EC=[
+{bg:"rgba(106,228,160,0.35)",b:"#6ae4a0"},{bg:"rgba(122,172,240,0.35)",b:"#7aacf0"},
+{bg:"rgba(240,140,120,0.35)",b:"#f08c78"},{bg:"rgba(255,179,71,0.35)",b:"#ffb347"},
+{bg:"rgba(180,140,240,0.35)",b:"#b48cf0"},{bg:"rgba(80,200,200,0.35)",b:"#50c8c8"},
+{bg:"rgba(240,100,160,0.35)",b:"#f064a0"},{bg:"rgba(160,210,80,0.35)",b:"#a0d250"},
+{bg:"rgba(220,180,120,0.35)",b:"#dcb478"},{bg:"rgba(140,160,220,0.35)",b:"#8ca0dc"},
+{bg:"rgba(220,120,220,0.35)",b:"#dc78dc"},{bg:"rgba(240,220,100,0.35)",b:"#f0dc64"}
+];
 // Palettes indexed by k (0=day .. 4=life)
 var PALS=[
   {ring:"#2a2e3a",tM:"#4a5a7a",tN:"#2e3448",lM:"#7aacf0",lN:"#3a4d6b",n:["#7aacf0","#b0c8e8","#6688b0","#4a6488"],c:"#141820"},
@@ -335,9 +375,10 @@ while(cfg.names.length<9)cfg.names.push(DEF_N[cfg.names.length]);
 var evts=ldJ("hx-eD",[]);
 var st={hd:0,fs:0,fi:0,stamp:"",mode:"idle",ds:0,de:0,ec:0,anchor:null,editEvt:null};
 
-document.getElementById("anchorDate").value=cfg.ad;document.getElementById("tzSelect").value=String(cfg.tz);document.getElementById("dayStart").value=cfg.ds;
-function saveCfg(){cfg.ad=document.getElementById("anchorDate").value;cfg.tz=+document.getElementById("tzSelect").value;cfg.ds=document.getElementById("dayStart").value;svJ("hx-c8",cfg);}
-document.getElementById("anchorDate").onchange=saveCfg;document.getElementById("tzSelect").onchange=saveCfg;document.getElementById("dayStart").onchange=saveCfg;
+if(!cfg.bd)cfg.bd="2000-09-13";
+document.getElementById("anchorDate").value=cfg.ad;document.getElementById("tzSelect").value=String(cfg.tz);document.getElementById("dayStart").value=cfg.ds;document.getElementById("bdHelper").value=cfg.bd;
+function saveCfg(){cfg.ad=document.getElementById("anchorDate").value;cfg.tz=+document.getElementById("tzSelect").value;cfg.ds=document.getElementById("dayStart").value;cfg.bd=document.getElementById("bdHelper").value;svJ("hx-c8",cfg);}
+document.getElementById("anchorDate").onchange=saveCfg;document.getElementById("tzSelect").onchange=saveCfg;document.getElementById("dayStart").onchange=saveCfg;document.getElementById("bdHelper").onchange=saveCfg;
 function gS(){var p=cfg.ad.split("-").map(Number);var a=(p.length===3&&p.every(function(n){return!isNaN(n);}))?{y:p[0],m:p[1],d:p[2]}:null;return{a:a,o:cfg.tz,dss:pDSv(cfg.ds)};}
 
 // Birthday helper
@@ -586,6 +627,18 @@ function updCivBtn(){var b=document.getElementById("civilToggle");b.textContent=
 document.getElementById("civilToggle").onclick=function(){cfg.civil=(cfg.civil+1)%3;saveCfg();updCivBtn();bCal();};
 updCivBtn();
 
+document.getElementById("clearPageEvts").onclick=function(){
+  var k=cfg.k,base=getBase(),gd=gridDays(k);
+  var gridLo=base,gridHi=base+gd;
+  var pageEvts=evts.filter(function(e){return e.de>gridLo&&e.ds<gridHi;});
+  if(pageEvts.length===0){alert("No events on this page.");return;}
+  var list=pageEvts.map(function(e){return"• "+e.t+" ("+absToHex(e.ds)+" → "+absToHex(e.de)+")";}).join("\n");
+  var ok=confirm("Remove "+pageEvts.length+" event"+(pageEvts.length>1?"s":"")+" from this page?\n\n"+list);
+  if(!ok)return;
+  evts=evts.filter(function(e){return e.de<=gridLo||e.ds>=gridHi;});
+  svJ("hx-eD",evts);clPnl();bCal();
+};
+
 function cellInfo(k,base,flat,s){var aY=s.a.y,aM=s.a.m,aD=s.a.d,dss=s.dss,cd=cellDays(k);
 if(cd<1){var tf=flat*cd,dOff=Math.floor(tf),dFrac=tf-dOff;var cv=cCV(base+dOff,dFrac,aY,aM,aD,dss);return{hex:fD(base+dOff)+"."+fF(Math.floor(dFrac*65536)),cv:cv};}
 var cd2=base+flat*cd;var cv2=h2C(cd2,aY,aM,aD);return{hex:fD(cd2),cv:{ds:cv2.y+"-"+p2(cv2.mo)+"-"+p2(cv2.d),ts:"",fs:cv2.y+"-"+p2(cv2.mo)+"-"+p2(cv2.d)}};}
@@ -678,7 +731,7 @@ function finishDrag(){
   else{
     var k=cfg.k,base=getBase(),cd=cellDays(k);
     st.ds=base+lo*cd;st.de=base+(hi+1)*cd;st.mode="editing";st.ec=0;
-    document.getElementById("panelInput").value="";updCP();syncPanelFields();
+    document.getElementById("panelInput").value="";updCP();writeAllFields();
     document.getElementById("evtList").innerHTML="";
     document.getElementById("calPanel").style.display="block";bCal();
     setTimeout(function(){document.getElementById("panelInput").focus();},50);
@@ -699,8 +752,10 @@ var gridTpl=mkTemplate(k+4),colTpl=mkTemplate(k+3),cellTpl=mkTemplate(k+2);
 document.getElementById("calSub").innerHTML="grid "+esc(gridTpl)+" · col "+esc(colTpl)+" · cell "+esc(cellTpl);
 var g=document.getElementById("calGrid");g.className="cal-grid";
 // Build event map: for each flat cell, find intersecting events
+// Filter out events shorter than 1/16 of cell duration
 var gridLo=base,gridHi=base+gd;
-var visEvts=evts.filter(function(e){return e.de>gridLo&&e.ds<gridHi;});
+var minEvtDur=cd/16;
+var visEvts=evts.filter(function(e){return e.de>gridLo&&e.ds<gridHi&&(e.de-e.ds)>=minEvtDur;});
 var em={};
 for(var fi=0;fi<256;fi++){
   var cr=cellRange(k,base,fi);
@@ -716,19 +771,28 @@ for(var r=0;r<16;r++){htm+='<div class="cal-row-hdr">'+H[r]+'</div>';
 for(var c2=0;c2<16;c2++){var fl=c2*16+r;
 var cr2=cellRange(k,base,fl);
 var isN=fl===curFlat,evL=em[fl]||[],hasE=evL.length>0,isP=pLo>=0&&cr2.hi>pLo&&cr2.lo<pHi;
+var isPast=curFlat>=0&&fl<curFlat;
 var bg,bd;
-if(isP&&!hasE){bg=EC[st.ec].bg;bd=EC[st.ec].b;}
-else if(hasE){bg=EC[evL[0].c].bg;bd=EC[evL[0].c].b;}
-else if(isN){bg="#6ae4a0";bd="#6ae4a0";}
-else if(curFlat>=0&&fl<curFlat){bg="rgba(106,228,160,0.10)";bd="rgba(255,255,255,0.04)";}
+// Present cell is always first priority
+if(isN){bg="rgba(122,172,240,0.45)";bd="#7aacf0";}
+else if(isP&&!hasE){bg=EC[st.ec].bg;bd=EC[st.ec].b;}
+else if(hasE&&!isPast){bg=EC[evL[0].c].bg;bd=EC[evL[0].c].b;}
+else if(hasE&&isPast){bg=EC[evL[0].c].bg.replace(/0\.\d+\)/,"0.18)");bd=EC[evL[0].c].b;}
+else if(isPast){
+  var isSl=cellIsSleep(k,base,fl),isRe=cellIsRest(k,base,fl);
+  if(isSl){bg="rgba(106,228,160,0.06)";bd="rgba(106,228,160,0.03)";}
+  else if(isRe){bg="rgba(200,100,160,0.06)";bd="rgba(200,100,160,0.03)";}
+  else{bg="rgba(255,255,255,0.015)";bd="rgba(255,255,255,0.02)";}
+}
 else{
   var isSl=cellIsSleep(k,base,fl),isRe=cellIsRest(k,base,fl);
-  if(isSl){bg="rgba(100,120,200,0.15)";bd="rgba(100,120,200,0.08)";}
-  else if(isRe){bg="rgba(180,140,240,0.12)";bd="rgba(180,140,240,0.08)";}
+  if(isSl){bg="rgba(106,228,160,0.15)";bd="rgba(106,228,160,0.08)";}
+  else if(isRe){bg="rgba(200,100,160,0.14)";bd="rgba(200,100,160,0.08)";}
   else{bg="rgba(255,255,255,0.03)";bd="rgba(255,255,255,0.04)";}
 }
 var ci=cellInfo(k,base,fl,s);var inn="";
-if(hasE)inn=evL.slice(0,3).map(function(e){return'<div class="evt-pip" style="background:'+EC[e.c].b+'"></div>';}).join("");
+if(hasE&&evL.length===1)inn='<div style="font-family:var(--mono);font-size:min(9px,1.4vw);color:'+EC[evL[0].c].b+';font-weight:600;line-height:1.1;text-align:center;overflow:hidden;width:90%;word-break:break-word;max-height:90%;display:flex;align-items:center;justify-content:center">'+esc(evL[0].t)+'</div>';
+else if(hasE)inn=evL.slice(0,3).map(function(e){return'<div style="font-family:var(--mono);font-size:min(6px,0.9vw);color:'+EC[e.c].b+';line-height:1.05;text-align:center;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;width:90%">'+esc(e.t)+'</div>';}).join("");
 else if(cfg.civil===1&&!isP)inn='<div class="civil-overlay">'+esc(civilLabel(k,base,fl,s))+'</div>';
 else if(cfg.civil===2&&!isP)inn='<div class="civil-overlay">'+esc(hexLabel(k,base,fl))+'</div>';
 htm+='<div class="cal-cell" data-f="'+fl+'" style="background:'+bg+';border:1px solid '+bd+'" title="'+esc(cellHexPat(k,base,fl))+" — "+esc(ci.cv.fs)+(hasE?evL.map(function(e){return"\n• "+e.t;}).join(""):"")+'">'+inn+'</div>';}}
@@ -752,26 +816,34 @@ function cellClick(fl){var s=gS();if(!s.a)return;
 var k=cfg.k,base=getBase();
 var cr=cellRange(k,base,fl);
 st.ds=cr.lo;st.de=cr.hi;st.mode="editing";st.ec=0;st.editEvt=null;
-document.getElementById("panelInput").value="";updCP();syncPanelFields();setPanelMode(false);
+document.getElementById("panelInput").value="";updCP();writeAllFields();setPanelMode(false);
+buildEvtList(fl);
+document.getElementById("calPanel").style.display="block";bCal();
+setTimeout(function(){document.getElementById("panelInput").focus();},50);}
+
+function buildEvtList(fl){
+var k=cfg.k,base=getBase();
+var cr=cellRange(k,base,fl);
 var el=document.getElementById("evtList");el.innerHTML="";
 evts.filter(function(e){return e.de>cr.lo&&e.ds<cr.hi;}).forEach(function(ev){
 var d=document.createElement("div");d.className="evt-item";
 var cdot=document.createElement("div");cdot.className="evt-item-color";cdot.style.background=EC[ev.c].b;
 var tt=document.createElement("span");tt.className="evt-item-title";tt.textContent=ev.t;
+tt.setAttribute("contenteditable","true");tt.setAttribute("spellcheck","false");
+tt.onblur=function(){var nv=tt.textContent.trim();if(nv&&nv!==ev.t){ev.t=nv;svJ("hx-eD",evts);bCal();}else{tt.textContent=ev.t;}};
+tt.onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();tt.blur();}if(e.key==="Escape"){tt.textContent=ev.t;tt.blur();}};
 var rng=document.createElement("span");rng.className="evt-item-range";
 rng.textContent=absToHex(ev.ds)+" → "+absToHex(ev.de);
-var edt=document.createElement("button");edt.className="evt-item-edit";edt.textContent="✎";edt.title="Edit";
+var edt=document.createElement("button");edt.className="evt-item-edit";edt.textContent="✎";edt.title="Edit range/color";
 edt.onclick=function(){loadEvtForEdit(ev);};
 var del=document.createElement("button");del.className="evt-item-del";del.textContent="✕";
-del.onclick=function(){evts=evts.filter(function(x){return x!==ev;});svJ("hx-eD",evts);bCal();cellClick(fl);};
-d.appendChild(cdot);d.appendChild(tt);d.appendChild(rng);d.appendChild(edt);d.appendChild(del);el.appendChild(d);});
-document.getElementById("calPanel").style.display="block";bCal();
-setTimeout(function(){document.getElementById("panelInput").focus();},50);}
+del.onclick=function(){evts=evts.filter(function(x){return x!==ev;});svJ("hx-eD",evts);bCal();buildEvtList(fl);};
+d.appendChild(cdot);d.appendChild(tt);d.appendChild(rng);d.appendChild(edt);d.appendChild(del);el.appendChild(d);});}
 
 function loadEvtForEdit(ev){
   st.editEvt=ev;st.ds=ev.ds;st.de=ev.de;st.ec=ev.c;
   document.getElementById("panelInput").value=ev.t==="(untitled)"?"":ev.t;
-  updCP();syncPanelFields();setPanelMode(true);
+  updCP();writeAllFields();setPanelMode(true);
 }
 function setPanelMode(isEdit){
   document.getElementById("panelLabel").textContent=isEdit?"Edit event":"New event";
@@ -779,13 +851,35 @@ function setPanelMode(isEdit){
   document.getElementById("panelCancel").style.display=isEdit?"inline-block":"none";
 }
 
-// Convert absolute day value → hex stamp string
+// --- Lock & civil toggle ---
+if(cfg.durLocked===undefined)cfg.durLocked=true;
+var durLocked=cfg.durLocked;
+var dlBtn=document.getElementById("durLockBtn");
+dlBtn.classList.toggle("locked",durLocked);
+dlBtn.textContent=durLocked?"🔒":"⌁";
+dlBtn.title=durLocked?"Duration locked — editing start/end pushes the other":"Lock duration";
+dlBtn.onclick=function(){
+  durLocked=!durLocked;cfg.durLocked=durLocked;saveCfg();
+  this.classList.toggle("locked",durLocked);
+  this.textContent=durLocked?"🔒":"⌁";
+  this.title=durLocked?"Duration locked — editing start/end pushes the other":"Lock duration";
+};
+var civilVisible=cfg.civilPanel!==undefined?cfg.civilPanel:true;
+var cvBtn=document.getElementById("panelCivilToggle");
+cvBtn.textContent=civilVisible?"hide civil":"show civil";
+cvBtn.classList.toggle("active",civilVisible);
+cvBtn.onclick=function(){
+  civilVisible=!civilVisible;cfg.civilPanel=civilVisible;saveCfg();
+  this.textContent=civilVisible?"hide civil":"show civil";
+  this.classList.toggle("active",civilVisible);
+  document.querySelectorAll(".panel-civil-sub").forEach(function(el){el.classList.toggle("hidden",!civilVisible);});
+};
+if(!civilVisible)document.querySelectorAll(".panel-civil-sub").forEach(function(el){el.classList.add("hidden");});
+
+// --- Conversion helpers ---
 function absToStamp(v){var d=Math.floor(v),f=Math.round((v-d)*65536);if(f>=65536){f=0;d++;}return fD(d)+"."+fF(f);}
-// Parse hex stamp string → absolute day value (or NaN)
 function parseStamp(s){s=s.trim().toUpperCase();var m=s.match(/^(-?[0-9A-F]+)\.([0-9A-F]{1,4})$/);if(!m)return NaN;var d=parseInt(m[1],16),f=parseInt(m[2].padEnd(4,"0"),16);if(isNaN(d)||isNaN(f))return NaN;return d+f/65536;}
-// Absolute day value → civil {date, time} strings using anchor
 function absToCivil(v,s){var d=Math.floor(v),fr=v-d;var cv=cCV(d,fr,s.a.y,s.a.m,s.a.d,s.dss);return{date:cv.ds,time:cv.ts+":00"};}
-// Civil date+time → absolute day value
 function civilToAbs(dateStr,timeStr,s){
   var dp=dateStr.split("-").map(Number);if(dp.length!==3||dp.some(isNaN))return NaN;
   var tp=(timeStr||"00:00:00").split(":").map(function(x){return parseInt(x||"0",10);});
@@ -794,38 +888,116 @@ function civilToAbs(dateStr,timeStr,s){
   return r.hd+r.fs;
 }
 
-function syncPanelFields(){
+// --- Duration as hex stamp (DDDD.FFFF = days.frac) ---
+function durToHex(dur){
+  if(dur<0)dur=0;
+  var d=Math.floor(dur),f=Math.round((dur-d)*65536);
+  if(f>=65536){f=0;d++;}
+  return fD(d)+"."+fF(f);
+}
+function parseDurHex(s){return parseStamp(s);}// same format
+
+// --- Duration as civil string: Xw Xd HH:MM:SS ---
+function durToCivil(dur){
+  if(dur<=0)return"0d 00:00:00";
+  var totalSec=Math.round(dur*86400);
+  var w=Math.floor(totalSec/604800);totalSec%=604800;
+  var d=Math.floor(totalSec/86400);totalSec%=86400;
+  var h=Math.floor(totalSec/3600);totalSec%=3600;
+  var m=Math.floor(totalSec/60);var s=totalSec%60;
+  var parts=[];
+  if(w>0)parts.push(w+"w");
+  parts.push(d+"d");
+  parts.push(p2(h)+":"+p2(m)+":"+p2(s));
+  return parts.join(" ");
+}
+function parseDurCivil(str){
+  str=str.trim().toLowerCase();
+  var totalDays=0;
+  // Extract weeks
+  var wm=str.match(/(\d+)\s*w/);if(wm)totalDays+=parseInt(wm[1])*7;
+  // Extract days
+  var dm=str.match(/(\d+)\s*d/);if(dm)totalDays+=parseInt(dm[1]);
+  // Extract HH:MM:SS or HH:MM
+  var tm=str.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if(tm){totalDays+=parseInt(tm[1])/24+parseInt(tm[2])/1440+(tm[3]?parseInt(tm[3])/86400:0);}
+  // Extract Xh Xm Xs if no colon format
+  if(!tm){
+    var hm=str.match(/(\d+)\s*h/);if(hm)totalDays+=parseInt(hm[1])/24;
+    var mm=str.match(/(\d+)\s*m/);if(mm)totalDays+=parseInt(mm[1])/1440;
+    var sm=str.match(/(\d+)\s*s/);if(sm)totalDays+=parseInt(sm[1])/86400;
+  }
+  return totalDays;
+}
+
+// --- Write all fields from st.ds / st.de ---
+function writeAllFields(){
   var s=gS();if(!s.a)return;
+  var dur=st.de-st.ds;
+  // Start
   document.getElementById("panelStartHex").value=absToStamp(st.ds);
-  document.getElementById("panelEndHex").value=absToStamp(st.de);
-  var sc=absToCivil(st.ds,s),ec=absToCivil(st.de,s);
+  var sc=absToCivil(st.ds,s);
   document.getElementById("panelStartDate").value=sc.date;
   document.getElementById("panelStartTime").value=sc.time;
+  // Duration
+  document.getElementById("panelDurHex").value=durToHex(dur);
+  document.getElementById("panelDurCivil").value=durToCivil(dur);
+  // End
+  document.getElementById("panelEndHex").value=absToStamp(st.de);
+  var ec=absToCivil(st.de,s);
   document.getElementById("panelEndDate").value=ec.date;
   document.getElementById("panelEndTime").value=ec.time;
   bCal();
 }
-// Hex input → update civil + grid
-document.getElementById("panelStartHex").onchange=function(){var v=parseStamp(this.value);if(!isNaN(v)){st.ds=v;syncPanelFields();}};
-document.getElementById("panelEndHex").onchange=function(){var v=parseStamp(this.value);if(!isNaN(v)){st.de=v;syncPanelFields();}};
-// Civil input → update hex + grid
-function onCivilStartChange(){var s=gS();if(!s.a)return;var v=civilToAbs(document.getElementById("panelStartDate").value,document.getElementById("panelStartTime").value,s);if(!isNaN(v)){st.ds=v;syncPanelFields();}}
-function onCivilEndChange(){var s=gS();if(!s.a)return;var v=civilToAbs(document.getElementById("panelEndDate").value,document.getElementById("panelEndTime").value,s);if(!isNaN(v)){st.de=v;syncPanelFields();}}
-document.getElementById("panelStartDate").onchange=onCivilStartChange;
-document.getElementById("panelStartTime").onchange=onCivilStartChange;
-document.getElementById("panelEndDate").onchange=onCivilEndChange;
-document.getElementById("panelEndTime").onchange=onCivilEndChange;
+
+// --- Input handlers ---
+function onStartChanged(newDs){
+  if(isNaN(newDs))return;
+  if(durLocked){var dur=st.de-st.ds;st.ds=newDs;st.de=newDs+dur;}
+  else{st.ds=newDs;}
+  writeAllFields();
+}
+function onEndChanged(newDe){
+  if(isNaN(newDe))return;
+  if(durLocked){var dur=st.de-st.ds;st.de=newDe;st.ds=newDe-dur;}
+  else{st.de=newDe;}
+  writeAllFields();
+}
+function onDurChanged(newDur){
+  if(isNaN(newDur)||newDur<=0)return;
+  st.de=st.ds+newDur;
+  writeAllFields();
+}
+
+// Start inputs
+document.getElementById("panelStartHex").onchange=function(){onStartChanged(parseStamp(this.value));};
+document.getElementById("panelStartDate").onchange=function(){var s=gS();if(!s.a)return;onStartChanged(civilToAbs(this.value,document.getElementById("panelStartTime").value,s));};
+document.getElementById("panelStartTime").onchange=function(){var s=gS();if(!s.a)return;onStartChanged(civilToAbs(document.getElementById("panelStartDate").value,this.value,s));};
+// End inputs
+document.getElementById("panelEndHex").onchange=function(){onEndChanged(parseStamp(this.value));};
+document.getElementById("panelEndDate").onchange=function(){var s=gS();if(!s.a)return;onEndChanged(civilToAbs(this.value,document.getElementById("panelEndTime").value,s));};
+document.getElementById("panelEndTime").onchange=function(){var s=gS();if(!s.a)return;onEndChanged(civilToAbs(document.getElementById("panelEndDate").value,this.value,s));};
+// Duration inputs
+document.getElementById("panelDurHex").onchange=function(){var v=parseDurHex(this.value);onDurChanged(v);};
+document.getElementById("panelDurCivil").onchange=function(){var v=parseDurCivil(this.value);onDurChanged(v);};
 
 function updCP(){var el=document.getElementById("colorPicker");el.innerHTML="";EC.forEach(function(c,i){var d=document.createElement("div");d.className="color-dot"+(st.ec===i?" active":"");d.style.background=c.b;d.style.opacity=st.ec===i?"1":"0.5";d.style.border=st.ec===i?"2px solid #fff":"2px solid transparent";d.onclick=function(){st.ec=i;updCP();bCal();};el.appendChild(d);});}
 document.getElementById("panelClose").onclick=clPnl;
 document.getElementById("panelSave").onclick=svEvt;
 document.getElementById("panelCancel").onclick=function(){st.editEvt=null;setPanelMode(false);};
 document.getElementById("panelInput").onkeydown=function(e){if(e.key==="Enter")svEvt();};
+document.getElementById("calPanel").addEventListener("keydown",function(e){
+  if(e.key!=="Enter")return;
+  var tag=e.target.tagName;var ce=e.target.getAttribute("contenteditable");
+  if(ce)return;// don't intercept inline title editing
+  if(tag==="TEXTAREA")return;
+  if(tag==="INPUT"&&e.target.type==="text"&&e.target.id==="panelInput")return;// handled above
+  svEvt();
+});
 function clPnl(){st.mode="idle";st.ds=0;st.de=0;st.editEvt=null;document.getElementById("calPanel").style.display="none";bCal();}
 function svEvt(){if(st.ds>=st.de)return;var t=document.getElementById("panelInput").value.trim()||"(untitled)";var lo=Math.min(st.ds,st.de),hi=Math.max(st.ds,st.de);
-  if(st.editEvt){st.editEvt.ds=lo;st.editEvt.de=hi;st.editEvt.t=t;st.editEvt.c=st.ec;st.editEvt=null;setPanelMode(false);}
-  else{evts.push({ds:lo,de:hi,t:t,c:st.ec});}
-  svJ("hx-eD",evts);document.getElementById("panelInput").value="";bCal();}
+  if(st.editEvt){st.editEvt.ds=lo;st.editEvt.de=hi;st.editEvt.t=t;st.editEvt.c=st.ec;st.editEvt=null;setPanelMode(false);svJ("hx-eD",evts);document.getElementById("panelInput").value="";bCal();}
+  else{evts.push({ds:lo,de:hi,t:t,c:st.ec});svJ("hx-eD",evts);document.getElementById("panelInput").value="";clPnl();}}
 setTimeout(bCal,150);
 
 // Converters
@@ -884,6 +1056,68 @@ document.getElementById("revBtn").onclick=doRev;
 function doRev(){var s=gS(),rR=document.getElementById("revRes"),rE=document.getElementById("revErr");rR.style.display="none";rE.style.display="none";if(!s.a){rE.textContent="Set an anchor date.";rE.style.display="block";return;}
 var di=0,fi=0;for(var i=0;i<4;i++){di=di*16+hpDigits[i];fi=fi*16+hpDigits[4+i];}
 var rv=revCV(di,fi,s.a.y,s.a.m,s.a.d,s.o,s.dss);var cv=fC(rv.y,rv.mo,rv.d,rv.h,rv.m,rv.s,s.o);rR.textContent=cv;rR.style.display="flex";var cb=document.createElement("button");cb.className="copy-btn";cb.textContent="copy";cb.onclick=function(){cpT(cv);cb.textContent="✓";setTimeout(function(){cb.textContent="copy";},1200);};rR.appendChild(cb);}
+
+// Backup / Restore
+document.getElementById("exportBtn").onclick=function(){
+  var backup={version:1,exported:new Date().toISOString(),config:cfg,events:evts};
+  var blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="hextime-backup-"+new Date().toISOString().slice(0,10)+".json";
+  a.click();URL.revokeObjectURL(a.href);
+};
+document.getElementById("importBtn").onclick=function(){
+  var ta=document.getElementById("importArea"),ac=document.getElementById("importActions");
+  ta.style.display="block";ac.style.display="flex";ta.value="";ta.focus();
+  document.getElementById("importErr").style.display="none";document.getElementById("importOk").style.display="none";
+};
+document.getElementById("importCancel").onclick=function(){
+  document.getElementById("importArea").style.display="none";document.getElementById("importActions").style.display="none";
+  document.getElementById("importErr").style.display="none";
+};
+document.getElementById("importConfirm").onclick=function(){
+  var errEl=document.getElementById("importErr"),okEl=document.getElementById("importOk");
+  errEl.style.display="none";okEl.style.display="none";
+  var raw=document.getElementById("importArea").value.trim();
+  if(!raw){errEl.textContent="Paste your backup JSON first.";errEl.style.display="block";return;}
+  try{var data=JSON.parse(raw);}catch(e){errEl.textContent="Invalid JSON: "+e.message;errEl.style.display="block";return;}
+  if(!data.config&&!data.events){errEl.textContent="Doesn't look like a hex time backup (no config or events found).";errEl.style.display="block";return;}
+  var parts=[];
+  if(data.config)parts.push("settings (anchor: "+data.config.ad+", tz: UTC"+(data.config.tz>=0?"+":"")+data.config.tz+")");
+  if(data.events)parts.push(data.events.length+" event"+(data.events.length!==1?"s":""));
+  var ok=confirm("Restore the following?\n\n"+parts.join("\n")+"\n\nThis will overwrite your current data.");
+  if(!ok)return;
+  if(data.config){
+    Object.keys(data.config).forEach(function(k){cfg[k]=data.config[k];});
+    svJ("hx-c8",cfg);
+    document.getElementById("anchorDate").value=cfg.ad;document.getElementById("tzSelect").value=String(cfg.tz);
+    document.getElementById("dayStart").value=cfg.ds;if(cfg.bd)document.getElementById("bdHelper").value=cfg.bd;
+    while(cfg.names.length<9)cfg.names.push(DEF_N[cfg.names.length]);
+    buildNE();rAll();buildSleepGrid();updSleepDur();buildRestBtns();
+    if(cfg.durLocked!==undefined){durLocked=cfg.durLocked;var dlb2=document.getElementById("durLockBtn");dlb2.classList.toggle("locked",durLocked);dlb2.textContent=durLocked?"🔒":"⌁";}
+    if(cfg.civilPanel!==undefined){civilVisible=cfg.civilPanel;cvBtn.textContent=civilVisible?"hide civil":"show civil";cvBtn.classList.toggle("active",civilVisible);document.querySelectorAll(".panel-civil-sub").forEach(function(el){el.classList.toggle("hidden",!civilVisible);});}
+  }
+  if(data.events){evts=data.events;svJ("hx-eD",evts);}
+  document.getElementById("importArea").style.display="none";document.getElementById("importActions").style.display="none";
+  okEl.textContent="Restored! "+parts.join(", ");okEl.style.display="flex";
+  bCal();
+};
+document.getElementById("resetBtn").onclick=function(){
+  var nEvts=evts.length;
+  var msg="Reset everything to factory defaults?";
+  if(nEvts>0)msg+="\n\nThis will also delete all "+nEvts+" event"+(nEvts!==1?"s":"")+".";
+  msg+="\n\n(Consider downloading a backup first!)";
+  if(!confirm(msg))return;
+  var def={ad:"2000-01-01",tz:-4,ds:"00:00",bd:"2000-09-13",names:DEF_N.slice(),clkL:2,clkR:0,tab:"settings",k:1,civil:0,sleep:[30,31,0,1,2,3,4,5,6,7,8,9],restDays:[0,7,8,15],durLocked:true,civilPanel:true};
+  Object.keys(def).forEach(function(k){cfg[k]=def[k];});
+  svJ("hx-c8",cfg);evts=[];svJ("hx-eD",evts);
+  document.getElementById("anchorDate").value=cfg.ad;document.getElementById("tzSelect").value=String(cfg.tz);
+  document.getElementById("dayStart").value=cfg.ds;document.getElementById("bdHelper").value=cfg.bd;
+  buildNE();rAll();buildSleepGrid();updSleepDur();buildRestBtns();rebuildClocks();
+  durLocked=cfg.durLocked;var dlb=document.getElementById("durLockBtn");dlb.classList.toggle("locked",durLocked);dlb.textContent=durLocked?"🔒":"⌁";
+  civilVisible=cfg.civilPanel;cvBtn.textContent=civilVisible?"hide civil":"show civil";cvBtn.classList.toggle("active",civilVisible);
+  document.querySelectorAll(".panel-civil-sub").forEach(function(el){el.classList.toggle("hidden",!civilVisible);});
+  bCal();
+};
 
 // Tests (anchor-based: anchor = 1998-05-13 - 0x100 days = 1997-09-29)
 (function(){
