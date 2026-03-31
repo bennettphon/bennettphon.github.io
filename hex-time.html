@@ -374,6 +374,7 @@ if(cfg.sleepS||cfg.sleepE){delete cfg.sleepS;delete cfg.sleepE;saveCfg();}
 while(cfg.names.length<9)cfg.names.push(DEF_N[cfg.names.length]);
 var evts=ldJ("hx-eD",[]);
 var st={hd:0,fs:0,fi:0,stamp:"",mode:"idle",ds:0,de:0,ec:0,anchor:null,editEvt:null};
+if(cfg.calAnchor!==undefined&&cfg.calAnchor!==null)st.anchor=cfg.calAnchor;
 
 if(!cfg.bd)cfg.bd="2000-09-13";
 document.getElementById("anchorDate").value=cfg.ad;document.getElementById("tzSelect").value=String(cfg.tz);document.getElementById("dayStart").value=cfg.ds;document.getElementById("bdHelper").value=cfg.bd;
@@ -615,13 +616,14 @@ document.getElementById("copyStamp").onclick=function(){cpT(st.stamp);var b=this
 // Calendar
 function buildZB(){var el=document.getElementById("zoomBtns");el.innerHTML="";for(var k=4;k>=0;k--){(function(kk){var b=document.createElement("button");b.className="cal-zoom-btn"+(kk===cfg.k?" active":"");b.textContent=kLabel(kk,cfg.names);b.onclick=function(){setK(kk);};el.appendChild(b);})(k);}}
 buildZB();
-function setK(k){cfg.k=k;saveCfg();clPnl();st.anchor=null;buildZB();lCK="";bCal();}
+function saveAnchor(){cfg.calAnchor=st.anchor;saveCfg();}
+function setK(k){cfg.k=k;st.anchor=null;saveAnchor();clPnl();buildZB();lCK="";bCal();}
 function cellDays(k){return Math.pow(16,k-2);}
 function gridDays(k){return Math.pow(16,k);}
 function getBase(){var dd=st.anchor!==null?st.anchor:st.hd;var gd=gridDays(cfg.k);if(gd<1)return dd;return Math.floor(dd/gd)*gd;}
-document.getElementById("calPrev").onclick=function(){var gd=gridDays(cfg.k);if(gd<1)st.anchor=(st.anchor!==null?st.anchor:st.hd)-1;else st.anchor=getBase()-gd;lCK="";clPnl();bCal();};
-document.getElementById("calNext").onclick=function(){var gd=gridDays(cfg.k);if(gd<1)st.anchor=(st.anchor!==null?st.anchor:st.hd)+1;else st.anchor=getBase()+gd;lCK="";clPnl();bCal();};
-document.getElementById("calNow").onclick=function(){st.anchor=null;lCK="";clPnl();bCal();};
+document.getElementById("calPrev").onclick=function(){var gd=gridDays(cfg.k);if(gd<1)st.anchor=(st.anchor!==null?st.anchor:st.hd)-1;else st.anchor=getBase()-gd;saveAnchor();lCK="";clPnl();bCal();};
+document.getElementById("calNext").onclick=function(){var gd=gridDays(cfg.k);if(gd<1)st.anchor=(st.anchor!==null?st.anchor:st.hd)+1;else st.anchor=getBase()+gd;saveAnchor();lCK="";clPnl();bCal();};
+document.getElementById("calNow").onclick=function(){st.anchor=null;saveAnchor();lCK="";clPnl();bCal();};
 var civLabels=["off","civil","hex"];
 function updCivBtn(){var b=document.getElementById("civilToggle");b.textContent=civLabels[cfg.civil];b.classList.toggle("active",cfg.civil>0);}
 document.getElementById("civilToggle").onclick=function(){cfg.civil=(cfg.civil+1)%3;saveCfg();updCivBtn();bCal();};
@@ -1107,7 +1109,7 @@ document.getElementById("resetBtn").onclick=function(){
   if(nEvts>0)msg+="\n\nThis will also delete all "+nEvts+" event"+(nEvts!==1?"s":"")+".";
   msg+="\n\n(Consider downloading a backup first!)";
   if(!confirm(msg))return;
-  var def={ad:"2000-01-01",tz:-4,ds:"00:00",bd:"2000-09-13",names:DEF_N.slice(),clkL:2,clkR:0,tab:"settings",k:1,civil:0,sleep:[30,31,0,1,2,3,4,5,6,7,8,9],restDays:[0,7,8,15],durLocked:true,civilPanel:true};
+  var def={ad:"2000-01-01",tz:-4,ds:"00:00",bd:"2000-09-13",names:DEF_N.slice(),clkL:2,clkR:0,tab:"settings",k:1,civil:0,sleep:[30,31,0,1,2,3,4,5,6,7,8,9],restDays:[0,7,8,15],durLocked:true,civilPanel:true,calAnchor:null};
   Object.keys(def).forEach(function(k){cfg[k]=def[k];});
   svJ("hx-c8",cfg);evts=[];svJ("hx-eD",evts);
   document.getElementById("anchorDate").value=cfg.ad;document.getElementById("tzSelect").value=String(cfg.tz);
@@ -1116,7 +1118,7 @@ document.getElementById("resetBtn").onclick=function(){
   durLocked=cfg.durLocked;var dlb=document.getElementById("durLockBtn");dlb.classList.toggle("locked",durLocked);dlb.textContent=durLocked?"🔒":"⌁";
   civilVisible=cfg.civilPanel;cvBtn.textContent=civilVisible?"hide civil":"show civil";cvBtn.classList.toggle("active",civilVisible);
   document.querySelectorAll(".panel-civil-sub").forEach(function(el){el.classList.toggle("hidden",!civilVisible);});
-  bCal();
+  st.anchor=null;bCal();
 };
 
 // Tests (anchor-based: anchor = 1998-05-13 - 0x100 days = 1997-09-29)
