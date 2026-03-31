@@ -357,8 +357,8 @@ function fF(n){return(n&0xffff).toString(16).toUpperCase().padStart(4,"0");}
 function fSt(d,f){return fD(d)+"."+fF(f);}
 function fC(y,mo,d,h,m,s,o){return y+"-"+p2(mo)+"-"+p2(d)+" "+p2(h)+":"+p2(m)+":"+p2(s)+" UTC"+(o>=0?"+":"−")+Math.abs(o);}
 function h2C(hd,aY,aM,aD){return sD(dSr(aY,aM,aD)+hd);}
-function cCV(hd,fr,aY,aM,aD,dss){var sr=dSr(aY,aM,aD)+hd,cs=fr*86400+dss,ed=0;if(cs>=86400){cs-=86400;ed=1;}var d=new Date((sr+ed)*86400000);var h=Math.floor(cs/3600),m=Math.floor((cs%3600)/60);return{ds:d.getUTCFullYear()+"-"+p2(d.getUTCMonth()+1)+"-"+p2(d.getUTCDate()),ts:p2(h)+":"+p2(m),fs:d.getUTCFullYear()+"-"+p2(d.getUTCMonth()+1)+"-"+p2(d.getUTCDate())+" "+p2(h)+":"+p2(m)};}
-function revCV(di,fi,aY,aM,aD,o,dss){var sr=dSr(aY,aM,aD)+di,cs=(fi/65536)*86400+dss,ed=0;if(cs>=86400){cs-=86400;ed=1;}var d=new Date((sr+ed)*86400000);return{y:d.getUTCFullYear(),mo:d.getUTCMonth()+1,d:d.getUTCDate(),h:Math.floor(cs/3600),m:Math.floor((cs%3600)/60),s:Math.floor(cs%60)};}
+function cCV(hd,fr,aY,aM,aD,dss){var sr=dSr(aY,aM,aD)+hd,cs=Math.round(fr*86400+dss),ed=0;if(cs>=86400){cs-=86400;ed=1;}var d=new Date((sr+ed)*86400000);var h=Math.floor(cs/3600),m=Math.floor((cs%3600)/60),sec=cs%60;return{ds:d.getUTCFullYear()+"-"+p2(d.getUTCMonth()+1)+"-"+p2(d.getUTCDate()),ts:p2(h)+":"+p2(m)+":"+p2(sec),fs:d.getUTCFullYear()+"-"+p2(d.getUTCMonth()+1)+"-"+p2(d.getUTCDate())+" "+p2(h)+":"+p2(m)};}
+function revCV(di,fi,aY,aM,aD,o,dss){var sr=dSr(aY,aM,aD)+di,cs=Math.round((fi/65536)*86400+dss),ed=0;if(cs>=86400){cs-=86400;ed=1;}var d=new Date((sr+ed)*86400000);return{y:d.getUTCFullYear(),mo:d.getUTCMonth()+1,d:d.getUTCDate(),h:Math.floor(cs/3600),m:Math.floor((cs%3600)/60),s:cs%60};}
 function pDSv(v){if(!v)return 0;var p=v.split(":").map(Number);return(p[0]||0)*3600+(p[1]||0)*60;}
 function dLbl(d){if(d<1/1440)return(d*86400).toFixed(1)+"s";if(d<1/24)return(d*1440).toFixed(1)+"min";if(d<1)return(d*24).toFixed(1)+"hr";if(d<400)return Math.round(d)+"d";var y=d/365.25;return y<20?y.toFixed(1)+"yr":Math.round(y)+"yr";}
 
@@ -642,7 +642,7 @@ document.getElementById("clearPageEvts").onclick=function(){
 function cellInfo(k,base,flat,s){var aY=s.a.y,aM=s.a.m,aD=s.a.d,dss=s.dss,cd=cellDays(k);
 if(cd<1){var tf=flat*cd,dOff=Math.floor(tf),dFrac=tf-dOff;var cv=cCV(base+dOff,dFrac,aY,aM,aD,dss);return{hex:fD(base+dOff)+"."+fF(Math.floor(dFrac*65536)),cv:cv};}
 var cd2=base+flat*cd;var cv2=h2C(cd2,aY,aM,aD);return{hex:fD(cd2),cv:{ds:cv2.y+"-"+p2(cv2.mo)+"-"+p2(cv2.d),ts:"",fs:cv2.y+"-"+p2(cv2.mo)+"-"+p2(cv2.d)}};}
-function civilLabel(k,base,flat,s){var ci=cellInfo(k,base,flat,s),cd=cellDays(k);if(cd<1)return ci.cv.ts;if(cd<16)return ci.cv.ds.slice(5);if(cd<400)return ci.cv.ds.slice(2);return ci.cv.ds.slice(0,4);}
+function civilLabel(k,base,flat,s){var ci=cellInfo(k,base,flat,s),cd=cellDays(k);if(cd<1)return ci.cv.ts.slice(0,5);if(cd<16)return ci.cv.ds.slice(5);if(cd<400)return ci.cv.ds.slice(2);return ci.cv.ds.slice(0,4);}
 function cellHexPat(k,base,flat){return mkPat(k,base,flat,k+2);}
 function gridHexPat(k,base){return mkPat(k,base,0,k+4);}
 function colHexPat(k,base,col){return mkPat(k,base,col*16,k+3);}
@@ -879,7 +879,7 @@ if(!civilVisible)document.querySelectorAll(".panel-civil-sub").forEach(function(
 // --- Conversion helpers ---
 function absToStamp(v){var d=Math.floor(v),f=Math.round((v-d)*65536);if(f>=65536){f=0;d++;}return fD(d)+"."+fF(f);}
 function parseStamp(s){s=s.trim().toUpperCase();var m=s.match(/^(-?[0-9A-F]+)\.([0-9A-F]{1,4})$/);if(!m)return NaN;var d=parseInt(m[1],16),f=parseInt(m[2].padEnd(4,"0"),16);if(isNaN(d)||isNaN(f))return NaN;return d+f/65536;}
-function absToCivil(v,s){var d=Math.floor(v),fr=v-d;var cv=cCV(d,fr,s.a.y,s.a.m,s.a.d,s.dss);return{date:cv.ds,time:cv.ts+":00"};}
+function absToCivil(v,s){var d=Math.floor(v),fr=v-d;var cv=cCV(d,fr,s.a.y,s.a.m,s.a.d,s.dss);return{date:cv.ds,time:cv.ts};}
 function civilToAbs(dateStr,timeStr,s){
   var dp=dateStr.split("-").map(Number);if(dp.length!==3||dp.some(isNaN))return NaN;
   var tp=(timeStr||"00:00:00").split(":").map(function(x){return parseInt(x||"0",10);});
