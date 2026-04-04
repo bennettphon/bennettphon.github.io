@@ -1456,7 +1456,7 @@ var projView=cfg.projView||"list";
 var projDetailId=null;
 var projCreating=false;
 var planSlots=ldJ("hx-plan",{});
-var planWeekBase=null;// null = auto (current week)
+var planWeekBase=cfg.planWeekBase||null;// null = auto (current week)
 var planBrush=null;// selected project ID for painting, null = eraser
 var _planDrag=false;// planner drag-fill active
 var _planDragMoved=false;// did the drag move to another cell?
@@ -1468,7 +1468,7 @@ var PLAN_HOURS=(cfg.planHours||[6,7,9,10,13,14]).sort(function(a,b){return a-b;}
 function planHourToCivil(ph){var dss=pDSv(cfg.ds);var cs=Math.round((ph/16)*86400+dss);cs=((cs%86400)+86400)%86400;return p2(Math.floor(cs/3600))+":"+p2(Math.floor((cs%3600)/60));}
 function civilToPlanHour(str){var p=str.split(":").map(Number);if(p.length<2||isNaN(p[0])||isNaN(p[1]))return null;var dss=pDSv(cfg.ds);var cs=p[0]*3600+p[1]*60;var hs=((cs-dss)%86400+86400)%86400;return(hs/86400)*16;}
 function planHourToHex(ph){var f=ph/16;var fi=Math.floor(f*65536);return"."+fF(fi);}
-function savePlanHours(){cfg.planHours=PLAN_HOURS;saveCfg();}
+function savePlanHours(){cfg.planHours=PLAN_HOURS;svJ("hx-c8",cfg);}
 
 function saveProjData(){svJ("hx-proj",projects);}
 function saveTimerState(){svJ("hx-proj-tmr",activeTimer);}
@@ -1898,7 +1898,8 @@ function renderProjects(){
   var el=document.getElementById("projContent");
   var scrollEl=el.parentElement;
   // Persist view (detail falls back to list since detail ID is transient)
-  cfg.projView=projView==="detail"?"list":projView;svJ("hx-c8",cfg);// proj-scroll
+  var pv=projView==="detail"?"list":projView;
+  if(cfg.projView!==pv){cfg.projView=pv;svJ("hx-c8",cfg);}// proj-scroll
   // Toggle planner fullscreen mode
   scrollEl.classList.toggle("planner-mode",projView==="planner");
   // Sync toggle buttons
@@ -2115,7 +2116,8 @@ function renderProjList(el){
 function renderProjPlanner(el){
   var htm="",s=gS();
   var curWeek=Math.floor((st.hd||0)/16)*16;
-  if(planWeekBase===null)planWeekBase=curWeek;
+  if(planWeekBase===null&&(st.hd||0)>0){planWeekBase=curWeek;cfg.planWeekBase=planWeekBase;svJ("hx-c8",cfg);}
+  if(planWeekBase===null)planWeekBase=curWeek;// fallback to 0 if tick hasn't run
   var dayU=uName(4);
 
   // Civil date range for this hex week
@@ -2334,18 +2336,10 @@ function renderProjPlanner(el){
     });
   });
 
-  // Close picker on outside click
-  document.addEventListener("click",function _pc(e){
-    var picker=document.getElementById("planPicker");
-    if(picker&&picker.style.display==="block"&&!picker.contains(e.target)&&!e.target.closest(".plan-cell")){
-      picker.style.display="none";
-    }
-  });
-
   // Nav
-  document.getElementById("planPrev").onclick=function(){planWeekBase-=16;renderProjects();};
-  document.getElementById("planNext").onclick=function(){planWeekBase+=16;renderProjects();};
-  document.getElementById("planNow").onclick=function(){planWeekBase=Math.floor((st.hd||0)/16)*16;renderProjects();};
+  document.getElementById("planPrev").onclick=function(){planWeekBase-=16;cfg.planWeekBase=planWeekBase;svJ("hx-c8",cfg);renderProjects();};
+  document.getElementById("planNext").onclick=function(){planWeekBase+=16;cfg.planWeekBase=planWeekBase;svJ("hx-c8",cfg);renderProjects();};
+  document.getElementById("planNow").onclick=function(){planWeekBase=Math.floor((st.hd||0)/16)*16;cfg.planWeekBase=planWeekBase;svJ("hx-c8",cfg);renderProjects();};
 
   // Copy week → next
   document.getElementById("planCopyNext").onclick=function(){
@@ -2362,7 +2356,7 @@ function renderProjPlanner(el){
         }
       }
     }
-    savePlanData();planWeekBase=nextBase;renderProjects();
+    savePlanData();planWeekBase=nextBase;cfg.planWeekBase=planWeekBase;svJ("hx-c8",cfg);renderProjects();
   };
 
   // Clear week
@@ -2476,13 +2470,6 @@ function renderProjPlanner(el){
     _activeSlotEditor=-1;
     savePlanHours();savePlanData();renderProjects();
   };
-  // Close editor on outside click
-  document.addEventListener("click",function(e){
-    var ed=document.getElementById("planSlotEditor");
-    if(ed&&ed.style.display==="block"&&!ed.contains(e.target)&&!e.target.closest(".plan-row-clickable")){
-      ed.style.display="none";_activeSlotEditor=-1;
-    }
-  });
 
   // Hex/civil toggle removed from toolbar — it's now inline in the editor
 
@@ -2899,6 +2886,17 @@ document.addEventListener("mouseup",function(){
     if(picker&&typeof showPlanPicker==="function")showPlanPicker(_planClickCell);
   }
   _planClickCell=null;
+});
+// Global click handler for closing planner popups (added once)
+document.addEventListener("click",function(e){
+  var picker=document.getElementById("planPicker");
+  if(picker&&picker.style.display==="block"&&!picker.contains(e.target)&&!e.target.closest(".plan-cell")){
+    picker.style.display="none";
+  }
+  var ed=document.getElementById("planSlotEditor");
+  if(ed&&ed.style.display==="block"&&!ed.contains(e.target)&&!e.target.closest(".plan-row-clickable")){
+    ed.style.display="none";
+  }
 });
 if(cfg.tab==="projects")renderProjects();
 // =================== END PROJECTS ===================
