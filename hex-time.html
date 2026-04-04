@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>hex time</title>
+<link rel="icon" id="dynFavicon" type="image/png" href="data:,">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -104,8 +105,9 @@ input[type="range"]{accent-color:var(--acc)}
 .evt-pip{height:2px;width:70%;border-radius:1px;flex-shrink:0}
 .picking-end .cal-cell{cursor:crosshair}
 /* Overlay panel */
-.cal-panel-overlay{position:absolute;bottom:8px;left:8px;right:8px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:16px;display:none;z-index:10;box-shadow:0 -4px 20px rgba(0,0,0,0.5);max-height:50%;overflow-y:auto}
-.cal-panel-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.cal-panel-overlay{position:absolute;bottom:8px;left:8px;right:8px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:0;display:none;z-index:10;box-shadow:0 -4px 20px rgba(0,0,0,0.5);max-height:50%;overflow:hidden;flex-direction:column}
+.cal-panel-header{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 16px 8px;flex-shrink:0}
+.cal-panel-scroll{flex:1;overflow-y:auto;padding:0 16px 16px}
 .cal-panel-close{font-family:var(--mono);font-size:16px;color:var(--dim);background:transparent;border:none;cursor:pointer;padding:2px 8px}
 .cal-panel-body{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
 .cal-input{font-family:var(--mono);font-size:13px;background:var(--sf2);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:8px 12px;flex:1 1 200px}
@@ -161,6 +163,8 @@ input[type="range"]{accent-color:var(--acc)}
 .proj-empty{text-align:center;padding:40px 20px;color:var(--dim);font-family:var(--mono);font-size:13px}
 .proj-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin-bottom:10px;transition:border-color 0.15s;cursor:pointer}
 .proj-card:hover{border-color:rgba(106,228,160,0.3)}
+.proj-card.dragging{opacity:0.4;border-color:var(--accD);border-style:dashed}
+.proj-card.drag-over{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc);transform:translateY(-2px);transition:transform 0.15s,border-color 0.15s,box-shadow 0.15s}
 .proj-card.no-click{cursor:default}
 .proj-card-head{display:flex;align-items:center;gap:8px}
 .proj-card-color{width:10px;height:10px;border-radius:50%;flex-shrink:0}
@@ -240,6 +244,24 @@ input[type="range"]{accent-color:var(--acc)}
 .sprint-row-check{font-size:10px;min-width:14px;text-align:center}
 .sprint-detail{margin-left:26px;margin-bottom:6px;display:none}
 .sprint-detail.open{display:block}
+/* Planner */
+.planner-nav{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.planner-palette{display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.plan-pal-btn{width:22px;height:22px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:all 0.12s;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--dim)}
+.plan-pal-btn:hover{transform:scale(1.15)}
+.plan-pal-btn.active{border-color:#fff;transform:scale(1.2);box-shadow:0 0 6px rgba(255,255,255,0.3)}
+.planner-grid{display:grid;grid-template-columns:22px repeat(16,1fr);grid-template-rows:28px repeat(6,1fr);gap:2px;width:100%;min-height:220px;flex:1}
+.plan-col-hdr{font-family:var(--mono);font-size:min(9px,1.3vw);color:var(--dim);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
+.plan-col-hdr.today{color:var(--acc);font-weight:700}
+.plan-row-hdr{font-family:var(--mono);font-size:8px;color:var(--dim);display:flex;align-items:center;justify-content:center}
+.plan-cell{border-radius:3px;cursor:pointer;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.025);transition:border-color 0.1s,background 0.1s}
+.plan-cell:hover{border-color:var(--acc);z-index:1}
+.plan-cell.today{border-color:rgba(106,228,160,0.25)}
+/* Project edit */
+.proj-edit-section{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;margin:10px 0}
+.proj-edit-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px}
+.proj-edit-field{display:flex;flex-direction:column;gap:3px}
+.proj-edit-field .label{margin-bottom:0}
 </style>
 </head>
 <body>
@@ -288,6 +310,7 @@ input[type="range"]{accent-color:var(--acc)}
           <button class="btn-sm" id="calUp" title="Zoom out">△</button>
           <button class="cal-tab" id="civilToggle">civil</button>
           <button class="cal-tab" id="rhythmToggle">rhythm</button>
+          <button class="cal-tab" id="listPageEvts">list</button>
           <button class="cal-tab" id="clearPageEvts" style="color:var(--err);border-color:rgba(228,106,106,0.3)">clear</button>
         </div>
       </div>
@@ -315,8 +338,10 @@ input[type="range"]{accent-color:var(--acc)}
             <button class="cal-panel-close" id="panelClose">✕</button>
           </div>
         </div>
+        <div class="cal-panel-scroll">
         <div class="evt-list" id="evtList"></div>
-        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)">
+        <div id="panelAddBtnWrap" style="display:none;margin-top:6px"><button class="btn-sm" id="panelAddBtn" style="width:100%;text-align:center;padding:6px 0">+ add event</button></div>
+        <div id="panelCreateForm" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--bd)">
           <div class="panel-3row">
             <div class="panel-row">
               <div class="label">start</div>
@@ -354,6 +379,7 @@ input[type="range"]{accent-color:var(--acc)}
             <button class="btn" id="panelSave">Add</button>
           </div>
         </div>
+        </div><!-- cal-panel-scroll -->
       </div>
     </div>
   </div>
@@ -362,6 +388,7 @@ input[type="range"]{accent-color:var(--acc)}
     <div class="proj-fill">
       <div class="proj-top">
         <button class="proj-view-btn active" data-pv="list">Projects</button>
+        <button class="proj-view-btn" data-pv="planner">Planner</button>
         <button class="proj-view-btn" data-pv="stats">Stats</button>
         <div style="flex:1"></div>
         <button class="btn" id="projNewBtn" style="font-size:10px;padding:5px 12px">+ New project</button>
@@ -752,6 +779,7 @@ function tick(){var s=gS();
   if(needlesL){uN(needlesL,clockAngles(r.hd,r.fs,cfg.clkL));document.getElementById("digitsL").innerHTML=clockDigitsHTML(cfg.clkL,dd,ff);}
   if(needlesR){uN(needlesR,clockAngles(r.hd,r.fs,cfg.clkR));document.getElementById("digitsR").innerHTML=clockDigitsHTML(cfg.clkR,dd,ff);}
   var ck=cfg.k+":"+r.hd+":"+(r.fi>>8);if(ck!==lCK&&st.mode==="idle"){lCK=ck;bCal();}
+  if(!activeTimer)updateIdleTab();
   requestAnimationFrame(tick);}
 requestAnimationFrame(tick);
 document.getElementById("copyStamp").onclick=function(){cpT(st.stamp);var b=this;b.textContent="✓";setTimeout(function(){b.textContent="copy";},1200);};
@@ -773,6 +801,23 @@ var civLabels=["off","civil","hex"];
 function updCivBtn(){var b=document.getElementById("civilToggle");b.textContent=civLabels[cfg.civil];b.classList.toggle("active",cfg.civil>0);}
 document.getElementById("civilToggle").onclick=function(){cfg.civil=(cfg.civil+1)%3;saveCfg();updCivBtn();bCal();};
 updCivBtn();
+
+document.getElementById("listPageEvts").onclick=function(){
+  var k=cfg.k,base=getBase(),gd=gridDays(k);
+  var gridLo=base,gridHi=base+gd;
+  st.ds=gridLo;st.de=gridHi;st.mode="editing";st.ec=0;st.editEvt=null;
+  document.getElementById("panelInput").value="";updCP();writeAllFields();setPanelMode(false);
+  var n=buildEvtListRange(gridLo,gridHi);
+  document.getElementById("panelCreateForm").style.display="none";
+  document.getElementById("panelAddBtnWrap").style.display="block";
+  document.getElementById("panelAddBtn").onclick=function(){
+    document.getElementById("panelCreateForm").style.display="block";
+    document.getElementById("panelAddBtnWrap").style.display="none";
+    setTimeout(function(){document.getElementById("panelInput").focus();},50);
+  };
+  document.getElementById("panelLabel").textContent="All events on page ("+n+")";
+  document.getElementById("calPanel").style.display="flex";
+};
 
 document.getElementById("clearPageEvts").onclick=function(){
   var k=cfg.k,base=getBase(),gd=gridDays(k);
@@ -880,8 +925,11 @@ function finishDrag(){
     var k=cfg.k,base=getBase(),cd=cellDays(k);
     st.ds=base+lo*cd;st.de=base+(hi+1)*cd;st.mode="editing";st.ec=0;
     document.getElementById("panelInput").value="";updCP();writeAllFields();
-    document.getElementById("evtList").innerHTML="";
-    document.getElementById("calPanel").style.display="block";bCal();
+    var dragEvtCount=buildEvtListRange(st.ds,st.de);
+    document.getElementById("panelCreateForm").style.display="block";
+    document.getElementById("panelAddBtnWrap").style.display="none";
+    document.getElementById("panelLabel").textContent=dragEvtCount>0?"Events ("+dragEvtCount+") \u2014 new event":"New event";
+    document.getElementById("calPanel").style.display="flex";bCal();
     setTimeout(function(){document.getElementById("panelInput").focus();},50);
   }
 }
@@ -904,6 +952,9 @@ var g=document.getElementById("calGrid");g.className="cal-grid";
 var gridLo=base,gridHi=base+gd;
 var minEvtDur=cd/16;
 var visEvts=expandEvts(evts,gridLo,gridHi).filter(function(e){return(e.de-e.ds)>=minEvtDur;});
+// Merge virtual session events from planner
+try{var sessEvts=getSessionCalEvents(gridLo,gridHi).filter(function(e){return(e.de-e.ds)>=minEvtDur;});
+visEvts=visEvts.concat(sessEvts);}catch(e){}
 var em={};
 for(var fi=0;fi<256;fi++){
   var cr=cellRange(k,base,fi);
@@ -974,17 +1025,56 @@ var k=cfg.k,base=getBase();
 var cr=cellRange(k,base,fl);
 st.ds=cr.lo;st.de=cr.hi;st.mode="editing";st.ec=0;st.editEvt=null;
 document.getElementById("panelInput").value="";updCP();writeAllFields();setPanelMode(false);
-buildEvtList(fl);
-document.getElementById("calPanel").style.display="block";bCal();
-setTimeout(function(){document.getElementById("panelInput").focus();},50);}
+var totalEvts=buildEvtList(fl);
 
-function buildEvtList(fl){
-var k=cfg.k,base=getBase();
-var cr=cellRange(k,base,fl);
+var createForm=document.getElementById("panelCreateForm");
+var addBtnWrap=document.getElementById("panelAddBtnWrap");
+
+if(totalEvts>0){
+  // View mode: show event list, hide create form, show "+ add" button
+  createForm.style.display="none";
+  addBtnWrap.style.display="block";
+  document.getElementById("panelLabel").textContent="Events ("+totalEvts+")";
+  document.getElementById("panelAddBtn").onclick=function(){
+    createForm.style.display="block";addBtnWrap.style.display="none";
+    document.getElementById("panelLabel").textContent="New event";
+    setTimeout(function(){document.getElementById("panelInput").focus();},50);
+  };
+}else{
+  // Create mode: show form, hide add button
+  createForm.style.display="block";
+  addBtnWrap.style.display="none";
+  document.getElementById("panelLabel").textContent="New event";
+}
+document.getElementById("calPanel").style.display="flex";bCal();
+if(totalEvts===0)setTimeout(function(){document.getElementById("panelInput").focus();},50);}
+
+function buildEvtListRange(dsLo,dsHi){
 var el=document.getElementById("evtList");el.innerHTML="";
-var cellEvts=expandEvts(evts,cr.lo,cr.hi);
-cellEvts.forEach(function(ev){
-var srcEv=ev._src||ev;// original event for editing
+var cellEvts=expandEvts(evts,dsLo,dsHi).filter(function(e){return e.de>dsLo&&e.ds<dsHi;});
+var sessEvts=[];try{sessEvts=(getSessionCalEvents(dsLo,dsHi)||[]).filter(function(e){return e.de>dsLo&&e.ds<dsHi;});}catch(e){}
+var allEvts=cellEvts.concat(sessEvts);
+allEvts.forEach(function(ev){
+if(ev._virtual){
+  var d=document.createElement("div");d.className="evt-item";
+  d.style.opacity=ev._completed?"1":"0.5";
+  var cdot=document.createElement("div");cdot.className="evt-item-color";cdot.style.background=EC[(ev.c||0)%EC.length].b;
+  var tt=document.createElement("span");tt.className="evt-item-title";tt.style.cursor="pointer";tt.textContent=ev.t;
+  tt.setAttribute("contenteditable","false");
+  var pid=ev._projId;
+  tt.onclick=function(){
+    document.querySelectorAll(".topbar-tab").forEach(function(t){if(t.dataset.tab==="projects")t.click();});
+    projView="detail";projDetailId=pid;renderProjects();
+    document.getElementById("calPanel").style.display="none";st.mode="idle";bCal();
+  };
+  var rng=document.createElement("span");rng.className="evt-item-range";
+  rng.textContent=absToHex(ev.ds)+"\u2192"+absToHex(ev.de);
+  var lnk=document.createElement("button");lnk.className="evt-item-edit";lnk.textContent="\u2192";lnk.title="Go to project";
+  lnk.onclick=tt.onclick;
+  d.appendChild(cdot);d.appendChild(tt);d.appendChild(rng);d.appendChild(lnk);el.appendChild(d);
+  return;
+}
+var srcEv=ev._src||ev;
 var d=document.createElement("div");d.className="evt-item";
 var cdot=document.createElement("div");cdot.className="evt-item-color";cdot.style.background=EC[(srcEv.c||0)%EC.length].b;
 var tt=document.createElement("span");tt.className="evt-item-title";tt.textContent=srcEv.t;
@@ -997,8 +1087,10 @@ rng.textContent=absToHex(ev.ds)+"\u2192"+absToHex(ev.de);
 var edt=document.createElement("button");edt.className="evt-item-edit";edt.textContent="\u270e";edt.title="Edit range/color";
 edt.onclick=function(){loadEvtForEdit(srcEv);};
 var del=document.createElement("button");del.className="evt-item-del";del.textContent="\u2715";
-del.onclick=function(){evts=evts.filter(function(x){return x!==srcEv;});svJ("hx-eD",evts);bCal();buildEvtList(fl);};
-d.appendChild(cdot);d.appendChild(tt);d.appendChild(rng);d.appendChild(edt);d.appendChild(del);el.appendChild(d);});}
+del.onclick=function(){evts=evts.filter(function(x){return x!==srcEv;});svJ("hx-eD",evts);bCal();buildEvtListRange(dsLo,dsHi);};
+d.appendChild(cdot);d.appendChild(tt);d.appendChild(rng);d.appendChild(edt);d.appendChild(del);el.appendChild(d);});
+return allEvts.length;}
+function buildEvtList(fl){var k=cfg.k,base=getBase(),cr=cellRange(k,base,fl);return buildEvtListRange(cr.lo,cr.hi);}
 function loadEvtForEdit(ev){
   st.editEvt=ev;st.ds=ev.ds;st.de=ev.de;st.ec=ev.c;
   document.getElementById("panelInput").value=ev.t==="(untitled)"?"":ev.t;
@@ -1008,6 +1100,11 @@ function setPanelMode(isEdit){
   document.getElementById("panelLabel").textContent=isEdit?"Edit event":"New event";
   document.getElementById("panelSave").textContent=isEdit?"Save":"Add";
   document.getElementById("panelCancel").style.display=isEdit?"inline-block":"none";
+  // Show create form when editing an event
+  if(isEdit){
+    document.getElementById("panelCreateForm").style.display="block";
+    document.getElementById("panelAddBtnWrap").style.display="none";
+  }
 }
 
 // --- Lock & civil toggle ---
@@ -1212,6 +1309,13 @@ document.getElementById("calPanel").addEventListener("keydown",function(e){
   svEvt();
 });
 function clPnl(){st.mode="idle";st.ds=0;st.de=0;st.editEvt=null;setRepMode("none");document.getElementById("calPanel").style.display="none";bCal();}
+// Click outside panel to close (exclude toolbar and cell clicks)
+document.querySelector(".cal-fill").addEventListener("click",function(e){
+  var panel=document.getElementById("calPanel");
+  if(panel.style.display==="flex"&&!panel.contains(e.target)&&!e.target.closest(".cal-cell")&&!e.target.closest(".cal-bar")){
+    clPnl();
+  }
+});
 function svEvt(){if(st.ds>=st.de)return;var t=document.getElementById("panelInput").value.trim()||"(untitled)";var lo=Math.min(st.ds,st.de),hi=Math.max(st.ds,st.de);
   var rep=getRepeatFromPanel();
   if(st.editEvt){st.editEvt.ds=lo;st.editEvt.de=hi;st.editEvt.t=t;st.editEvt.c=st.ec;st.editEvt.repeat=rep;st.editEvt=null;setPanelMode(false);svJ("hx-eD",evts);document.getElementById("panelInput").value="";setRepMode("none");bCal();}
@@ -1341,11 +1445,94 @@ var projTimerInterval=null;
 var projView="list";
 var projDetailId=null;
 var projCreating=false;
+var planSlots=ldJ("hx-plan",{});
+var planWeekBase=null;// null = auto (current week)
+var planBrush=null;// selected project ID for painting, null = eraser
+var _planDrag=false;// planner drag-fill active
+var _planDragMoved=false;// did the drag move to another cell?
+var _planClickCell=null;// cell that was clicked (for picker)
+var showPlanPicker=null;// set by renderProjPlanner
 
 var HEX_HOUR=5400;// exactly 1/16 day in seconds
+var PLAN_HOURS=[6,7,9,0xA,0xD,0xE];// default hex hours for slots 0-5
 
 function saveProjData(){svJ("hx-proj",projects);}
 function saveTimerState(){svJ("hx-proj-tmr",activeTimer);}
+function savePlanData(){svJ("hx-plan",planSlots);}
+function hexToRgba(hex,a){var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return"rgba("+r+","+g+","+b+","+a+")";}
+function sessHexDay(sess){if(sess.hexStart){var hs=String(sess.hexStart);return parseInt(hs.split(".")[0],16);}return null;}
+function countCompletedOnDay(pid,hexDay){var p=getProjById(pid);if(!p)return 0;var c=0;(p.sessions||[]).forEach(function(s){if(s.completed&&sessHexDay(s)===hexDay)c++;});return c;}
+function parseHexStamp(hs){if(!hs)return null;var p=String(hs).split(".");return parseInt(p[0],16)+parseInt(p[1]||"0",16)/65536;}
+
+// Build session numbering for all planned slots globally
+function buildPlanSessNums(){
+  var nums={},ctr={};
+  if(typeof projects==="undefined"||!projects)return nums;
+  if(typeof planSlots==="undefined"||!planSlots)return nums;
+  projects.forEach(function(p){ctr[p.id]=0;});
+  var days=Object.keys(planSlots).map(Number).sort(function(a,b){return a-b;});
+  days.forEach(function(hd){
+    var dp=planSlots[String(hd)]||[];
+    for(var s=0;s<Math.min(dp.length,6);s++){
+      var pid=dp[s];if(!pid||!getProjById(pid))continue;
+      nums[hd+":"+s]=ctr[pid];ctr[pid]++;
+    }
+  });
+  return nums;
+}
+
+// Generate virtual calendar events from plan + completed sessions
+function getSessionCalEvents(lo,hi){
+  var result=[];
+  if(typeof projects==="undefined"||!projects||!projects.length)return result;
+  var s=gS();if(!s.a)return result;
+  // Skip at high zoom levels (range > 512 days would be too zoomed out for sessions)
+  if(Math.ceil(hi)-Math.floor(lo)>512)return result;
+  // Map completed sessions by hex day → project → array
+  var compMap={};
+  projects.forEach(function(proj){
+    (proj.sessions||[]).forEach(function(sess){
+      if(!sess.completed)return;
+      var sd=sessHexDay(sess);if(sd===null)return;
+      if(sd<Math.floor(lo)||sd>=Math.ceil(hi))return;
+      if(!compMap[sd])compMap[sd]={};
+      if(!compMap[sd][proj.id])compMap[sd][proj.id]=[];
+      compMap[sd][proj.id].push(sess);
+    });
+  });
+  // Build session numbering
+  var sNums=buildPlanSessNums();
+  // Iterate visible days
+  for(var hd=Math.max(Math.floor(lo),0);hd<Math.ceil(hi);hd++){
+    var key=String(hd),dp=planSlots[key]||[];
+    var usedComp={};
+    for(var sl=0;sl<Math.min(dp.length,6);sl++){
+      var pid=dp[sl];if(!pid)continue;
+      var proj=getProjById(pid);if(!proj)continue;
+      usedComp[pid]=usedComp[pid]||0;
+      var doneArr=(compMap[hd]&&compMap[hd][pid])||[];
+      var completed=usedComp[pid]<doneArr.length;
+      var evDs,evDe;
+      if(completed){
+        var sess=doneArr[usedComp[pid]];usedComp[pid]++;
+        var as=parseHexStamp(sess.hexStart),ae=parseHexStamp(sess.hexEnd);
+        if(as!==null&&ae!==null&&ae>as){evDs=as;evDe=ae;}
+        else{evDs=hd+PLAN_HOURS[sl]/16;evDe=hd+(PLAN_HOURS[sl]+1)/16;}
+      }else{
+        evDs=hd+PLAN_HOURS[sl]/16;evDe=hd+(PLAN_HOURS[sl]+1)/16;
+      }
+      var sn=sNums[hd+":"+sl];var snHex=sn!==undefined?H[sn%16]:"?";
+      var spNum=sn!==undefined?Math.floor(sn/16):-1;
+      result.push({
+        ds:evDs,de:evDe,
+        t:proj.name+" "+H[spNum>=0?spNum%16:0]+"."+snHex+(completed?" \u2713":""),
+        c:proj.color%EC.length,
+        _virtual:true,_projId:pid,_completed:completed
+      });
+    }
+  }
+  return result;
+}
 function genId(){return Date.now().toString(36)+Math.random().toString(36).substr(2,4);}
 function getProjById(id){for(var i=0;i<projects.length;i++)if(projects[i].id===id)return projects[i];return null;}
 function getSessById(proj,sid){if(!proj||!proj.sessions)return null;for(var i=0;i<proj.sessions.length;i++)if(proj.sessions[i].id===sid)return proj.sessions[i];return null;}
@@ -1421,6 +1608,7 @@ function initTimerOnLoad(){
     activeTimer.accumulated+=Math.floor((Date.now()-activeTimer.startedAt)/1000);
     activeTimer.startedAt=Date.now();saveTimerState();startTickInterval();
   }
+  updateTabInfo();
 }
 function startTickInterval(){if(projTimerInterval)clearInterval(projTimerInterval);projTimerInterval=setInterval(updateTimerUI,500);}
 function stopTickInterval(){if(projTimerInterval){clearInterval(projTimerInterval);projTimerInterval=null;}}
@@ -1437,17 +1625,17 @@ function startOrContinue(projId){
     proj.sessions.push(sess);saveProjData();
     activeTimer={projId:projId,sessId:sess.id,startedAt:Date.now(),accumulated:0,targetSec:HEX_HOUR,paused:false};
   }
-  saveTimerState();startTickInterval();renderProjects();
+  saveTimerState();startTickInterval();updateTabInfo();renderProjects();
 }
 function pauseSession(){
   if(!activeTimer||activeTimer.paused)return;
   activeTimer.accumulated+=Math.floor((Date.now()-activeTimer.startedAt)/1000);
   activeTimer.startedAt=null;activeTimer.paused=true;saveTimerState();stopTickInterval();stopClockRAF();
-  syncSessElapsed();renderProjects();
+  syncSessElapsed();updateTabInfo();renderProjects();
 }
 function resumeSession(){
   if(!activeTimer||!activeTimer.paused)return;
-  activeTimer.startedAt=Date.now();activeTimer.paused=false;saveTimerState();startTickInterval();renderProjects();
+  activeTimer.startedAt=Date.now();activeTimer.paused=false;saveTimerState();startTickInterval();updateTabInfo();renderProjects();
 }
 function finishSession(discard){
   if(!activeTimer)return;stopTickInterval();stopClockRAF();
@@ -1463,7 +1651,7 @@ function finishSession(discard){
     }
     saveProjData();
   }
-  activeTimer=null;saveTimerState();renderProjects();
+  activeTimer=null;saveTimerState();updateIdleTab();renderProjects();
 }
 function syncSessElapsed(){
   if(!activeTimer)return;var proj=getProjById(activeTimer.projId);if(!proj)return;
@@ -1484,7 +1672,104 @@ function updateTimerUI(){
     try{if(Notification.permission==="granted")new Notification("Session complete",{body:getProjById(activeTimer.projId).name});}catch(e){}
     renderProjects();// re-render to show Complete button
   }
+  updateTabInfo();
 }
+
+// =================== TAB TITLE + ANIMATED FAVICON ===================
+var _favCanvas=document.createElement("canvas");_favCanvas.width=32;_favCanvas.height=32;
+var _favCtx=_favCanvas.getContext("2d");
+var _favLastUpdate=0;
+
+function updateTabInfo(){
+  if(!activeTimer){updateIdleTab();return;}
+  var elapsed=timerElapsed(),rem=Math.max(0,HEX_HOUR-elapsed);
+  var proj=getProjById(activeTimer.projId);
+  var pName=proj?proj.name:"session";
+  var remHex=secToHexFrac(rem);
+  if(activeTimer.paused){
+    document.title=remHex+" paused \u2014 "+pName;
+  }else{
+    document.title=remHex+" \u2014 "+pName;
+  }
+  // Favicon shows session progress — hands freeze on pause (same frac)
+  var sessFrac=Math.min(1,elapsed/HEX_HOUR);
+  drawClockFavicon(activeTimer.paused?"paused":"running",sessFrac);
+}
+
+// Called from main tick() when no session is active
+function updateIdleTab(){
+  if(st.stamp)document.title=st.stamp;
+  var now=Date.now();
+  if(now-_favLastUpdate<900)return;
+  _favLastUpdate=now;
+  // Idle favicon uses time-of-day
+  drawClockFavicon("idle",st.fs||0);
+}
+
+function drawClockFavicon(mode,frac){
+  var c=_favCtx,s=32,cx=16,cy=16,r=13;
+  c.clearRect(0,0,s,s);
+
+  // Colors per mode
+  var ringColor,handColor,tickColor;
+  if(mode==="idle"){
+    ringColor="#3a9b6a";
+    handColor="rgba(106,228,160,0.95)";
+    tickColor="#6ae4a0";
+  }else if(mode==="running"){
+    ringColor="#4a8ad4";
+    handColor="rgba(216,220,230,0.95)";
+    tickColor="#7aacf0";
+  }else{// paused — red ring, hands stay same as running (frozen)
+    ringColor="#e46a6a";
+    handColor="rgba(216,220,230,0.95)";
+    tickColor="#e46a6a";
+  }
+
+  // Background fill
+  c.beginPath();c.arc(cx,cy,r+1,0,Math.PI*2);
+  c.fillStyle="#0c0f14";c.fill();
+
+  // Outer ring
+  c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);
+  c.strokeStyle=ringColor;c.lineWidth=2;c.stroke();
+
+  // 4 cardinal ticks at 0,4,8,C
+  for(var ti=0;ti<4;ti++){
+    var ta=ti*90-90;
+    var tRad=ta*Math.PI/180;
+    c.beginPath();
+    c.moveTo(cx+Math.cos(tRad)*(r-3),cy+Math.sin(tRad)*(r-3));
+    c.lineTo(cx+Math.cos(tRad)*(r-0.5),cy+Math.sin(tRad)*(r-0.5));
+    c.strokeStyle=tickColor;c.lineWidth=2;c.lineCap="round";c.stroke();
+  }
+
+  // Hand angles
+  // For idle: frac = st.fs (time of day, 0-1 = one day cycle)
+  // For session: frac = elapsed/HEX_HOUR (0-1 = one session cycle)
+  // Both: hour hand does one full rotation, minute hand does 16 rotations
+  var hourAng=(frac*360-90)*Math.PI/180;
+  var minAng=(((frac*16)%1)*360-90)*Math.PI/180;
+
+  // Minute hand (longer, thick)
+  c.beginPath();
+  c.moveTo(cx,cy);
+  c.lineTo(cx+Math.cos(minAng)*10,cy+Math.sin(minAng)*10);
+  c.strokeStyle=handColor;
+  c.lineWidth=3;c.lineCap="round";c.stroke();
+
+  // Hour hand (shorter, thicker)
+  c.beginPath();
+  c.moveTo(cx,cy);
+  c.lineTo(cx+Math.cos(hourAng)*7,cy+Math.sin(hourAng)*7);
+  c.strokeStyle=handColor;
+  c.lineWidth=4;c.lineCap="round";c.stroke();
+
+  // Apply
+  var link=document.getElementById("dynFavicon");
+  if(link)link.href=_favCanvas.toDataURL("image/png");
+}
+// =================== END TAB TITLE + FAVICON ===================
 
 // Sprint bar: 16 cells
 function sprintBarHTML(sessions,activeId){
@@ -1586,7 +1871,6 @@ document.querySelectorAll(".proj-view-btn").forEach(function(btn){
     renderProjects();};
 });
 document.getElementById("projNewBtn").onclick=function(){
-  // If in detail view or other view, snap back to list
   if(projView!=="list"){projView="list";projDetailId=null;}
   projCreating=!projCreating;renderProjects();
   if(projCreating)setTimeout(function(){var el=document.getElementById("projNewName");if(el)el.focus();},50);
@@ -1595,10 +1879,11 @@ document.getElementById("projNewBtn").onclick=function(){
 function renderProjects(){
   if(!projects)return;
   var el=document.getElementById("projContent");
-  // Sync toggle buttons — detail counts as "list" context
-  var activeView=(projView==="stats")?"stats":"list";
+  // Sync toggle buttons
+  var activeView=projView;if(projView==="detail")activeView="list";
   document.querySelectorAll(".proj-view-btn").forEach(function(b){b.classList.toggle("active",b.dataset.pv===activeView);});
   if(projView==="stats")return renderProjStats(el);
+  if(projView==="planner")return renderProjPlanner(el);
   if(projView==="detail"&&projDetailId)return renderProjDetail(el);
   renderProjList(el);
 }
@@ -1631,7 +1916,7 @@ function renderProjList(el){
     var plannedSp=Math.max(Math.ceil(proj.estDays||1),getSprintCount(proj)||1);
     var color=EC[proj.color%EC.length].b;
 
-    htm+='<div class="proj-card" data-pid="'+proj.id+'">';
+    htm+='<div class="proj-card" data-pid="'+proj.id+'" draggable="true">';
     htm+='<div class="proj-card-head">';
     htm+='<div class="proj-card-color" style="background:'+color+'"></div>';
     htm+='<span class="proj-card-name">'+esc(proj.name)+'</span>';
@@ -1727,6 +2012,22 @@ function renderProjList(el){
       var paceVal=parseInt(document.getElementById("projNewPace").value)||1;
       var dailyRate=paceUnit==="day"?paceVal:paceVal/16;
       projects.unshift({id:genId(),name:name,color:nci,estDays:estDays,pace:dailyRate,sessions:[],created:Date.now()});
+      // Auto-fill planner from today based on pace
+      var newPid=projects[0].id,totalSess=Math.round(estDays*16);
+      var sessPerDay=Math.round(dailyRate),filled=0,carry=0;
+      if(sessPerDay>0&&totalSess>0){
+        for(var hd=st.hd||0;filled<totalSess&&hd<(st.hd||0)+0x1000;hd++){
+          var key=String(hd);
+          if(!planSlots[key])planSlots[key]=[null,null,null,null,null,null];
+          while(planSlots[key].length<6)planSlots[key].push(null);
+          var needed=sessPerDay+carry;carry=0;var dayFilled=0;
+          for(var sl=0;sl<6&&dayFilled<needed&&filled<totalSess;sl++){
+            if(!planSlots[key][sl]){planSlots[key][sl]=newPid;dayFilled++;filled++;}
+          }
+          if(dayFilled<needed)carry=needed-dayFilled;
+        }
+        savePlanData();
+      }
       saveProjData();projCreating=false;renderProjects();
     };
     document.getElementById("projNewName").onkeydown=function(e){if(e.key==="Enter")document.getElementById("projCreateConfirm").click();if(e.key==="Escape"){projCreating=false;renderProjects();}};
@@ -1751,6 +2052,317 @@ function renderProjList(el){
       });
     };
   });
+  // Drag-to-reorder project cards
+  var _dragPid=null;
+  el.querySelectorAll(".proj-card[data-pid]").forEach(function(card){
+    card.addEventListener("dragstart",function(e){
+      _dragPid=card.dataset.pid;
+      card.classList.add("dragging");
+      e.dataTransfer.effectAllowed="move";
+      e.dataTransfer.setData("text/plain",card.dataset.pid);
+    });
+    card.addEventListener("dragend",function(){
+      _dragPid=null;
+      card.classList.remove("dragging");
+      el.querySelectorAll(".proj-card").forEach(function(c){c.classList.remove("drag-over");});
+    });
+    card.addEventListener("dragover",function(e){
+      e.preventDefault();e.dataTransfer.dropEffect="move";
+      if(card.dataset.pid!==_dragPid)card.classList.add("drag-over");
+    });
+    card.addEventListener("dragleave",function(){
+      card.classList.remove("drag-over");
+    });
+    card.addEventListener("drop",function(e){
+      e.preventDefault();
+      card.classList.remove("drag-over");
+      var fromId=_dragPid,toId=card.dataset.pid;
+      if(!fromId||fromId===toId)return;
+      var fi=-1,ti=-1;
+      for(var i=0;i<projects.length;i++){
+        if(projects[i].id===fromId)fi=i;
+        if(projects[i].id===toId)ti=i;
+      }
+      if(fi<0||ti<0)return;
+      var moved=projects.splice(fi,1)[0];
+      projects.splice(ti,0,moved);
+      saveProjData();renderProjects();
+    });
+  });
+}
+
+function renderProjPlanner(el){
+  var htm="",s=gS();
+  var curWeek=Math.floor((st.hd||0)/16)*16;
+  if(planWeekBase===null)planWeekBase=curWeek;
+  var dayU=uName(4);
+
+  // Civil date range for this hex week
+  var civStart=s.a?h2C(planWeekBase,s.a.y,s.a.m,s.a.d):null;
+  var civEnd=s.a?h2C(planWeekBase+15,s.a.y,s.a.m,s.a.d):null;
+  var civRange=civStart&&civEnd?(civStart.y+"-"+p2(civStart.mo)+"-"+p2(civStart.d)+" \u2192 "+civEnd.y+"-"+p2(civEnd.mo)+"-"+p2(civEnd.d)):"";
+
+  // Nav bar
+  htm+='<div class="planner-nav">';
+  htm+='<button class="btn-sm" id="planPrev">\u25c1</button>';
+  htm+='<button class="btn-sm" id="planNow">now</button>';
+  htm+='<button class="btn-sm" id="planNext">\u25b7</button>';
+  htm+='<span style="font-family:var(--mono);font-size:12px;color:var(--tx);font-weight:600">'+fD(planWeekBase)+' \u2014 '+fD(planWeekBase+15)+'</span>';
+  if(civRange)htm+='<span style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-left:6px">'+civRange+'</span>';
+  htm+='</div>';
+
+  // Palette + fast fill
+  htm+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">';
+  htm+='<div class="planner-palette" style="margin-bottom:0;flex:1">';
+  htm+='<span style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-right:2px">paint:</span>';
+  htm+='<div class="plan-pal-btn'+(!planBrush?" active":"")+'" data-brush="" style="background:var(--sf2);border-color:'+(planBrush?'transparent':'#fff')+'" title="Eraser">\u2715</div>';
+  projects.forEach(function(p){
+    var c=EC[p.color%EC.length].b;
+    htm+='<div class="plan-pal-btn'+(planBrush===p.id?" active":"")+'" data-brush="'+p.id+'" style="background:'+c+'" title="'+esc(p.name)+'"></div>';
+  });
+  htm+='</div>';
+  htm+='<button class="btn-sm" id="planFastFillToggle">fast fill</button>';
+  htm+='<button class="btn-sm" id="planCopyNext" title="Copy this week to next week">copy \u2192 next</button>';
+  htm+='<button class="btn-sm" id="planClearWeek" style="color:var(--err)">clear week</button>';
+  htm+='</div>';
+
+  // Fast fill panel (hidden by default)
+  htm+='<div id="planFastFill" style="display:none;margin-bottom:8px;padding:10px 12px;background:var(--sf);border:1px solid var(--bd);border-radius:8px">';
+  htm+='<div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">';
+  htm+='<div class="proj-edit-field"><div class="label">project</div><select class="select" id="ffProj" style="font-size:11px;padding:4px 8px">';
+  projects.forEach(function(p){htm+='<option value="'+p.id+'"'+(planBrush===p.id?' selected':'')+'>'+esc(p.name)+'</option>';});
+  htm+='</select></div>';
+  htm+='<div class="proj-edit-field" style="flex:0 0 60px"><div class="label">sess/'+esc(dayU)+'</div><input type="number" class="input" id="ffCount" value="2" min="1" max="6" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
+  htm+='<div class="proj-edit-field" style="flex:0 0 70px"><div class="label">from '+esc(dayU)+'</div><input type="text" class="input" id="ffFrom" value="'+fD(planWeekBase).replace(/^0+/,"")+'" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
+  htm+='<div class="proj-edit-field" style="flex:0 0 70px"><div class="label">to '+esc(dayU)+'</div><input type="text" class="input" id="ffTo" value="'+fD(planWeekBase+15).replace(/^0+/,"")+'" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
+  htm+='<button class="btn" id="ffApply" style="font-size:10px;padding:5px 14px">Fill empty</button>';
+  htm+='</div></div>';
+
+  // Build per-day completed counts + session numbering
+  var dayDone={};
+  projects.forEach(function(p){
+    (p.sessions||[]).forEach(function(ss){
+      if(!ss.completed)return;
+      var sd=sessHexDay(ss);if(sd===null)return;
+      if(!dayDone[sd])dayDone[sd]={};
+      dayDone[sd][p.id]=(dayDone[sd][p.id]||0)+1;
+    });
+  });
+  var sNums=buildPlanSessNums();
+
+  // Grid
+  htm+='<div class="planner-grid">';
+  htm+='<div></div>';
+  // Column headers with civil hint
+  for(var d=0;d<16;d++){
+    var hd=planWeekBase+d;
+    var isT=hd===(st.hd||0);
+    var cv=s.a?h2C(hd,s.a.y,s.a.m,s.a.d):null;
+    var cvHint=cv?(p2(cv.mo)+"/"+p2(cv.d)):"";
+    htm+='<div class="plan-col-hdr'+(isT?" today":"")+'" title="'+fD(hd)+(cvHint?" = "+cvHint:"")+'"><div>'+H[d]+'</div>'+(cvHint?'<div style="font-size:min(6px,0.9vw);opacity:0.5;line-height:1">'+cvHint+'</div>':'')+'</div>';
+  }
+  // Rows (6 slots)
+  for(var slot=0;slot<6;slot++){
+    htm+='<div class="plan-row-hdr" title="hex hour '+H[PLAN_HOURS[slot]]+'">'+H[PLAN_HOURS[slot]]+'</div>';
+    for(var d=0;d<16;d++){
+      var hd=planWeekBase+d;
+      var key=String(hd);
+      var dp=planSlots[key]||[];
+      var pid=dp[slot]||null;
+      var proj=pid?getProjById(pid):null;
+      if(pid&&!proj)pid=null;
+
+      var completed=false;
+      if(proj){
+        var priorSlots=0;
+        for(var ps=0;ps<slot;ps++){if((dp[ps]||null)===pid)priorSlots++;}
+        var doneC=(dayDone[hd]&&dayDone[hd][pid])||0;
+        completed=priorSlots<doneC;
+      }
+
+      var bg=proj?EC[proj.color%EC.length].b:"";
+      var isT=hd===(st.hd||0);
+      var style="";
+      if(proj&&completed)style="background:"+hexToRgba(bg,0.75)+";border-color:"+hexToRgba(bg,0.5)+";";
+      else if(proj)style="background:"+hexToRgba(bg,0.2)+";border-color:"+hexToRgba(bg,0.35)+";";
+      var cls="plan-cell"+(isT?" today":"");
+
+      // Session number label
+      var sn=sNums[hd+":"+slot];
+      var snLabel="";
+      if(proj&&sn!==undefined){
+        var spN=Math.floor(sn/16),ssN=sn%16;
+        snLabel=H[spN]+"."+H[ssN];
+      }
+      var tip=proj?esc(proj.name)+(snLabel?" #"+snLabel:"")+(completed?" \u2713":""):"";
+      var inn="";
+      if(snLabel){
+        var txtC=completed?"rgba(255,255,255,0.85)":"rgba(255,255,255,0.45)";
+        inn='<div style="font-family:var(--mono);font-size:min(8px,1.1vw);color:'+txtC+';line-height:1;text-align:center;pointer-events:none">'+snLabel+'</div>';
+      }
+      htm+='<div class="'+cls+'" data-hd="'+hd+'" data-slot="'+slot+'" style="'+style+'"'+(tip?' title="'+tip+'"':'')+'>'+inn+'</div>';
+    }
+  }
+  htm+='</div>';
+
+  htm+='<div style="font-family:var(--mono);font-size:8px;color:var(--dim);opacity:0.5;text-align:center;margin-top:4px">click = pick project \xb7 drag = paint \xb7 solid = done \xb7 faded = planned</div>';
+
+  // Picker popup (hidden, positioned absolutely)
+  htm+='<div id="planPicker" style="display:none;position:fixed;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px;z-index:20;box-shadow:0 4px 16px rgba(0,0,0,0.5);max-width:200px">';
+  htm+='<div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-bottom:6px">assign project</div>';
+  htm+='<div id="planPickerList" style="display:flex;flex-direction:column;gap:3px"></div>';
+  htm+='</div>';
+
+  el.innerHTML=htm;
+
+  // Palette clicks
+  el.querySelectorAll(".plan-pal-btn").forEach(function(btn){
+    btn.onclick=function(){planBrush=btn.dataset.brush||null;renderProjects();};
+  });
+
+  // Build picker list
+  function showPicker(cell){
+    var picker=document.getElementById("planPicker");
+    var list=document.getElementById("planPickerList");
+    list.innerHTML="";
+    // Eraser option
+    var er=document.createElement("div");
+    er.style.cssText="display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;cursor:pointer;font-family:var(--mono);font-size:11px;color:var(--dim)";
+    er.textContent="\u2715 clear";
+    er.onmouseenter=function(){er.style.background="rgba(255,255,255,0.06)";};
+    er.onmouseleave=function(){er.style.background="";};
+    er.onclick=function(){assignCell(cell,null);picker.style.display="none";};
+    list.appendChild(er);
+    // Projects
+    projects.forEach(function(p){
+      var row=document.createElement("div");
+      row.style.cssText="display:flex;align-items:center;gap:6px;padding:4px 6px;border-radius:4px;cursor:pointer";
+      row.onmouseenter=function(){row.style.background="rgba(255,255,255,0.06)";};
+      row.onmouseleave=function(){row.style.background="";};
+      var dot=document.createElement("div");
+      dot.style.cssText="width:10px;height:10px;border-radius:50%;flex-shrink:0;background:"+EC[p.color%EC.length].b;
+      var nm=document.createElement("span");
+      nm.style.cssText="font-family:var(--mono);font-size:11px;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap";
+      nm.textContent=p.name;
+      row.appendChild(dot);row.appendChild(nm);
+      row.onclick=function(){assignCell(cell,p.id);picker.style.display="none";};
+      list.appendChild(row);
+    });
+    // Position near cell
+    var r=cell.getBoundingClientRect();
+    picker.style.left=Math.min(r.left,window.innerWidth-210)+"px";
+    picker.style.top=Math.min(r.bottom+4,window.innerHeight-200)+"px";
+    picker.style.display="block";
+  }
+
+  function assignCell(cell,pid){
+    var hd=parseInt(cell.dataset.hd),slot=parseInt(cell.dataset.slot),key=String(hd);
+    if(!planSlots[key])planSlots[key]=[null,null,null,null,null,null];
+    while(planSlots[key].length<6)planSlots[key].push(null);
+    planSlots[key][slot]=pid;
+    savePlanData();renderProjects();
+  }
+
+  // Cell drag-fill + click-to-pick
+  showPlanPicker=showPicker;
+  function planPaint(cell){
+    var hd=parseInt(cell.dataset.hd),slot=parseInt(cell.dataset.slot),key=String(hd);
+    if(!planSlots[key])planSlots[key]=[null,null,null,null,null,null];
+    while(planSlots[key].length<6)planSlots[key].push(null);
+    if(planSlots[key][slot]!==(planBrush||null)){
+      planSlots[key][slot]=planBrush;
+      var bg=planBrush?EC[(getProjById(planBrush)||{color:0}).color%EC.length].b:"";
+      cell.style.background=planBrush?hexToRgba(bg,0.2):"";
+      cell.style.borderColor=planBrush?hexToRgba(bg,0.35):"";
+      cell.innerHTML="";
+    }
+  }
+  el.querySelectorAll(".plan-cell").forEach(function(cell){
+    cell.addEventListener("mousedown",function(e){
+      e.preventDefault();
+      _planDrag=true;_planDragMoved=false;_planClickCell=cell;
+      document.getElementById("planPicker").style.display="none";
+    });
+    cell.addEventListener("mouseenter",function(){
+      if(_planDrag&&cell!==_planClickCell){
+        _planDragMoved=true;
+        planPaint(cell);
+        // Also paint the start cell on first move
+        if(_planClickCell)planPaint(_planClickCell);
+      }
+    });
+  });
+
+  // Close picker on outside click
+  document.addEventListener("click",function _pc(e){
+    var picker=document.getElementById("planPicker");
+    if(picker&&picker.style.display==="block"&&!picker.contains(e.target)&&!e.target.closest(".plan-cell")){
+      picker.style.display="none";
+    }
+  });
+
+  // Nav
+  document.getElementById("planPrev").onclick=function(){planWeekBase-=16;renderProjects();};
+  document.getElementById("planNext").onclick=function(){planWeekBase+=16;renderProjects();};
+  document.getElementById("planNow").onclick=function(){planWeekBase=Math.floor((st.hd||0)/16)*16;renderProjects();};
+
+  // Copy week → next
+  document.getElementById("planCopyNext").onclick=function(){
+    var nextBase=planWeekBase+16;
+    for(var d=0;d<16;d++){
+      var srcKey=String(planWeekBase+d),dstKey=String(nextBase+d);
+      if(planSlots[srcKey]){
+        if(!planSlots[dstKey])planSlots[dstKey]=planSlots[srcKey].slice();
+        else{
+          // Only fill empty slots in destination
+          for(var s=0;s<6;s++){
+            if(!planSlots[dstKey][s]&&planSlots[srcKey][s])planSlots[dstKey][s]=planSlots[srcKey][s];
+          }
+        }
+      }
+    }
+    savePlanData();planWeekBase=nextBase;renderProjects();
+  };
+
+  // Clear week
+  document.getElementById("planClearWeek").onclick=function(){
+    for(var d=0;d<16;d++){delete planSlots[String(planWeekBase+d)];}
+    savePlanData();renderProjects();
+  };
+
+  // Fast fill toggle
+  document.getElementById("planFastFillToggle").onclick=function(){
+    var ff=document.getElementById("planFastFill");
+    ff.style.display=ff.style.display==="none"?"block":"none";
+  };
+  // Smart fast fill: respects existing sessions + quota, carries over to next day
+  document.getElementById("ffApply").onclick=function(){
+    var pid=document.getElementById("ffProj").value;
+    var quota=parseInt(document.getElementById("ffCount").value)||2;
+    var fromD=parseInt(document.getElementById("ffFrom").value.trim(),16);
+    var toD=parseInt(document.getElementById("ffTo").value.trim(),16);
+    if(!pid||isNaN(fromD)||isNaN(toD)||fromD>toD)return;
+    var carry=0;
+    for(var hd=fromD;hd<=toD;hd++){
+      var key=String(hd);
+      if(!planSlots[key])planSlots[key]=[null,null,null,null,null,null];
+      while(planSlots[key].length<6)planSlots[key].push(null);
+      // Count how many slots this project already has on this day (planned + completed)
+      var existing=0;
+      for(var s=0;s<6;s++){if(planSlots[key][s]===pid)existing++;}
+      var alsoCompleted=countCompletedOnDay(pid,hd);
+      var totalExisting=Math.max(existing,alsoCompleted);
+      var needed=Math.max(0,quota-totalExisting)+carry;
+      carry=0;
+      var filled=0;
+      for(var sl=0;sl<6&&filled<needed;sl++){
+        if(!planSlots[key][sl]){planSlots[key][sl]=pid;filled++;}
+      }
+      // Carry over unfilled to next day
+      if(filled<needed)carry=needed-filled;
+    }
+    savePlanData();renderProjects();
+  };
 }
 
 function renderProjDetail(el){
@@ -1783,9 +2395,23 @@ function renderProjDetail(el){
   htm+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
   htm+='<span style="font-family:var(--mono);font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.04em">Sprint plan</span>';
   htm+='<span style="font-family:var(--mono);font-size:10px;color:var(--acc);font-weight:600">'+fmtHexCompact(proj.estDays||plannedSprints)+' sprints</span>';
-  htm+='<button class="proj-card-act" id="projEditEst" style="margin-left:auto;font-size:9px" title="Edit estimate">\u270e plan</button>';
+  htm+='<span style="font-family:var(--mono);font-size:10px;color:var(--dim)">\xb7 '+((proj.pace||1)>=1?Math.round(proj.pace||1):((proj.pace||1)*16).toFixed(0)+'/'+esc(uName(3)))+' sess/'+esc(dayU)+'</span>';
+  htm+='<button class="proj-card-act" id="projEditToggle" style="margin-left:auto;font-size:9px" title="Edit project settings">\u270e settings</button>';
   htm+='</div>';
-  htm+='<div id="projEditEstRow" style="display:none;margin-bottom:8px"></div>';
+  // Collapsible edit section
+  htm+='<div id="projEditSection" class="proj-edit-section" style="display:none">';
+  htm+='<div class="proj-edit-row">';
+  htm+='<div class="proj-edit-field" style="flex:1;min-width:140px"><div class="label">name</div><input type="text" class="input" id="projEditName" value="'+esc(proj.name)+'" style="font-size:12px;padding:5px 8px"></div>';
+  htm+='<div class="proj-edit-field" style="flex:0 0 70px"><div class="label">sprints (hex)</div><input type="text" class="input" id="projEditEst" value="'+fD(proj.estDays||1).replace(/^0+/,"")+'" style="font-size:12px;padding:5px 8px;text-align:center"></div>';
+  htm+='<div class="proj-edit-field" style="flex:0 0 80px"><div class="label">sess / '+esc(dayU)+'</div><input type="number" class="input" id="projEditPace" value="'+(proj.pace||1)+'" min="0.1" step="0.5" style="font-size:12px;padding:5px 8px;text-align:center"></div>';
+  htm+='</div>';
+  htm+='<div class="proj-edit-row" style="margin-top:6px">';
+  htm+='<div class="proj-edit-field"><div class="label">color</div><div id="projEditColor" style="display:flex;gap:3px;flex-wrap:wrap"></div></div>';
+  htm+='<div style="flex:1"></div>';
+  htm+='<button class="btn" id="projEditSave" style="font-size:10px;padding:5px 14px">Save</button>';
+  htm+='<button class="btn-dim" id="projEditCancel" style="font-size:10px;padding:5px 10px">Cancel</button>';
+  htm+='</div>';
+  htm+='</div>';
 
   for(var si=0;si<plannedSprints;si++){
     var ss=getSprintSessions(proj,si),sd=getSprintDone(ss);
@@ -1888,25 +2514,36 @@ function renderProjDetail(el){
       if(detail)detail.classList.toggle("open");
     };
   });
-  // Edit estimate
-  document.getElementById("projEditEst").onclick=function(e){
+  // Edit settings toggle
+  var _editColorIdx=proj.color;
+  document.getElementById("projEditToggle").onclick=function(e){
     e.stopPropagation();
-    var row=document.getElementById("projEditEstRow");
-    if(row.style.display!=="none"){row.style.display="none";return;}
-    row.style.display="flex";row.style.gap="6px";row.style.alignItems="center";
-    row.innerHTML='<span style="font-family:var(--mono);font-size:10px;color:var(--dim)">Sprints (hex '+esc(dayU)+'s):</span>'+
-      '<input type="text" class="input" id="projEstInput" value="'+fD(proj.estDays||1).replace(/^0+/,"")+'" style="font-size:12px;padding:4px 8px;width:60px;text-align:center;font-family:var(--mono)">'+
-      '<button class="btn" id="projEstSave" style="font-size:10px;padding:4px 10px">Save</button>'+
-      '<button class="btn-dim" id="projEstCancel" style="font-size:10px;padding:4px 10px">Cancel</button>';
-    document.getElementById("projEstSave").onclick=function(){
-      var v=parseInt(document.getElementById("projEstInput").value.trim(),16);
-      if(!isNaN(v)&&v>0){proj.estDays=v;saveProjData();renderProjects();}
-    };
-    document.getElementById("projEstCancel").onclick=function(){row.style.display="none";};
-    document.getElementById("projEstInput").onkeydown=function(e2){if(e2.key==="Enter")document.getElementById("projEstSave").click();if(e2.key==="Escape")row.style.display="none";};
-    document.getElementById("projEstInput").focus();
-    document.getElementById("projEstInput").select();
+    var sec=document.getElementById("projEditSection");
+    if(sec.style.display!=="none"){sec.style.display="none";return;}
+    sec.style.display="block";
+    // Build color swatches
+    var cEl=document.getElementById("projEditColor");
+    cEl.innerHTML="";
+    EC.forEach(function(c,i){
+      var d=document.createElement("div");
+      d.style.cssText="width:16px;height:16px;border-radius:50%;cursor:pointer;background:"+c.b+";opacity:"+(i===_editColorIdx?"1":"0.3")+";border:"+(i===_editColorIdx?"2px solid #fff":"2px solid transparent");
+      d.onclick=function(){_editColorIdx=i;cEl.querySelectorAll("div").forEach(function(dd,j){dd.style.opacity=j===i?"1":"0.3";dd.style.border=j===i?"2px solid #fff":"2px solid transparent";});};
+      cEl.appendChild(d);
+    });
+    document.getElementById("projEditName").focus();
   };
+  document.getElementById("projEditSave").onclick=function(){
+    var nm=document.getElementById("projEditName").value.trim();
+    var est=parseInt(document.getElementById("projEditEst").value.trim(),16);
+    var pace=parseFloat(document.getElementById("projEditPace").value);
+    if(nm)proj.name=nm;
+    if(!isNaN(est)&&est>0)proj.estDays=est;
+    if(!isNaN(pace)&&pace>0)proj.pace=pace;
+    proj.color=_editColorIdx;
+    saveProjData();renderProjects();
+  };
+  document.getElementById("projEditCancel").onclick=function(){document.getElementById("projEditSection").style.display="none";};
+  document.getElementById("projEditName").onkeydown=function(e2){if(e2.key==="Enter")document.getElementById("projEditSave").click();if(e2.key==="Escape")document.getElementById("projEditSection").style.display="none";};
 
   document.getElementById("projBackBtn").onclick=function(){projView="list";projDetailId=null;renderProjects();};
   if(isAct){
@@ -2099,7 +2736,7 @@ function renderProjStats(el){
 
 // Backup
 document.getElementById("exportBtn").onclick=function(){
-  var backup={version:1,exported:new Date().toISOString(),config:cfg,events:evts,projects:projects};
+  var backup={version:1,exported:new Date().toISOString(),config:cfg,events:evts,projects:projects,planSlots:planSlots};
   var blob=new Blob([JSON.stringify(backup,null,2)],{type:"application/json"});
   var a=document.createElement("a");a.href=URL.createObjectURL(blob);
   a.download="hextime-backup-"+new Date().toISOString().slice(0,10)+".json";
@@ -2110,12 +2747,26 @@ document.getElementById("importConfirm").onclick=function(){
   _origImportConfirm.call(this);
   setTimeout(function(){
     if(document.getElementById("importOk").style.display!=="none"){
-      try{var data=JSON.parse(document.getElementById("importArea").value.trim());if(data.projects){projects=data.projects;svJ("hx-proj",projects);}}catch(e){}
+      try{var data=JSON.parse(document.getElementById("importArea").value.trim());if(data.projects){projects=data.projects;svJ("hx-proj",projects);}if(data.planSlots){planSlots=data.planSlots;svJ("hx-plan",planSlots);}}catch(e){}
     }
   },100);
 };
 
 initTimerOnLoad();
+// Persistent planner drag-fill mouseup listener
+document.addEventListener("mouseup",function(){
+  if(!_planDrag)return;
+  _planDrag=false;
+  if(_planDragMoved){
+    // Was a drag — save changes and re-render
+    savePlanData();renderProjects();
+  }else if(_planClickCell){
+    // Was a click — show project picker at the cell
+    var picker=document.getElementById("planPicker");
+    if(picker&&typeof showPlanPicker==="function")showPlanPicker(_planClickCell);
+  }
+  _planClickCell=null;
+});
 if(cfg.tab==="projects")renderProjects();
 // =================== END PROJECTS ===================
 
