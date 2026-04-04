@@ -252,13 +252,19 @@ input[type="range"]{accent-color:var(--acc)}
 .plan-pal-btn{width:22px;height:22px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:all 0.12s;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--dim)}
 .plan-pal-btn:hover{transform:scale(1.15)}
 .plan-pal-btn.active{border-color:#fff;transform:scale(1.2);box-shadow:0 0 6px rgba(255,255,255,0.3)}
-.planner-grid{display:grid;grid-template-columns:22px repeat(16,1fr);grid-template-rows:28px repeat(6,1fr);gap:2px;width:100%;flex:1;min-height:0}
+.planner-grid{display:grid;gap:2px;width:100%;flex:1;min-height:0}
 .plan-col-hdr{font-family:var(--mono);font-size:min(9px,1.3vw);color:var(--dim);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
 .plan-col-hdr.today{color:var(--acc);font-weight:700}
 .plan-row-hdr{font-family:var(--mono);font-size:8px;color:var(--dim);display:flex;align-items:center;justify-content:center}
+.plan-row-clickable{cursor:pointer;border-radius:4px;transition:background 0.1s}
+.plan-row-clickable:hover{background:rgba(106,228,160,0.1)}
 .plan-cell{border-radius:3px;cursor:pointer;border:1px solid rgba(255,255,255,0.04);background:rgba(255,255,255,0.025);transition:border-color 0.1s,background 0.1s}
 .plan-cell:hover{border-color:var(--acc);z-index:1}
 .plan-cell.today{border-color:rgba(106,228,160,0.25)}
+.plan-slot-picker{display:flex;gap:2px;flex-wrap:wrap}
+.plan-slot-btn{font-family:var(--mono);font-size:10px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:4px;cursor:pointer;border:1px solid var(--bd);background:var(--sf2);color:var(--dim);transition:all 0.1s}
+.plan-slot-btn:hover{color:var(--tx);border-color:var(--dim)}
+.plan-slot-btn.active{background:rgba(106,228,160,0.2);color:var(--acc);border-color:var(--accD);font-weight:700}
 /* Project edit */
 .proj-edit-section{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;margin:10px 0}
 .proj-edit-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px}
@@ -1314,6 +1320,8 @@ function clPnl(){st.mode="idle";st.ds=0;st.de=0;st.editEvt=null;setRepMode("none
 // Click outside panel to close (exclude toolbar and cell clicks)
 document.querySelector(".cal-fill").addEventListener("click",function(e){
   var panel=document.getElementById("calPanel");
+  // If target was removed from DOM (e.g. color picker rebuild), don't close
+  if(!document.body.contains(e.target))return;
   if(panel.style.display==="flex"&&!panel.contains(e.target)&&!e.target.closest(".cal-cell")&&!e.target.closest(".cal-bar")){
     clPnl();
   }
@@ -1456,11 +1464,16 @@ var _planClickCell=null;// cell that was clicked (for picker)
 var showPlanPicker=null;// set by renderProjPlanner
 
 var HEX_HOUR=5400;// exactly 1/16 day in seconds
-var PLAN_HOURS=[6,7,9,0xA,0xD,0xE];// default hex hours for slots 0-5
+var PLAN_HOURS=(cfg.planHours||[6,7,9,10,13,14]).sort(function(a,b){return a-b;});
+function planHourToCivil(ph){var dss=pDSv(cfg.ds);var cs=Math.round((ph/16)*86400+dss);cs=((cs%86400)+86400)%86400;return p2(Math.floor(cs/3600))+":"+p2(Math.floor((cs%3600)/60));}
+function civilToPlanHour(str){var p=str.split(":").map(Number);if(p.length<2||isNaN(p[0])||isNaN(p[1]))return null;var dss=pDSv(cfg.ds);var cs=p[0]*3600+p[1]*60;var hs=((cs-dss)%86400+86400)%86400;return(hs/86400)*16;}
+function planHourToHex(ph){var f=ph/16;var fi=Math.floor(f*65536);return"."+fF(fi);}
+function savePlanHours(){cfg.planHours=PLAN_HOURS;saveCfg();}
 
 function saveProjData(){svJ("hx-proj",projects);}
 function saveTimerState(){svJ("hx-proj-tmr",activeTimer);}
 function savePlanData(){svJ("hx-plan",planSlots);}
+function ensurePlanDay(hd){var key=String(hd);if(!planSlots[key])planSlots[key]=[];while(planSlots[key].length<PLAN_HOURS.length)planSlots[key].push(null);return key;}
 function hexToRgba(hex,a){var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return"rgba("+r+","+g+","+b+","+a+")";}
 function sessHexDay(sess){if(sess.hexStart){var hs=String(sess.hexStart);return parseInt(hs.split(".")[0],16);}return null;}
 function countCompletedOnDay(pid,hexDay){var p=getProjById(pid);if(!p)return 0;var c=0;(p.sessions||[]).forEach(function(s){if(s.completed&&sessHexDay(s)===hexDay)c++;});return c;}
@@ -1475,7 +1488,7 @@ function buildPlanSessNums(){
   var days=Object.keys(planSlots).map(Number).sort(function(a,b){return a-b;});
   days.forEach(function(hd){
     var dp=planSlots[String(hd)]||[];
-    for(var s=0;s<Math.min(dp.length,6);s++){
+    for(var s=0;s<Math.min(dp.length,PLAN_HOURS.length);s++){
       var pid=dp[s];if(!pid||!getProjById(pid))continue;
       nums[hd+":"+s]=ctr[pid];ctr[pid]++;
     }
@@ -1488,7 +1501,7 @@ function getSessionCalEvents(lo,hi){
   var result=[];
   if(typeof projects==="undefined"||!projects||!projects.length)return result;
   var s=gS();if(!s.a)return result;
-  // Skip at high zoom levels (range > 512 days would be too zoomed out for sessions)
+  // Skip at very high zoom levels
   if(Math.ceil(hi)-Math.floor(lo)>512)return result;
   // Map completed sessions by hex day → project → array
   var compMap={};
@@ -1502,15 +1515,17 @@ function getSessionCalEvents(lo,hi){
       compMap[sd][proj.id].push(sess);
     });
   });
-  // Build session numbering
   var sNums=buildPlanSessNums();
-  // Iterate visible days
   for(var hd=Math.max(Math.floor(lo),0);hd<Math.ceil(hi);hd++){
     var key=String(hd),dp=planSlots[key]||[];
+    if(!dp.length)continue;
     var usedComp={};
-    for(var sl=0;sl<Math.min(dp.length,6);sl++){
+    var daySessionNum=0;// nth session of this day (across all projects)
+    for(var sl=0;sl<Math.min(dp.length,PLAN_HOURS.length);sl++){
       var pid=dp[sl];if(!pid)continue;
       var proj=getProjById(pid);if(!proj)continue;
+      daySessionNum++;
+      var slotHour=PLAN_HOURS[sl]||sl;
       usedComp[pid]=usedComp[pid]||0;
       var doneArr=(compMap[hd]&&compMap[hd][pid])||[];
       var completed=usedComp[pid]<doneArr.length;
@@ -1519,15 +1534,15 @@ function getSessionCalEvents(lo,hi){
         var sess=doneArr[usedComp[pid]];usedComp[pid]++;
         var as=parseHexStamp(sess.hexStart),ae=parseHexStamp(sess.hexEnd);
         if(as!==null&&ae!==null&&ae>as){evDs=as;evDe=ae;}
-        else{evDs=hd+PLAN_HOURS[sl]/16;evDe=hd+(PLAN_HOURS[sl]+1)/16;}
+        else{evDs=hd+slotHour/16;evDe=hd+(slotHour+1)/16;}
       }else{
-        evDs=hd+PLAN_HOURS[sl]/16;evDe=hd+(PLAN_HOURS[sl]+1)/16;
+        evDs=hd+slotHour/16;evDe=hd+(slotHour+1)/16;
       }
       var sn=sNums[hd+":"+sl];var snHex=sn!==undefined?H[sn%16]:"?";
       var spNum=sn!==undefined?Math.floor(sn/16):-1;
       result.push({
         ds:evDs,de:evDe,
-        t:proj.name+" "+H[spNum>=0?spNum%16:0]+"."+snHex+(completed?" \u2713":""),
+        t:"#"+daySessionNum+" "+proj.name+" "+H[spNum>=0?spNum%16:0]+"."+snHex+(completed?" \u2713":""),
         c:proj.color%EC.length,
         _virtual:true,_projId:pid,_completed:completed
       });
@@ -2019,16 +2034,15 @@ function renderProjList(el){
       var paceVal=parseInt(document.getElementById("projNewPace").value)||1;
       var dailyRate=paceUnit==="day"?paceVal:paceVal/16;
       projects.unshift({id:genId(),name:name,color:nci,estDays:estDays,pace:dailyRate,sessions:[],created:Date.now()});
-      // Auto-fill planner from today based on pace
+      // Auto-fill planner for 2 hex weeks from today (use fast fill for more)
       var newPid=projects[0].id,totalSess=Math.round(estDays*16);
       var sessPerDay=Math.round(dailyRate),filled=0,carry=0;
+      var maxDay=(st.hd||0)+32;// 2 hex weeks
       if(sessPerDay>0&&totalSess>0){
-        for(var hd=st.hd||0;filled<totalSess&&hd<(st.hd||0)+0x1000;hd++){
-          var key=String(hd);
-          if(!planSlots[key])planSlots[key]=[null,null,null,null,null,null];
-          while(planSlots[key].length<6)planSlots[key].push(null);
+        for(var hd=st.hd||0;filled<totalSess&&hd<maxDay;hd++){
+          var key=ensurePlanDay(hd);
           var needed=sessPerDay+carry;carry=0;var dayFilled=0;
-          for(var sl=0;sl<6&&dayFilled<needed&&filled<totalSess;sl++){
+          for(var sl=0;sl<PLAN_HOURS.length&&dayFilled<needed&&filled<totalSess;sl++){
             if(!planSlots[key][sl]){planSlots[key][sl]=newPid;dayFilled++;filled++;}
           }
           if(dayFilled<needed)carry=needed-dayFilled;
@@ -2140,7 +2154,7 @@ function renderProjPlanner(el){
   htm+='<div class="proj-edit-field"><div class="label">project</div><select class="select" id="ffProj" style="font-size:11px;padding:4px 8px">';
   projects.forEach(function(p){htm+='<option value="'+p.id+'"'+(planBrush===p.id?' selected':'')+'>'+esc(p.name)+'</option>';});
   htm+='</select></div>';
-  htm+='<div class="proj-edit-field" style="flex:0 0 60px"><div class="label">sess/'+esc(dayU)+'</div><input type="number" class="input" id="ffCount" value="2" min="1" max="6" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
+  htm+='<div class="proj-edit-field" style="flex:0 0 60px"><div class="label">sess/'+esc(dayU)+'</div><input type="number" class="input" id="ffCount" value="2" min="1" max="'+PLAN_HOURS.length+'" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
   htm+='<div class="proj-edit-field" style="flex:0 0 70px"><div class="label">from '+esc(dayU)+'</div><input type="text" class="input" id="ffFrom" value="'+fD(planWeekBase).replace(/^0+/,"")+'" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
   htm+='<div class="proj-edit-field" style="flex:0 0 70px"><div class="label">to '+esc(dayU)+'</div><input type="text" class="input" id="ffTo" value="'+fD(planWeekBase+15).replace(/^0+/,"")+'" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
   htm+='<button class="btn" id="ffApply" style="font-size:10px;padding:5px 14px">Fill empty</button>';
@@ -2159,7 +2173,8 @@ function renderProjPlanner(el){
   var sNums=buildPlanSessNums();
 
   // Grid
-  htm+='<div class="planner-grid">';
+  var nSlots=PLAN_HOURS.length;
+  htm+='<div class="planner-grid" style="grid-template-columns:70px repeat(16,1fr);grid-template-rows:28px repeat('+nSlots+',1fr) auto">';
   htm+='<div></div>';
   // Column headers with civil hint
   for(var d=0;d<16;d++){
@@ -2169,9 +2184,13 @@ function renderProjPlanner(el){
     var cvHint=cv?(p2(cv.mo)+"/"+p2(cv.d)):"";
     htm+='<div class="plan-col-hdr'+(isT?" today":"")+'" title="'+fD(hd)+(cvHint?" = "+cvHint:"")+'"><div>'+H[d]+'</div>'+(cvHint?'<div style="font-size:min(6px,0.9vw);opacity:0.5;line-height:1">'+cvHint+'</div>':'')+'</div>';
   }
-  // Rows (6 slots)
-  for(var slot=0;slot<6;slot++){
-    htm+='<div class="plan-row-hdr" title="hex hour '+H[PLAN_HOURS[slot]]+'">'+H[PLAN_HOURS[slot]]+'</div>';
+  // Rows (dynamic slots) — label = session number, click to edit time
+  for(var slot=0;slot<nSlots;slot++){
+    var civTime=planHourToCivil(PLAN_HOURS[slot]);
+    var hexTime=planHourToHex(PLAN_HOURS[slot]);
+    htm+='<div class="plan-row-hdr plan-row-clickable" data-slot="'+slot+'" style="cursor:pointer" title="'+hexTime+' = '+civTime+'">';
+    htm+='<span style="font-family:var(--mono);font-size:min(10px,1.3vw);font-weight:600;color:var(--tx)">'+(slot+1)+'</span>';
+    htm+='</div>';
     for(var d=0;d<16;d++){
       var hd=planWeekBase+d;
       var key=String(hd);
@@ -2211,15 +2230,32 @@ function renderProjPlanner(el){
       htm+='<div class="'+cls+'" data-hd="'+hd+'" data-slot="'+slot+'" style="'+style+'"'+(tip?' title="'+tip+'"':'')+'>'+inn+'</div>';
     }
   }
+  // Add-slot row
+  htm+='<div style="display:flex;align-items:center;justify-content:center"><button class="btn-sm" id="planAddSlot" style="font-size:9px;padding:2px 8px" title="Add a session slot">+</button></div>';
+  for(var d=0;d<16;d++)htm+='<div></div>';
   htm+='</div>';
 
-  htm+='<div style="font-family:var(--mono);font-size:8px;color:var(--dim);opacity:0.5;text-align:center;margin-top:4px;flex-shrink:0">click = pick project \xb7 drag = paint \xb7 solid = done \xb7 faded = planned</div>';
+  htm+='<div style="font-family:var(--mono);font-size:8px;color:var(--dim);opacity:0.5;text-align:center;margin-top:4px;flex-shrink:0">click # to edit time \xb7 click cell = pick project \xb7 drag = paint \xb7 '+nSlots+' sessions/day</div>';
   htm+='</div>';// close flex column wrapper
 
-  // Picker popup (hidden, positioned absolutely)
+  // Picker popup
   htm+='<div id="planPicker" style="display:none;position:fixed;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px;z-index:20;box-shadow:0 4px 16px rgba(0,0,0,0.5);max-width:200px">';
   htm+='<div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-bottom:6px">assign project</div>';
   htm+='<div id="planPickerList" style="display:flex;flex-direction:column;gap:3px"></div>';
+  htm+='</div>';
+
+  // Slot editor popup
+  htm+='<div id="planSlotEditor" style="display:none;position:fixed;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px;z-index:20;box-shadow:0 4px 16px rgba(0,0,0,0.5);width:180px">';
+  htm+='<div style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-bottom:6px">session <span id="slotEdLabel">1</span> start time</div>';
+  htm+='<div style="display:flex;gap:4px;margin-bottom:6px">';
+  htm+='<input class="input" id="slotEdHex" placeholder=".6000" style="font-family:var(--mono);font-size:12px;padding:4px 6px;flex:1;text-align:center">';
+  htm+='<span style="font-family:var(--mono);font-size:10px;color:var(--dim);display:flex;align-items:center">=</span>';
+  htm+='<input class="input" id="slotEdCivil" placeholder="8:15" style="font-family:var(--mono);font-size:12px;padding:4px 6px;flex:1;text-align:center">';
+  htm+='</div>';
+  htm+='<div style="display:flex;gap:4px">';
+  htm+='<button class="btn" id="slotEdSave" style="font-size:10px;padding:4px 10px;flex:1">Save</button>';
+  htm+='<button class="btn-dim" id="slotEdDel" style="font-size:10px;padding:4px 8px;color:var(--err);border-color:rgba(228,106,106,0.3)">\u2715 remove</button>';
+  htm+='</div>';
   htm+='</div>';
 
   el.innerHTML=htm;
@@ -2265,9 +2301,7 @@ function renderProjPlanner(el){
   }
 
   function assignCell(cell,pid){
-    var hd=parseInt(cell.dataset.hd),slot=parseInt(cell.dataset.slot),key=String(hd);
-    if(!planSlots[key])planSlots[key]=[null,null,null,null,null,null];
-    while(planSlots[key].length<6)planSlots[key].push(null);
+    var hd=parseInt(cell.dataset.hd),slot=parseInt(cell.dataset.slot),key=ensurePlanDay(hd);
     planSlots[key][slot]=pid;
     savePlanData();renderProjects();
   }
@@ -2275,9 +2309,7 @@ function renderProjPlanner(el){
   // Cell drag-fill + click-to-pick
   showPlanPicker=showPicker;
   function planPaint(cell){
-    var hd=parseInt(cell.dataset.hd),slot=parseInt(cell.dataset.slot),key=String(hd);
-    if(!planSlots[key])planSlots[key]=[null,null,null,null,null,null];
-    while(planSlots[key].length<6)planSlots[key].push(null);
+    var hd=parseInt(cell.dataset.hd),slot=parseInt(cell.dataset.slot),key=ensurePlanDay(hd);
     if(planSlots[key][slot]!==(planBrush||null)){
       planSlots[key][slot]=planBrush;
       var bg=planBrush?EC[(getProjById(planBrush)||{color:0}).color%EC.length].b:"";
@@ -2323,8 +2355,8 @@ function renderProjPlanner(el){
       if(planSlots[srcKey]){
         if(!planSlots[dstKey])planSlots[dstKey]=planSlots[srcKey].slice();
         else{
-          // Only fill empty slots in destination
-          for(var s=0;s<6;s++){
+          ensurePlanDay(nextBase+d);
+          for(var s=0;s<planSlots[srcKey].length;s++){
             if(!planSlots[dstKey][s]&&planSlots[srcKey][s])planSlots[dstKey][s]=planSlots[srcKey][s];
           }
         }
@@ -2353,18 +2385,15 @@ function renderProjPlanner(el){
     if(!pid||isNaN(fromD)||isNaN(toD)||fromD>toD)return;
     var carry=0;
     for(var hd=fromD;hd<=toD;hd++){
-      var key=String(hd);
-      if(!planSlots[key])planSlots[key]=[null,null,null,null,null,null];
-      while(planSlots[key].length<6)planSlots[key].push(null);
-      // Count how many slots this project already has on this day (planned + completed)
+      var key=ensurePlanDay(hd);
       var existing=0;
-      for(var s=0;s<6;s++){if(planSlots[key][s]===pid)existing++;}
+      for(var s=0;s<PLAN_HOURS.length;s++){if(planSlots[key][s]===pid)existing++;}
       var alsoCompleted=countCompletedOnDay(pid,hd);
       var totalExisting=Math.max(existing,alsoCompleted);
       var needed=Math.max(0,quota-totalExisting)+carry;
       carry=0;
       var filled=0;
-      for(var sl=0;sl<6&&filled<needed;sl++){
+      for(var sl=0;sl<PLAN_HOURS.length&&filled<needed;sl++){
         if(!planSlots[key][sl]){planSlots[key][sl]=pid;filled++;}
       }
       // Carry over unfilled to next day
@@ -2372,6 +2401,101 @@ function renderProjPlanner(el){
     }
     savePlanData();renderProjects();
   };
+
+  // Slot editor popover — click row number to open
+  var _activeSlotEditor=-1;
+  function parseTimeInput(val){
+    var newHour=null;
+    var hexVal=val.replace(/^\./,"");
+    if(hexVal.length===4&&!hexVal.includes(":")){
+      var p1=parseInt(hexVal,16);if(!isNaN(p1))newHour=(p1/65536)*16;
+    }else if(hexVal.length<=2&&!hexVal.includes(":")){
+      var p2=parseInt(hexVal,16);if(!isNaN(p2)&&p2<16)newHour=p2;
+    }
+    if(newHour===null&&val.includes(":")){newHour=civilToPlanHour(val);}
+    if(newHour===null){var f=parseFloat(val);if(!isNaN(f)&&f>=0&&f<16)newHour=f;}
+    return newHour;
+  }
+  function openSlotEditor(slot,anchor){
+    _activeSlotEditor=slot;
+    var ed=document.getElementById("planSlotEditor");
+    document.getElementById("slotEdLabel").textContent=String(slot+1);
+    document.getElementById("slotEdHex").value=planHourToHex(PLAN_HOURS[slot]);
+    document.getElementById("slotEdCivil").value=planHourToCivil(PLAN_HOURS[slot]);
+    var r=anchor.getBoundingClientRect();
+    ed.style.left=Math.min(r.right+4,window.innerWidth-190)+"px";
+    ed.style.top=Math.min(r.top,window.innerHeight-130)+"px";
+    ed.style.display="block";
+    document.getElementById("slotEdHex").focus();
+    document.getElementById("slotEdHex").select();
+  }
+  el.querySelectorAll(".plan-row-clickable").forEach(function(hdr){
+    hdr.onclick=function(e){
+      e.stopPropagation();
+      var slot=parseInt(hdr.dataset.slot);
+      document.getElementById("planPicker").style.display="none";
+      openSlotEditor(slot,hdr);
+    };
+  });
+  // Hex↔civil sync in editor
+  document.getElementById("slotEdHex").addEventListener("input",function(){
+    var v=parseTimeInput(this.value.trim());
+    if(v!==null)document.getElementById("slotEdCivil").value=planHourToCivil(v);
+  });
+  document.getElementById("slotEdCivil").addEventListener("input",function(){
+    var v=civilToPlanHour(this.value.trim());
+    if(v!==null)document.getElementById("slotEdHex").value=planHourToHex(v);
+  });
+  // Save
+  document.getElementById("slotEdSave").onclick=function(){
+    if(_activeSlotEditor<0)return;
+    var hexV=parseTimeInput(document.getElementById("slotEdHex").value.trim());
+    var civV=civilToPlanHour(document.getElementById("slotEdCivil").value.trim());
+    var newHour=hexV!==null?hexV:civV;
+    if(newHour!==null&&newHour>=0&&newHour<16){
+      PLAN_HOURS[_activeSlotEditor]=Math.round(newHour*1000)/1000;
+      PLAN_HOURS.sort(function(a,b){return a-b;});
+      savePlanHours();
+    }
+    document.getElementById("planSlotEditor").style.display="none";
+    _activeSlotEditor=-1;
+    renderProjects();
+  };
+  // Enter to save in either field
+  document.getElementById("slotEdHex").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("slotEdSave").click();if(e.key==="Escape"){document.getElementById("planSlotEditor").style.display="none";_activeSlotEditor=-1;}});
+  document.getElementById("slotEdCivil").addEventListener("keydown",function(e){if(e.key==="Enter")document.getElementById("slotEdSave").click();if(e.key==="Escape"){document.getElementById("planSlotEditor").style.display="none";_activeSlotEditor=-1;}});
+  // Delete
+  document.getElementById("slotEdDel").onclick=function(){
+    if(_activeSlotEditor<0||PLAN_HOURS.length<=1)return;
+    var slot=_activeSlotEditor;
+    PLAN_HOURS.splice(slot,1);
+    Object.keys(planSlots).forEach(function(key){
+      if(planSlots[key]&&planSlots[key].length>slot)planSlots[key].splice(slot,1);
+    });
+    document.getElementById("planSlotEditor").style.display="none";
+    _activeSlotEditor=-1;
+    savePlanHours();savePlanData();renderProjects();
+  };
+  // Close editor on outside click
+  document.addEventListener("click",function(e){
+    var ed=document.getElementById("planSlotEditor");
+    if(ed&&ed.style.display==="block"&&!ed.contains(e.target)&&!e.target.closest(".plan-row-clickable")){
+      ed.style.display="none";_activeSlotEditor=-1;
+    }
+  });
+
+  // Hex/civil toggle removed from toolbar — it's now inline in the editor
+
+  // Add slot button
+  document.getElementById("planAddSlot").onclick=function(){
+    // Default: 1 hour after the last slot, or 8 if empty
+    var newHour=PLAN_HOURS.length>0?PLAN_HOURS[PLAN_HOURS.length-1]+1:8;
+    if(newHour>=16)newHour=15;
+    PLAN_HOURS.push(newHour);
+    PLAN_HOURS.sort(function(a,b){return a-b;});
+    savePlanHours();renderProjects();
+  };
+
 }
 
 function renderProjDetail(el){
