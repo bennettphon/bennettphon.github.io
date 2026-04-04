@@ -159,6 +159,8 @@ input[type="range"]{accent-color:var(--acc)}
 .proj-view-btn:hover{color:var(--tx)}
 .proj-view-btn.active{color:#fff;background:var(--accD);border-color:var(--accD);font-weight:600}
 .proj-scroll{flex:1;overflow-y:auto;padding:12px}
+.proj-scroll.planner-mode{padding:4px 8px;overflow:hidden;display:flex;flex-direction:column}
+.proj-scroll.planner-mode .proj-constrained{max-width:none;flex:1;display:flex;flex-direction:column;min-height:0}
 .proj-constrained{max-width:800px;margin:0 auto;width:100%}
 .proj-empty{text-align:center;padding:40px 20px;color:var(--dim);font-family:var(--mono);font-size:13px}
 .proj-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin-bottom:10px;transition:border-color 0.15s;cursor:pointer}
@@ -250,7 +252,7 @@ input[type="range"]{accent-color:var(--acc)}
 .plan-pal-btn{width:22px;height:22px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:all 0.12s;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--dim)}
 .plan-pal-btn:hover{transform:scale(1.15)}
 .plan-pal-btn.active{border-color:#fff;transform:scale(1.2);box-shadow:0 0 6px rgba(255,255,255,0.3)}
-.planner-grid{display:grid;grid-template-columns:22px repeat(16,1fr);grid-template-rows:28px repeat(6,1fr);gap:2px;width:100%;min-height:220px;flex:1}
+.planner-grid{display:grid;grid-template-columns:22px repeat(16,1fr);grid-template-rows:28px repeat(6,1fr);gap:2px;width:100%;flex:1;min-height:0}
 .plan-col-hdr{font-family:var(--mono);font-size:min(9px,1.3vw);color:var(--dim);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1}
 .plan-col-hdr.today{color:var(--acc);font-weight:700}
 .plan-row-hdr{font-family:var(--mono);font-size:8px;color:var(--dim);display:flex;align-items:center;justify-content:center}
@@ -1879,6 +1881,9 @@ document.getElementById("projNewBtn").onclick=function(){
 function renderProjects(){
   if(!projects)return;
   var el=document.getElementById("projContent");
+  var scrollEl=el.parentElement;// proj-scroll
+  // Toggle planner fullscreen mode
+  scrollEl.classList.toggle("planner-mode",projView==="planner");
   // Sync toggle buttons
   var activeView=projView;if(projView==="detail")activeView="list";
   document.querySelectorAll(".proj-view-btn").forEach(function(b){b.classList.toggle("active",b.dataset.pv===activeView);});
@@ -2103,7 +2108,8 @@ function renderProjPlanner(el){
   var civRange=civStart&&civEnd?(civStart.y+"-"+p2(civStart.mo)+"-"+p2(civStart.d)+" \u2192 "+civEnd.y+"-"+p2(civEnd.mo)+"-"+p2(civEnd.d)):"";
 
   // Nav bar
-  htm+='<div class="planner-nav">';
+  htm+='<div style="display:flex;flex-direction:column;flex:1;min-height:0">';
+  htm+='<div class="planner-nav" style="flex-shrink:0">';
   htm+='<button class="btn-sm" id="planPrev">\u25c1</button>';
   htm+='<button class="btn-sm" id="planNow">now</button>';
   htm+='<button class="btn-sm" id="planNext">\u25b7</button>';
@@ -2112,7 +2118,7 @@ function renderProjPlanner(el){
   htm+='</div>';
 
   // Palette + fast fill
-  htm+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">';
+  htm+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;flex-shrink:0">';
   htm+='<div class="planner-palette" style="margin-bottom:0;flex:1">';
   htm+='<span style="font-family:var(--mono);font-size:9px;color:var(--dim);margin-right:2px">paint:</span>';
   htm+='<div class="plan-pal-btn'+(!planBrush?" active":"")+'" data-brush="" style="background:var(--sf2);border-color:'+(planBrush?'transparent':'#fff')+'" title="Eraser">\u2715</div>';
@@ -2127,7 +2133,7 @@ function renderProjPlanner(el){
   htm+='</div>';
 
   // Fast fill panel (hidden by default)
-  htm+='<div id="planFastFill" style="display:none;margin-bottom:8px;padding:10px 12px;background:var(--sf);border:1px solid var(--bd);border-radius:8px">';
+  htm+='<div id="planFastFill" style="display:none;margin-bottom:8px;padding:10px 12px;background:var(--sf);border:1px solid var(--bd);border-radius:8px;flex-shrink:0">';
   htm+='<div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">';
   htm+='<div class="proj-edit-field"><div class="label">project</div><select class="select" id="ffProj" style="font-size:11px;padding:4px 8px">';
   projects.forEach(function(p){htm+='<option value="'+p.id+'"'+(planBrush===p.id?' selected':'')+'>'+esc(p.name)+'</option>';});
@@ -2205,7 +2211,8 @@ function renderProjPlanner(el){
   }
   htm+='</div>';
 
-  htm+='<div style="font-family:var(--mono);font-size:8px;color:var(--dim);opacity:0.5;text-align:center;margin-top:4px">click = pick project \xb7 drag = paint \xb7 solid = done \xb7 faded = planned</div>';
+  htm+='<div style="font-family:var(--mono);font-size:8px;color:var(--dim);opacity:0.5;text-align:center;margin-top:4px;flex-shrink:0">click = pick project \xb7 drag = paint \xb7 solid = done \xb7 faded = planned</div>';
+  htm+='</div>';// close flex column wrapper
 
   // Picker popup (hidden, positioned absolutely)
   htm+='<div id="planPicker" style="display:none;position:fixed;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:8px;z-index:20;box-shadow:0 4px 16px rgba(0,0,0,0.5);max-width:200px">';
