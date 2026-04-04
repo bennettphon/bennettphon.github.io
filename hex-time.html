@@ -1788,6 +1788,38 @@ function drawClockFavicon(mode,frac){
 }
 // =================== END TAB TITLE + FAVICON ===================
 
+// Background tab updater — Web Worker bypasses browser throttling
+(function(){
+  try{
+    var blob=new Blob(['setInterval(function(){postMessage(1);},1000);'],{type:'application/javascript'});
+    var worker=new Worker(URL.createObjectURL(blob));
+    worker.onmessage=function(){
+      if(document.hidden){
+        // Recalculate time for idle mode since rAF tick() is paused
+        if(!activeTimer){
+          var s=gS();
+          if(s.a){
+            var now=new Date(),c=gCT(now,s.o),rawHD=computeHD(c.y,c.mo,c.d,s.a.y,s.a.m,s.a.d);
+            var r=aDS(rawHD,c.h,c.m,c.s,c.ms,s.dss);
+            st.hd=r.hd;st.fs=r.fs;st.fi=r.fi;st.stamp=fD(r.hd)+"."+fF(r.fi);
+          }
+          updateIdleTab();
+        }else{
+          updateTabInfo();
+        }
+      }
+    };
+  }catch(e){
+    // Fallback: plain setInterval (throttled in background but better than nothing)
+    setInterval(function(){
+      if(document.hidden){
+        if(activeTimer)updateTabInfo();
+        else updateIdleTab();
+      }
+    },1000);
+  }
+})();
+
 // Sprint bar: 16 cells
 function sprintBarHTML(sessions,activeId){
   var htm='<div class="sprint-bar">';
