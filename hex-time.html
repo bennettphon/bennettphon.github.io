@@ -1444,7 +1444,7 @@ document.getElementById("resetBtn").onclick=function(){
 var projects=ldJ("hx-proj",[]);
 var activeTimer=ldJ("hx-proj-tmr",null);
 var projTimerInterval=null;
-var projView="list";
+var projView=cfg.projView||"list";
 var projDetailId=null;
 var projCreating=false;
 var planSlots=ldJ("hx-plan",{});
@@ -1881,7 +1881,9 @@ document.getElementById("projNewBtn").onclick=function(){
 function renderProjects(){
   if(!projects)return;
   var el=document.getElementById("projContent");
-  var scrollEl=el.parentElement;// proj-scroll
+  var scrollEl=el.parentElement;
+  // Persist view (detail falls back to list since detail ID is transient)
+  cfg.projView=projView==="detail"?"list":projView;svJ("hx-c8",cfg);// proj-scroll
   // Toggle planner fullscreen mode
   scrollEl.classList.toggle("planner-mode",projView==="planner");
   // Sync toggle buttons
