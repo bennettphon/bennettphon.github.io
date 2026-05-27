@@ -1,0 +1,8 @@
+name = "chsh-leaderboard"
+main = "worker.js"
+compatibility_date = "2026-05-27"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "chsh_leaderboard"
+database_id = "replace-with-your-d1-database-id"

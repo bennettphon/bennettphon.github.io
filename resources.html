@@ -30,6 +30,8 @@
     .top-link:hover{background:rgba(0,0,0,0.06)}
     body.dark .top-link:hover{background:rgba(255,255,255,0.08)}
     .top-link.active{font-weight:600;}
+    .top-link.is-hidden{opacity:0;border-color:transparent;cursor:default}
+    .top-link.is-hidden:hover{background:none}
 
     .left-panel{
       position:fixed;top:50px;left:0;width:24%;
@@ -75,6 +77,10 @@
     body.dark .github-icon{filter:none;}
 
     .han-name{font-family:"DFKai-SB","KaiTi","楷体",serif}
+    .han-name.is-ipa{
+      font-family:'Segoe UI','Arial','Helvetica','Charis SIL','Doulos SIL',sans-serif;
+      font-size:0.9em;
+    }
 
     .social-icon{width:20px;height:20px;margin:0 6px;vertical-align:middle}
     .left-panel h2{font-size:1.15rem;}
@@ -83,13 +89,12 @@
     a{color:#3fb5ff;text-decoration:none}
     a:hover{text-decoration:underline}
 
-    .ipa-toggle{cursor:pointer;font-size:0.7em;color:gray;margin-left:4px;}
-    .ipa-popup{
-      display:none;position:absolute;top:1.6em;left:0;background:#f9f9f9;
-      border:1px solid #ccc;padding:4px 8px;font-size:0.7em;
-      color:black;border-radius:4px;box-shadow:0 1px 4px rgba(0,0,0,0.1);
-      white-space:nowrap;z-index:100;
+    .ipa-toggle{
+      cursor:pointer;font-size:0.65rem;color:var(--fg);margin-left:6px;
+      padding:2px 6px;border:1px solid #888;border-radius:4px;
+      background:none;vertical-align:middle;
     }
+    .ipa-toggle[aria-pressed="true"]{border-color:#3fb5ff;color:#3fb5ff}
 
     .tools-grid{display:flex;flex-direction:column;gap:12px}
     .tool-card{
@@ -115,8 +120,8 @@
 
   <!-- TOP BAR -->
   <div class="top-bar">
+    <a href="resources.html" class="top-link active is-hidden" aria-hidden="true" tabindex="-1">Resources</a>
     <a href="index.html" class="top-link">Home</a>
-    <a href="resources.html" class="top-link active">Resources</a>
     <button id="mode-btn" aria-label="Toggle dark mode">☯</button>
   </div>
 
@@ -129,11 +134,8 @@
 
       <h2 style="margin:0;">
         Bennett Hon |
-        <span class="han-name" style="position:relative; display:inline-block;">
-          韓本一
-          <span id="ipa-popup" class="ipa-popup">[ɦɑn pʷənʔiɪt̚]</span>
-        </span>
-        <span class="ipa-toggle" onclick="toggleIPA()">ℹ️</span>
+        <span id="han-name" class="han-name">韓本一</span>
+        <button type="button" id="ipa-toggle" class="ipa-toggle" aria-pressed="false" onclick="toggleIPA()">IPA</button>
       </h2>
 
       <p style="font-size:1.05em;color:gray;">University of Ottawa</p>
@@ -247,8 +249,13 @@
 
   <script>
     function toggleIPA(){
-      const popup = document.getElementById('ipa-popup');
-      popup.style.display = (popup.style.display==='block'?'none':'block');
+      const name = document.getElementById('han-name');
+      const btn = document.getElementById('ipa-toggle');
+      const showingIPA = btn.getAttribute('aria-pressed') === 'true';
+
+      name.textContent = showingIPA ? '韓本一' : '[ɦɑn pʷənʔiɪt̚]';
+      name.classList.toggle('is-ipa', !showingIPA);
+      btn.setAttribute('aria-pressed', String(!showingIPA));
     }
   </script>
 

@@ -1,6 +1,777 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Isomorphism Game – Bennett Hon</title>
-<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#121212;color:#f0f0f0;font-family:sans-serif;text-align:center}a{color:#3fb5ff}</style></head>
-<body><div><h1>🔀 Isomorphism Game</h1><p style="color:gray">Coming soon.</p><p><a href="index.html">← Back</a></p></div></body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Isomorphism Game - Bennett Hon</title>
+<link rel="icon" href="puonx.png" type="image/png">
+<style>
+:root{
+  --bg:#121212;--fg:#f0f0f0;--muted:#9a9a9a;--panel:#1a1a1a;--panel2:#202432;
+  --border:#333;--accent:#3fb5ff;--good:#4fd18b;--bad:#ff6b6b;--warn:#e5c35c;
+}
+body.light{
+  --bg:#fff;--fg:#000;--muted:#666;--panel:#f8f8f8;--panel2:#eef6ff;
+  --border:#ddd;--accent:#0078b8;--good:#187a45;--bad:#b02121;--warn:#8a6500;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:sans-serif;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+button,select,textarea{font:inherit}
+.hidden{display:none!important}
+.top-bar{
+  position:sticky;top:0;z-index:10;height:50px;border-bottom:1px solid #ccc;background:var(--bg);
+  display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 20px;
+}
+.top-link,.mode-btn{
+  height:32px;padding:0 12px;border:1px solid var(--fg);border-radius:4px;background:none;
+  color:var(--fg);display:inline-flex;align-items:center;cursor:pointer;
+}
+.mode-btn{font-size:1.3rem}
+.page{width:min(1180px,100%);margin:0 auto;padding:26px 20px 44px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab-btn{
+  min-height:38px;border:1px solid var(--border);border-radius:6px;background:var(--panel);
+  color:var(--fg);cursor:pointer;padding:0 14px;font-weight:700;
+}
+.tab-btn.active{border-color:var(--accent);background:var(--panel2)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:16px}
+.panel{border:1px solid var(--border);background:var(--panel);border-radius:8px;padding:16px}
+.controls{display:flex;flex-direction:column;gap:14px}
+.field label{display:block;font-size:.8rem;color:var(--muted);font-weight:700;margin-bottom:6px}
+select,textarea{
+  width:100%;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);
+}
+select{height:38px;padding:0 10px}
+textarea{min-height:112px;padding:10px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.86rem;line-height:1.45;resize:vertical}
+h1,h2,h3{margin:0 0 12px}
+h1{font-size:1.9rem}h2{font-size:1.1rem}h3{font-size:.95rem;color:var(--muted)}
+.lede,.meta,.section-note{color:var(--muted);line-height:1.5;font-size:.9rem}
+.section-note{margin:0 0 12px}
+.button-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.role-btn,.action-btn{
+  min-height:38px;border:1px solid var(--border);border-radius:6px;background:var(--bg);
+  color:var(--fg);cursor:pointer;padding:0 10px;
+}
+.role-btn.active,.action-btn.primary{border-color:var(--accent);background:var(--panel2)}
+.action-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.score-box{border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;background:var(--bg)}
+.score-num{font-size:1.3rem;font-weight:700}.score-label{font-size:.72rem;color:var(--muted);margin-top:2px}
+.graphs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.graph-card{border:1px solid var(--border);border-radius:8px;background:var(--bg);padding:12px}
+.graph-card h2{font-size:1rem;margin-bottom:6px}
+svg.graph-view{width:100%;height:260px;display:block}
+.edge{stroke:var(--muted);stroke-width:2}
+.vertex{fill:var(--panel2);stroke:var(--accent);stroke-width:2}
+.vertex.question{stroke:var(--warn);stroke-width:4}
+.vertex.answer{stroke:var(--good);stroke-width:4}
+.vertex-label{fill:var(--fg);font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:middle}
+.round-card{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;margin-bottom:14px}
+.player-card{border:1px solid var(--border);border-radius:8px;padding:14px;background:var(--bg);min-height:176px}
+.player-card.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.player-title{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:.8rem;font-weight:700;margin-bottom:10px}
+.question{font-size:.85rem;color:var(--muted);margin-bottom:6px}
+.element{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:1.4rem;font-weight:700;word-break:break-word}
+.output{margin-top:14px}.output-label{font-size:.78rem;color:var(--muted);font-weight:700;margin-bottom:6px}
+.referee{
+  width:128px;border:1px solid var(--border);border-radius:8px;padding:12px 10px;background:var(--panel2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;
+}
+.referee-name{font-weight:700}.referee-rule{font-size:.8rem;color:var(--muted);line-height:1.35}
+.status{border:1px solid var(--border);border-radius:8px;background:var(--bg);padding:14px;min-height:82px}
+.status.win{border-color:var(--good)}.status.loss{border-color:var(--bad)}.status.warn{border-color:var(--warn)}
+.status-title{font-weight:700;margin-bottom:6px}.status.win .status-title{color:var(--good)}.status.loss .status-title{color:var(--bad)}.status.warn .status-title{color:var(--warn)}
+.status-body{color:var(--muted);line-height:1.5;font-size:.92rem}
+.mapping{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:6px;margin-top:10px}
+.mapping-item{border:1px solid var(--border);border-radius:6px;background:var(--bg);padding:7px;font-size:.84rem}
+details.rules{margin-top:14px}
+details.rules summary{cursor:pointer;color:var(--accent);font-weight:700}
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr}
+  .graphs{grid-template-columns:1fr}
+  .round-card{grid-template-columns:1fr}
+  .referee{width:100%;min-height:84px}
+}
+</style>
+</head>
+<body>
+  <div class="top-bar">
+    <a href="index.html" class="top-link">Home</a>
+    <button id="mode-btn" class="mode-btn" aria-label="Toggle color mode">&#9775;</button>
+  </div>
+
+  <main class="page">
+    <div class="tabs">
+      <button type="button" class="tab-btn active" data-tab="graph">Graph isomorphism game</button>
+      <button type="button" class="tab-btn" data-tab="group">Group isomorphism game</button>
+    </div>
+
+    <section id="graph-tab" class="tab-panel active">
+      <h1>Graph Isomorphism Game</h1>
+      <p class="lede">
+        Alice and Bob receive vertices and must answer with vertices of the other graph.
+        They win when equality, adjacency, and non-adjacency are preserved.
+        Graph inputs are capped at 24 vertices each.
+      </p>
+
+      <section class="layout" style="margin-top:16px">
+        <aside class="panel controls">
+          <div class="field">
+            <label for="preset-select">Preset</label>
+            <select id="preset-select">
+              <option value="c4">C4 vs relabelled C4</option>
+              <option value="p4-star">P4 vs K1,3</option>
+              <option value="triangle">Triangle vs triangle</option>
+              <option value="square-diagonal">Square vs square plus diagonal</option>
+            </select>
+            <div class="action-row" style="margin-top:8px">
+              <button type="button" id="load-preset" class="action-btn">Load preset</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="graph-g-input">Graph G</label>
+            <textarea id="graph-g-input" spellcheck="false"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="graph-h-input">Graph H</label>
+            <textarea id="graph-h-input" spellcheck="false"></textarea>
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="load-graphs" class="action-btn primary">Load graphs</button>
+            <button type="button" id="find-iso" class="action-btn">Find isomorphism</button>
+          </div>
+
+          <div class="field">
+            <label>Play as</label>
+            <div class="button-grid">
+              <button type="button" class="role-btn active" data-role="alice">Alice</button>
+              <button type="button" class="role-btn" data-role="bob">Bob</button>
+              <button type="button" class="role-btn" data-role="spectator">Spectator</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="referee-mode">Referee mode</label>
+            <select id="referee-mode">
+              <option value="same">same-graph questions</option>
+              <option value="full">full standard sampler</option>
+            </select>
+            <div class="meta">Same-graph questions are the nontrivial rounds; cross-graph rounds are usually automatically consistent.</div>
+          </div>
+
+          <div class="field">
+            <label for="bot-strategy">Computer strategy</label>
+            <select id="bot-strategy">
+              <option value="iso">use found isomorphism</option>
+              <option value="random">random valid output</option>
+            </select>
+          </div>
+
+          <div class="action-row">
+            <button type="button" id="new-round" class="action-btn primary">New round</button>
+            <button type="button" id="submit-round" class="action-btn primary">Submit</button>
+            <button type="button" id="run-100" class="action-btn">Run 100</button>
+            <button type="button" id="reset-score" class="action-btn">Reset</button>
+          </div>
+
+          <div class="score-grid">
+            <div class="score-box"><div id="wins" class="score-num">0</div><div class="score-label">wins</div></div>
+            <div class="score-box"><div id="rounds" class="score-num">0</div><div class="score-label">rounds</div></div>
+            <div class="score-box"><div id="rate" class="score-num">0%</div><div class="score-label">rate</div></div>
+          </div>
+        </aside>
+
+        <section>
+          <section class="graphs">
+            <div class="graph-card">
+              <h2>Graph G</h2>
+              <div id="graph-g-meta" class="meta"></div>
+              <svg id="graph-g-view" class="graph-view" viewBox="0 0 320 260" aria-label="Graph G drawing"></svg>
+            </div>
+            <div class="graph-card">
+              <h2>Graph H</h2>
+              <div id="graph-h-meta" class="meta"></div>
+              <svg id="graph-h-view" class="graph-view" viewBox="0 0 320 260" aria-label="Graph H drawing"></svg>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="round-card">
+              <div id="alice-card" class="player-card active">
+                <div class="player-title"><span>Alice</span><span id="alice-mode">you</span></div>
+                <div class="question">Question</div>
+                <div id="alice-question" class="element">-</div>
+                <div class="output">
+                  <div class="output-label">Answer</div>
+                  <select id="alice-answer"></select>
+                </div>
+              </div>
+
+              <div class="referee">
+                <div class="referee-name">Win rule</div>
+                <div class="referee-rule">same relation: equal, adjacent, or non-adjacent</div>
+                <div id="relation-preview" class="meta">-</div>
+              </div>
+
+              <div id="bob-card" class="player-card">
+                <div class="player-title"><span>Bob</span><span id="bob-mode">computer</span></div>
+                <div class="question">Question</div>
+                <div id="bob-question" class="element">-</div>
+                <div class="output">
+                  <div class="output-label">Answer</div>
+                  <select id="bob-answer"></select>
+                </div>
+              </div>
+            </div>
+
+            <div id="status" class="status">
+              <div class="status-title">Load two graphs to begin.</div>
+              <div class="status-body">Use edge-list input such as n=4 followed by one edge per line.</div>
+            </div>
+
+            <details class="rules">
+              <summary>Rules</summary>
+              <p class="section-note" style="margin-top:10px">
+                In the (G,H)-isomorphism game, each player receives a vertex from G or H and must answer
+                with a vertex of the other graph. The verifier compares the relation between the two
+                questions with the relation between the two answers. A classical perfect strategy is given
+                by an isomorphism G -> H.
+              </p>
+            </details>
+
+            <div id="mapping" class="mapping"></div>
+          </section>
+        </section>
+      </section>
+    </section>
+
+    <section id="group-tab" class="tab-panel">
+      <section class="panel">
+        <h1>Group Isomorphism Game</h1>
+        <p class="section-note">Coming soon.</p>
+      </section>
+    </section>
+  </main>
+
+<script>
+const MAX_VERTICES = 24;
+const ISO_SEARCH_LIMIT = 500000;
+
+const presets = {
+  "c4": {
+    g:"n=4\n0 1\n1 2\n2 3\n3 0",
+    h:"vertices: a b c d\na b\nb d\nd c\nc a"
+  },
+  "p4-star": {
+    g:"n=4\n0 1\n1 2\n2 3",
+    h:"n=4\n0 1\n0 2\n0 3"
+  },
+  "triangle": {
+    g:"vertices: u v w\nu v\nv w\nw u",
+    h:"n=3\n0 1\n1 2\n2 0"
+  },
+  "square-diagonal": {
+    g:"n=4\n0 1\n1 2\n2 3\n3 0",
+    h:"n=4\n0 1\n1 2\n2 3\n3 0\n0 2"
+  }
+};
+
+const state = {
+  G:null,
+  H:null,
+  iso:null,
+  inverse:null,
+  isoLimited:false,
+  role:"alice",
+  qA:null,
+  qB:null,
+  submitted:false,
+  wins:0,
+  rounds:0
+};
+
+const els = {
+  modeBtn:document.getElementById("mode-btn"),
+  tabBtns:Array.prototype.slice.call(document.querySelectorAll(".tab-btn")),
+  graphTab:document.getElementById("graph-tab"),
+  groupTab:document.getElementById("group-tab"),
+  presetSelect:document.getElementById("preset-select"),
+  loadPreset:document.getElementById("load-preset"),
+  graphGInput:document.getElementById("graph-g-input"),
+  graphHInput:document.getElementById("graph-h-input"),
+  loadGraphs:document.getElementById("load-graphs"),
+  findIso:document.getElementById("find-iso"),
+  graphGMeta:document.getElementById("graph-g-meta"),
+  graphHMeta:document.getElementById("graph-h-meta"),
+  graphGView:document.getElementById("graph-g-view"),
+  graphHView:document.getElementById("graph-h-view"),
+  roleBtns:Array.prototype.slice.call(document.querySelectorAll(".role-btn")),
+  refereeMode:document.getElementById("referee-mode"),
+  botStrategy:document.getElementById("bot-strategy"),
+  newRound:document.getElementById("new-round"),
+  submitRound:document.getElementById("submit-round"),
+  run100:document.getElementById("run-100"),
+  resetScore:document.getElementById("reset-score"),
+  wins:document.getElementById("wins"),
+  rounds:document.getElementById("rounds"),
+  rate:document.getElementById("rate"),
+  aliceCard:document.getElementById("alice-card"),
+  bobCard:document.getElementById("bob-card"),
+  aliceMode:document.getElementById("alice-mode"),
+  bobMode:document.getElementById("bob-mode"),
+  aliceQuestion:document.getElementById("alice-question"),
+  bobQuestion:document.getElementById("bob-question"),
+  aliceAnswer:document.getElementById("alice-answer"),
+  bobAnswer:document.getElementById("bob-answer"),
+  relationPreview:document.getElementById("relation-preview"),
+  status:document.getElementById("status"),
+  mapping:document.getElementById("mapping")
+};
+
+function cleanLine(line){
+  return line.replace(/#.*/, "").trim();
+}
+
+function addLabel(labels, seen, label){
+  if(!seen.has(label)){
+    seen.add(label);
+    labels.push(label);
+  }
+}
+
+function parseGraph(text, name){
+  const labels = [];
+  const seen = new Set();
+  const edges = [];
+  let forcedN = null;
+  const warnings = [];
+
+  for(const raw of text.split(/\r?\n/)){
+    let line = cleanLine(raw);
+    if(!line) continue;
+    const nMatch = line.match(/^n\s*=\s*(\d+)$/i);
+    if(nMatch){
+      forcedN = Number(nMatch[1]);
+      for(let i=0;i<forcedN;i++) addLabel(labels, seen, String(i));
+      continue;
+    }
+    if(/^vertices\s*:/i.test(line)){
+      line = line.replace(/^vertices\s*:/i, "").trim();
+      for(const label of line.split(/\s+/).filter(Boolean)) addLabel(labels, seen, label);
+      continue;
+    }
+    if(line.includes(":")){
+      const parts = line.split(":");
+      const source = parts[0].trim();
+      addLabel(labels, seen, source);
+      for(const target of parts.slice(1).join(":").trim().split(/\s+/).filter(Boolean)){
+        addLabel(labels, seen, target);
+        if(source !== target) edges.push([source, target]);
+        else warnings.push("Ignored loop at " + source + ".");
+      }
+      continue;
+    }
+    line = line.replace(/^edges\s*:/i, "").trim();
+    for(const chunk of line.split(",")){
+      const part = chunk.trim();
+      if(!part) continue;
+      let pair = part.includes("-") ? part.split("-") : part.split(/\s+/);
+      pair = pair.map(function(x){ return x.trim(); }).filter(Boolean);
+      if(pair.length !== 2) throw new Error("Could not parse edge '" + part + "' in " + name + ".");
+      addLabel(labels, seen, pair[0]);
+      addLabel(labels, seen, pair[1]);
+      if(pair[0] !== pair[1]) edges.push(pair);
+      else warnings.push("Ignored loop at " + pair[0] + ".");
+    }
+  }
+
+  if(forcedN !== null && labels.length > forcedN){
+    throw new Error(name + " has labels outside n=" + forcedN + ".");
+  }
+  if(labels.length === 0) throw new Error(name + " has no vertices.");
+  if(labels.length > MAX_VERTICES){
+    throw new Error(name + " has " + labels.length + " vertices. The limit is " + MAX_VERTICES + ".");
+  }
+
+  const index = new Map();
+  labels.forEach(function(label, i){ index.set(label, i); });
+  const n = labels.length;
+  const adj = Array.from({length:n}, function(){ return Array(n).fill(false); });
+  for(const edge of edges){
+    const a = index.get(edge[0]);
+    const b = index.get(edge[1]);
+    adj[a][b] = true;
+    adj[b][a] = true;
+  }
+  let m = 0;
+  for(let i=0;i<n;i++){
+    for(let j=i+1;j<n;j++) if(adj[i][j]) m++;
+  }
+  return {name:name, labels:labels, index:index, adj:adj, n:n, m:m, warnings:warnings};
+}
+
+function degrees(graph){
+  return graph.adj.map(function(row){ return row.filter(Boolean).length; });
+}
+
+function findIsomorphism(G,H){
+  const result = {map:null, limited:false, checked:0};
+  if(!G || !H || G.n !== H.n || G.m !== H.m) return result;
+  const degG = degrees(G);
+  const degH = degrees(H);
+  if(degG.slice().sort(function(a,b){ return a-b; }).join(",") !== degH.slice().sort(function(a,b){ return a-b; }).join(",")){
+    return result;
+  }
+
+  const order = Array.from({length:G.n}, function(_, i){ return i; })
+    .sort(function(a,b){ return degG[b] - degG[a]; });
+  const map = Array(G.n).fill(-1);
+  const used = Array(H.n).fill(false);
+
+  function backtrack(pos){
+    result.checked++;
+    if(result.checked > ISO_SEARCH_LIMIT){
+      result.limited = true;
+      return false;
+    }
+    if(pos === order.length) return true;
+    const g = order[pos];
+    for(let h=0; h<H.n; h++){
+      if(result.limited) return false;
+      if(used[h] || degG[g] !== degH[h]) continue;
+      let ok = true;
+      for(let i=0;i<G.n;i++){
+        if(map[i] === -1) continue;
+        if(G.adj[g][i] !== H.adj[h][map[i]]){ ok = false; break; }
+      }
+      if(!ok) continue;
+      map[g] = h;
+      used[h] = true;
+      if(backtrack(pos + 1)) return true;
+      if(result.limited) return false;
+      map[g] = -1;
+      used[h] = false;
+    }
+    return false;
+  }
+  if(backtrack(0)) result.map = map.slice();
+  return result;
+}
+
+function inverseMap(map){
+  if(!map) return null;
+  const inv = Array(map.length);
+  map.forEach(function(h,g){ inv[h] = g; });
+  return inv;
+}
+
+function relation(q1,q2){
+  if(q1.graph !== q2.graph) return "non-adjacent";
+  const graph = q1.graph === "G" ? state.G : state.H;
+  if(q1.vertex === q2.vertex) return "equal";
+  return graph.adj[q1.vertex][q2.vertex] ? "adjacent" : "non-adjacent";
+}
+
+function oppositeGraphName(graphName){
+  return graphName === "G" ? "H" : "G";
+}
+
+function graphByName(graphName){
+  return graphName === "G" ? state.G : state.H;
+}
+
+function questionLabel(q){
+  return q.graph + ":" + graphByName(q.graph).labels[q.vertex];
+}
+
+function answerGraphForQuestion(q){
+  return oppositeGraphName(q.graph);
+}
+
+function answerLabel(question, answer){
+  return answerGraphForQuestion(question) + ":" + graphByName(answerGraphForQuestion(question)).labels[answer];
+}
+
+function randomInt(n){
+  return Math.floor(Math.random() * n);
+}
+
+function makeQuestion(graphName, vertex){
+  return {graph:graphName, vertex:vertex};
+}
+
+function randomQuestionPair(){
+  if(els.refereeMode.value === "full"){
+    const gA = Math.random() < 0.5 ? "G" : "H";
+    const gB = Math.random() < 0.5 ? "G" : "H";
+    return [
+      makeQuestion(gA, randomInt(graphByName(gA).n)),
+      makeQuestion(gB, randomInt(graphByName(gB).n))
+    ];
+  }
+  const graphName = Math.random() < 0.5 ? "G" : "H";
+  return [
+    makeQuestion(graphName, randomInt(graphByName(graphName).n)),
+    makeQuestion(graphName, randomInt(graphByName(graphName).n))
+  ];
+}
+
+function botAnswer(question){
+  const targetGraph = answerGraphForQuestion(question);
+  if(els.botStrategy.value === "iso" && state.iso){
+    if(question.graph === "G") return state.iso[question.vertex];
+    return state.inverse[question.vertex];
+  }
+  return randomInt(graphByName(targetGraph).n);
+}
+
+function fillAnswerSelect(select, question){
+  select.innerHTML = "";
+  const targetGraph = graphByName(answerGraphForQuestion(question));
+  targetGraph.labels.forEach(function(label, i){
+    const option = document.createElement("option");
+    option.value = String(i);
+    option.textContent = answerGraphForQuestion(question) + ":" + label;
+    select.appendChild(option);
+  });
+}
+
+function setStatus(kind,title,body){
+  els.status.className = "status" + (kind ? " " + kind : "");
+  els.status.innerHTML = '<div class="status-title"></div><div class="status-body"></div>';
+  els.status.querySelector(".status-title").textContent = title;
+  els.status.querySelector(".status-body").textContent = body;
+}
+
+function drawGraph(svg, graph, highlights){
+  svg.innerHTML = "";
+  if(!graph) return;
+  const cx = 160, cy = 132, r = Math.min(96, 22 * Math.max(2, graph.n));
+  const points = graph.labels.map(function(_, i){
+    const angle = -Math.PI / 2 + 2 * Math.PI * i / graph.n;
+    return {x:cx + r * Math.cos(angle), y:cy + r * Math.sin(angle)};
+  });
+  for(let i=0;i<graph.n;i++){
+    for(let j=i+1;j<graph.n;j++){
+      if(!graph.adj[i][j]) continue;
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", points[i].x);
+      line.setAttribute("y1", points[i].y);
+      line.setAttribute("x2", points[j].x);
+      line.setAttribute("y2", points[j].y);
+      line.setAttribute("class", "edge");
+      svg.appendChild(line);
+    }
+  }
+  for(let i=0;i<graph.n;i++){
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("cx", points[i].x);
+    circle.setAttribute("cy", points[i].y);
+    circle.setAttribute("r", 18);
+    let klass = "vertex";
+    if(highlights.question && highlights.question.has(i)) klass += " question";
+    if(highlights.answer && highlights.answer.has(i)) klass += " answer";
+    circle.setAttribute("class", klass);
+    svg.appendChild(circle);
+
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", points[i].x);
+    text.setAttribute("y", points[i].y + 1);
+    text.setAttribute("class", "vertex-label");
+    text.textContent = graph.labels[i];
+    svg.appendChild(text);
+  }
+}
+
+function renderGraphs(answerA, answerB){
+  const highlightsG = {question:new Set(), answer:new Set()};
+  const highlightsH = {question:new Set(), answer:new Set()};
+  [state.qA,state.qB].forEach(function(q){
+    if(!q) return;
+    (q.graph === "G" ? highlightsG : highlightsH).question.add(q.vertex);
+  });
+  if(state.qA && answerA !== undefined){
+    const graphName = answerGraphForQuestion(state.qA);
+    (graphName === "G" ? highlightsG : highlightsH).answer.add(answerA);
+  }
+  if(state.qB && answerB !== undefined){
+    const graphName = answerGraphForQuestion(state.qB);
+    (graphName === "G" ? highlightsG : highlightsH).answer.add(answerB);
+  }
+  drawGraph(els.graphGView, state.G, highlightsG);
+  drawGraph(els.graphHView, state.H, highlightsH);
+}
+
+function renderMapping(){
+  els.mapping.innerHTML = "";
+  if(!state.iso) return;
+  state.iso.forEach(function(h,g){
+    const item = document.createElement("div");
+    item.className = "mapping-item";
+    item.textContent = state.G.labels[g] + " -> " + state.H.labels[h];
+    els.mapping.appendChild(item);
+  });
+}
+
+function loadGraphs(){
+  try{
+    state.G = parseGraph(els.graphGInput.value, "G");
+    state.H = parseGraph(els.graphHInput.value, "H");
+    const isoResult = findIsomorphism(state.G, state.H);
+    state.iso = isoResult.map;
+    state.inverse = inverseMap(state.iso);
+    state.isoLimited = isoResult.limited;
+    els.graphGMeta.textContent = state.G.n + " vertices, " + state.G.m + " edges.";
+    els.graphHMeta.textContent = state.H.n + " vertices, " + state.H.m + " edges.";
+    renderGraphs();
+    renderMapping();
+    resetScore();
+    const warning = state.G.warnings.concat(state.H.warnings).join(" ");
+    newRound();
+    if(state.iso){
+      setStatus("win", "Graphs loaded. Isomorphism found.", "Computer strategy can now play perfectly. " + warning);
+    } else if(state.isoLimited){
+      setStatus("warn", "Graphs loaded. Isomorphism search stopped.", "No mapping was found within the browser search limit. The game still works, but use random strategy or smaller graphs. " + warning);
+    } else {
+      setStatus("warn", "Graphs loaded. No isomorphism found.", "The isomorphism strategy is unavailable; random strategy may lose. " + warning);
+    }
+  } catch(err){
+    setStatus("loss", "Could not load graphs.", err.message);
+  }
+}
+
+function renderRole(){
+  const asAlice = state.role === "alice";
+  const asBob = state.role === "bob";
+  els.roleBtns.forEach(function(btn){ btn.classList.toggle("active", btn.dataset.role === state.role); });
+  els.aliceCard.classList.toggle("active", asAlice);
+  els.bobCard.classList.toggle("active", asBob);
+  els.aliceMode.textContent = asAlice ? "you" : "computer";
+  els.bobMode.textContent = asBob ? "you" : "computer";
+  els.aliceAnswer.disabled = !asAlice || state.submitted || state.role === "spectator";
+  els.bobAnswer.disabled = !asBob || state.submitted || state.role === "spectator";
+}
+
+function newRound(){
+  if(!state.G || !state.H) return;
+  const pair = randomQuestionPair();
+  state.qA = pair[0];
+  state.qB = pair[1];
+  state.submitted = false;
+  els.aliceQuestion.textContent = questionLabel(state.qA);
+  els.bobQuestion.textContent = questionLabel(state.qB);
+  fillAnswerSelect(els.aliceAnswer, state.qA);
+  fillAnswerSelect(els.bobAnswer, state.qB);
+  if(state.role !== "alice") els.aliceAnswer.value = String(botAnswer(state.qA));
+  if(state.role !== "bob") els.bobAnswer.value = String(botAnswer(state.qB));
+  els.relationPreview.textContent = "questions: " + relation(state.qA, state.qB);
+  renderRole();
+  renderGraphs();
+  setStatus("", "Round ready.", "Answer with a vertex from the other graph.");
+}
+
+function resolveRound(countScore){
+  if(!state.qA || !state.qB) return false;
+  const a = state.role === "alice" ? Number(els.aliceAnswer.value) : botAnswer(state.qA);
+  const b = state.role === "bob" ? Number(els.bobAnswer.value) : botAnswer(state.qB);
+  els.aliceAnswer.value = String(a);
+  els.bobAnswer.value = String(b);
+  const answerA = makeQuestion(answerGraphForQuestion(state.qA), a);
+  const answerB = makeQuestion(answerGraphForQuestion(state.qB), b);
+  const qRel = relation(state.qA, state.qB);
+  const aRel = relation(answerA, answerB);
+  const win = qRel === aRel;
+  if(countScore){
+    state.submitted = true;
+    state.rounds++;
+    if(win) state.wins++;
+    updateScore();
+  }
+  renderRole();
+  renderGraphs(a,b);
+  setStatus(
+    win ? "win" : "loss",
+    win ? "Win." : "Loss.",
+    "Questions are " + qRel + "; answers are " + aRel + ". Alice answered " +
+      answerLabel(state.qA, a) + ", Bob answered " + answerLabel(state.qB, b) + "."
+  );
+  return win;
+}
+
+function submitRound(){
+  if(state.submitted) return;
+  resolveRound(true);
+}
+
+function runMany(rounds){
+  if(!state.G || !state.H) return;
+  for(let i=0;i<rounds;i++){
+    const pair = randomQuestionPair();
+    state.qA = pair[0];
+    state.qB = pair[1];
+    const oldRole = state.role;
+    state.role = "spectator";
+    resolveRound(true);
+    state.role = oldRole;
+  }
+  state.submitted = true;
+  renderRole();
+}
+
+function resetScore(){
+  state.wins = 0;
+  state.rounds = 0;
+  updateScore();
+}
+
+function updateScore(){
+  els.wins.textContent = String(state.wins);
+  els.rounds.textContent = String(state.rounds);
+  els.rate.textContent = state.rounds ? Math.round(10000 * state.wins / state.rounds) / 100 + "%" : "0%";
+}
+
+function loadPreset(){
+  const preset = presets[els.presetSelect.value];
+  els.graphGInput.value = preset.g;
+  els.graphHInput.value = preset.h;
+  loadGraphs();
+}
+
+function initEvents(){
+  els.modeBtn.addEventListener("click", function(){ document.body.classList.toggle("light"); });
+  els.tabBtns.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      els.tabBtns.forEach(function(other){ other.classList.toggle("active", other === btn); });
+      els.graphTab.classList.toggle("active", btn.dataset.tab === "graph");
+      els.groupTab.classList.toggle("active", btn.dataset.tab === "group");
+    });
+  });
+  els.loadPreset.addEventListener("click", loadPreset);
+  els.loadGraphs.addEventListener("click", loadGraphs);
+  els.findIso.addEventListener("click", loadGraphs);
+  els.roleBtns.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      state.role = btn.dataset.role;
+      renderRole();
+      if(state.qA && state.qB) newRound();
+    });
+  });
+  els.refereeMode.addEventListener("change", newRound);
+  els.botStrategy.addEventListener("change", newRound);
+  els.newRound.addEventListener("click", newRound);
+  els.submitRound.addEventListener("click", submitRound);
+  els.run100.addEventListener("click", function(){ runMany(100); });
+  els.resetScore.addEventListener("click", resetScore);
+}
+
+initEvents();
+loadPreset();
+</script>
+</body>
 </html>

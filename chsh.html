@@ -1,6 +1,2108 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CHSH Game – Bennett Hon</title>
-<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#121212;color:#f0f0f0;font-family:sans-serif;text-align:center}a{color:#3fb5ff}</style></head>
-<body><div><h1>🔔 CHSH Game</h1><p style="color:gray">Coming soon.</p><p><a href="index.html">← Back</a></p></div></body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CHSH Ring Lab - Bennett Hon</title>
+<link rel="icon" href="puonx.png" type="image/png">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [["\\(", "\\)"]] },
+  svg: { fontCache: "global" }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{
+  --bg:#121212;--fg:#f0f0f0;--muted:#9a9a9a;--panel:#1a1a1a;--panel2:#202432;
+  --border:#333;--accent:#3fb5ff;--good:#4fd18b;--bad:#ff6b6b;--warn:#e5c35c;
+}
+body.light{
+  --bg:#fff;--fg:#000;--muted:#666;--panel:#f8f8f8;--panel2:#eef6ff;
+  --border:#ddd;--accent:#0078b8;--good:#187a45;--bad:#b02121;--warn:#8a6500;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:sans-serif;min-height:100vh}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+button,select,input,textarea{font:inherit}
+.hidden{display:none!important}
+.top-bar{
+  position:sticky;top:0;z-index:10;height:50px;border-bottom:1px solid #ccc;background:var(--bg);
+  display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:0 20px;
+}
+.top-link,.mode-btn{
+  height:32px;padding:0 12px;border:1px solid var(--fg);border-radius:4px;background:none;
+  color:var(--fg);display:inline-flex;align-items:center;cursor:pointer;
+}
+.mode-btn{font-size:1rem}
+.page{width:min(1180px,100%);margin:0 auto;padding:26px 20px 44px}
+.intro{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:center;margin-bottom:18px}
+h1{margin:0 0 8px;font-size:2rem}
+.lede{margin:0;color:var(--muted);line-height:1.55}
+.game-diagram{width:100%;height:auto;display:block}
+.game-diagram text{font-family:sans-serif;font-weight:700;fill:var(--fg);font-size:15px}
+.game-diagram .node{fill:var(--panel);stroke:var(--accent);stroke-width:2}
+.game-diagram .line{stroke:var(--border);stroke-width:2}
+.layout{display:grid;grid-template-columns:320px minmax(0,1fr);gap:16px}
+.panel{border:1px solid var(--border);background:var(--panel);border-radius:8px;padding:16px}
+.panel h2,.panel h3{margin:0 0 12px}
+.panel h2{font-size:1.1rem}.panel h3{font-size:.98rem;color:var(--muted);font-weight:700}
+.controls{display:flex;flex-direction:column;gap:14px}
+.field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px;font-weight:700}
+select,input,textarea{
+  width:100%;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);
+}
+select,input{height:38px;padding:0 10px}
+textarea{min-height:260px;padding:10px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.82rem;line-height:1.45;resize:vertical}
+.meta,.tiny{font-size:.82rem;color:var(--muted);line-height:1.5}
+.tiny{font-size:.76rem}
+.button-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.role-btn,.action-btn{
+  min-height:38px;border:1px solid var(--border);border-radius:6px;background:var(--bg);
+  color:var(--fg);cursor:pointer;padding:0 12px;
+}
+.role-btn.active,.action-btn.primary{border-color:var(--accent);background:var(--panel2)}
+.action-btn:disabled{opacity:.45;cursor:not-allowed}
+.action-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.score-box{border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;background:var(--bg)}
+.score-num{font-size:1.35rem;font-weight:700}.score-label{font-size:.72rem;color:var(--muted);margin-top:2px}
+.round-card{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;margin-bottom:16px}
+.player-card{border:1px solid var(--border);border-radius:8px;padding:14px;background:var(--bg);min-height:180px}
+.player-card.active{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.player-title{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:.8rem;font-weight:700;margin-bottom:10px}
+.question{font-size:.9rem;color:var(--muted);margin-bottom:6px}
+.element{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:1.7rem;font-weight:700;word-break:break-word}
+.output{margin-top:14px}.output-label{font-size:.78rem;color:var(--muted);font-weight:700;margin-bottom:6px}
+.referee{
+  width:112px;border:1px solid var(--border);border-radius:8px;padding:12px 10px;background:var(--panel2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;
+}
+.referee-name{font-weight:700}.referee-rule{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);font-size:.82rem}
+.status{border:1px solid var(--border);border-radius:8px;background:var(--bg);padding:14px;min-height:82px}
+.status.win{border-color:var(--good)}.status.loss{border-color:var(--bad)}.status.warn{border-color:var(--warn)}
+.status-title{font-weight:700;margin-bottom:6px}.status.win .status-title{color:var(--good)}.status.loss .status-title{color:var(--bad)}.status.warn .status-title{color:var(--warn)}
+.status-body{color:var(--muted);line-height:1.5;font-size:.95rem}
+.strategy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
+.strategy-item{border:1px solid var(--border);background:var(--bg);border-radius:6px;padding:8px;font-size:.85rem}
+.strategy-item strong{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}
+details.strategy{margin-top:16px}
+details.strategy summary{cursor:pointer;color:var(--accent);font-weight:700}
+.lab-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.editor-grid{display:grid;grid-template-columns:1fr;gap:6px}
+.strategy-row{display:grid;grid-template-columns:minmax(80px,1fr) minmax(90px,130px);gap:8px;align-items:center}
+.strategy-row span{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.85rem;color:var(--muted)}
+.leaderboard{display:grid;gap:6px;margin-top:10px}
+.board-row{display:grid;grid-template-columns:1fr auto;gap:10px;border:1px solid var(--border);border-radius:6px;background:var(--bg);padding:8px}
+.board-name{font-weight:700}.board-meta{font-size:.78rem;color:var(--muted);margin-top:3px}.board-value{font-weight:700;color:var(--accent);white-space:nowrap}
+.section-note{margin:0 0 12px;color:var(--muted);line-height:1.5}
+.sim-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:12px 0}
+.sim-card{border:1px solid var(--border);border-radius:6px;background:var(--bg);padding:10px;text-align:center;min-height:78px}
+.sim-label{font-size:.72rem;color:var(--muted);font-weight:700;margin-bottom:6px}
+.sim-value{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:1.15rem;font-weight:700;word-break:break-word}
+.sim-card.flash{border-color:var(--accent);background:var(--panel2)}
+.sim-card.win{border-color:var(--good)}.sim-card.loss{border-color:var(--bad)}
+.sim-graph-wrap{border:1px solid var(--border);border-radius:6px;background:var(--bg);padding:10px;margin-top:12px}
+#sim-graph{width:100%;height:150px;display:block}
+.ring-name{margin:4px 0 10px;font-size:1.05rem}
+.ring-name sup,.ring-name sub{font-size:.72em;line-height:0}
+.table-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.table-scroll{overflow:auto;border:1px solid var(--border);border-radius:6px;margin-top:12px;background:var(--bg)}
+.cayley{border-collapse:collapse;width:max-content;min-width:100%;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.78rem}
+.cayley th,.cayley td{border:1px solid var(--border);padding:6px 8px;text-align:center;white-space:nowrap}
+.cayley th{background:var(--panel2);color:var(--fg);position:sticky;left:0;z-index:1}
+.cayley thead th{top:0;left:auto;z-index:2}
+.cayley thead th:first-child{left:0;z-index:3}
+.modal-backdrop{
+  position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;
+  display:flex;align-items:flex-start;justify-content:flex-end;padding:72px 20px 20px;
+}
+.table-modal{
+  width:min(760px,calc(100vw - 40px));max-height:calc(100vh - 96px);
+  border:1px solid var(--border);border-radius:8px;background:var(--panel);padding:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.35);overflow:hidden;display:flex;flex-direction:column;
+}
+.table-modal-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.table-modal-header h2{margin:0;font-size:1.05rem}
+.icon-btn{
+  width:34px;height:34px;border:1px solid var(--border);border-radius:6px;background:var(--bg);
+  color:var(--fg);cursor:pointer;font-size:1.2rem;line-height:1;
+}
+.table-modal .table-scroll{flex:1;min-height:0}
+@media(max-width:900px){
+  .intro{grid-template-columns:1fr}.intro svg{max-width:360px;margin:0 auto}
+  .layout{grid-template-columns:1fr}
+  .round-card{grid-template-columns:1fr}
+  .referee{width:100%;min-height:86px}
+  .two-col{grid-template-columns:1fr}
+  .sim-grid{grid-template-columns:1fr 1fr}
+  .modal-backdrop{justify-content:center;padding:62px 12px 12px}
+  .table-modal{width:100%;max-height:calc(100vh - 74px)}
+}
+</style>
+</head>
+<body>
+  <div class="top-bar">
+    <a href="index.html" class="top-link">Home</a>
+    <button id="mode-btn" class="mode-btn" aria-label="Toggle color mode">☯</button>
+  </div>
+
+  <main class="page">
+    <section class="intro">
+      <div>
+        <h1>CHSH Ring Lab</h1>
+        <p class="lede">
+          The referee samples x and y from a finite unital ring R. Alice sees only x,
+          Bob sees only y, and the team wins when a + b = x &middot; y.
+        </p>
+      </div>
+      <svg class="game-diagram" viewBox="0 0 300 160" role="img" aria-label="Referee sends questions to Alice and Bob">
+        <line class="line" x1="150" y1="76" x2="70" y2="118"></line>
+        <line class="line" x1="150" y1="76" x2="230" y2="118"></line>
+        <circle class="node" cx="150" cy="52" r="38"></circle>
+        <circle class="node" cx="62" cy="120" r="34"></circle>
+        <circle class="node" cx="238" cy="120" r="34"></circle>
+        <text x="150" y="57" text-anchor="middle">Ref</text>
+        <text x="62" y="125" text-anchor="middle">Alice</text>
+        <text x="238" y="125" text-anchor="middle">Bob</text>
+        <text x="93" y="87" text-anchor="middle">x</text>
+        <text x="207" y="87" text-anchor="middle">y</text>
+      </svg>
+    </section>
+
+    <section class="layout">
+      <aside class="panel controls">
+        <div class="field">
+          <label for="order-select">Order</label>
+          <select id="order-select"></select>
+        </div>
+
+        <div class="field">
+          <label for="ring-select">Ring</label>
+          <select id="ring-select"></select>
+          <div id="ring-meta" class="meta"></div>
+        </div>
+
+        <div class="field">
+          <label>Selected ring</label>
+          <div id="ring-name" class="ring-name"></div>
+          <div id="ring-description" class="meta"></div>
+          <div id="ring-elements" class="meta" style="margin-top:8px"></div>
+          <div class="table-buttons" style="margin-top:10px">
+            <button type="button" id="show-addition-table" class="action-btn">Addition table</button>
+            <button type="button" id="show-multiplication-table" class="action-btn">Multiplication table</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Mode</label>
+          <div class="button-grid">
+            <button type="button" class="role-btn active" data-role="alice">Alice</button>
+            <button type="button" class="role-btn" data-role="bob">Bob</button>
+            <button type="button" class="role-btn" data-role="spectator">Spectator</button>
+          </div>
+        </div>
+
+        <div id="partner-control" class="field">
+          <label for="strategy-select">Computer partner</label>
+          <select id="strategy-select">
+            <option value="best">best found table</option>
+            <option value="zero">always 0</option>
+            <option value="random">random</option>
+          </select>
+          <div id="strategy-meta" class="meta"></div>
+        </div>
+
+        <div id="play-actions" class="action-row">
+          <button type="button" id="new-round" class="action-btn primary">New round</button>
+          <button type="button" id="reset-score" class="action-btn">Reset score</button>
+        </div>
+
+        <div id="score-grid" class="score-grid">
+          <div class="score-box"><div id="wins" class="score-num">0</div><div class="score-label">wins</div></div>
+          <div class="score-box"><div id="rounds" class="score-num">0</div><div class="score-label">rounds</div></div>
+          <div class="score-box"><div id="rate" class="score-num">0%</div><div class="score-label">rate</div></div>
+        </div>
+
+        <div class="field">
+          <label for="api-url">Leaderboard API URL</label>
+          <input id="api-url" placeholder="https://chsh-leaderboard.example.workers.dev">
+          <div class="action-row" style="margin-top:8px">
+            <button type="button" id="save-api-url" class="action-btn">Save API URL</button>
+          </div>
+          <div id="api-status" class="meta"></div>
+        </div>
+      </aside>
+
+      <section>
+        <section id="play-panel" class="panel">
+          <div class="round-card">
+            <div id="alice-card" class="player-card active">
+              <div class="player-title"><span>Alice</span><span id="alice-visibility">you</span></div>
+              <div class="question">Question x</div>
+              <div id="alice-question" class="element">-</div>
+              <div class="output">
+                <div class="output-label">Answer a</div>
+                <select id="alice-answer"></select>
+              </div>
+            </div>
+
+            <div class="referee">
+              <div class="referee-name">Win rule</div>
+              <div class="referee-rule">a + b = x &middot; y</div>
+              <div id="target-preview" class="tiny">Hidden until submit</div>
+            </div>
+
+            <div id="bob-card" class="player-card">
+              <div class="player-title"><span>Bob</span><span id="bob-visibility">computer</span></div>
+              <div class="question">Question y</div>
+              <div id="bob-question" class="element">hidden</div>
+              <div class="output">
+                <div class="output-label">Answer b</div>
+                <select id="bob-answer" disabled></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-row" style="margin-bottom:14px">
+            <button type="button" id="submit-round" class="action-btn primary">Submit answer</button>
+          </div>
+
+          <div id="play-status" class="status">
+            <div class="status-title">Choose a ring, then start a round.</div>
+            <div class="status-body">Your partner uses the selected local strategy and cannot see your question.</div>
+          </div>
+
+          <details class="strategy">
+            <summary>Show partner strategy table</summary>
+            <div id="partner-table" class="strategy-grid"></div>
+          </details>
+        </section>
+
+        <section id="spectator-panel" class="lab-grid hidden">
+          <section class="panel">
+            <h2>Spectator simulation</h2>
+            <p class="section-note">
+              Choose a strategy, then watch sampled rounds. Theoretical value and simulated win rate are tracked separately.
+            </p>
+            <div class="two-col">
+              <div class="field">
+                <label for="sim-strategy">Strategy</label>
+                <select id="sim-strategy">
+                  <option value="current-classical">current classical table</option>
+                  <option value="best-classical">best found classical table</option>
+                  <option value="zero-classical">zero classical table</option>
+                  <option value="random-classical">random classical answers</option>
+                  <option value="quantum-json">quantum JSON strategy</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Theory vs simulation</label>
+                <div class="score-grid">
+                  <div class="score-box"><div id="sim-theory" class="score-num">-</div><div class="score-label">theory</div></div>
+                  <div class="score-box"><div id="sim-rate" class="score-num">0%</div><div class="score-label">sim rate</div></div>
+                  <div class="score-box"><div id="sim-rounds" class="score-num">0</div><div class="score-label">rounds</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="action-row" style="margin-top:12px">
+              <button type="button" id="sim-step" class="action-btn primary">Step</button>
+              <button type="button" id="sim-live" class="action-btn">Live run</button>
+              <button type="button" id="sim-10000" class="action-btn">Run 10000</button>
+              <button type="button" id="sim-stop" class="action-btn">Stop</button>
+              <button type="button" id="sim-reset" class="action-btn">Reset</button>
+            </div>
+            <div class="sim-grid">
+              <div id="sim-x-card" class="sim-card"><div class="sim-label">x</div><div id="sim-x" class="sim-value">-</div></div>
+              <div id="sim-y-card" class="sim-card"><div class="sim-label">y</div><div id="sim-y" class="sim-value">-</div></div>
+              <div id="sim-a-card" class="sim-card"><div class="sim-label">a</div><div id="sim-a" class="sim-value">-</div></div>
+              <div id="sim-b-card" class="sim-card"><div class="sim-label">b</div><div id="sim-b" class="sim-value">-</div></div>
+              <div id="sim-result-card" class="sim-card"><div class="sim-label">result</div><div id="sim-result" class="sim-value">-</div></div>
+            </div>
+            <div id="sim-status" class="status">
+              <div class="status-title">Simulation ready.</div>
+              <div class="status-body">Use Step for animation or Run 10000 for a benchmark.</div>
+            </div>
+            <div class="sim-graph-wrap">
+              <canvas id="sim-graph" width="900" height="180"></canvas>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Classical strategy</h2>
+            <p class="section-note">
+              Choose deterministic response tables f(x) and g(y). The exact score is averaged over all question pairs.
+            </p>
+            <div class="action-row" style="margin-bottom:12px">
+              <button type="button" id="best-classical" class="action-btn primary">Use best found</button>
+              <button type="button" id="zero-classical" class="action-btn">Use zero</button>
+              <button type="button" id="random-classical" class="action-btn">Randomize</button>
+              <button type="button" id="score-classical" class="action-btn primary">Calculate</button>
+            </div>
+            <div class="two-col">
+              <div>
+                <h3>Alice table f(x)</h3>
+                <div id="alice-table" class="editor-grid"></div>
+              </div>
+              <div>
+                <h3>Bob table g(y)</h3>
+                <div id="bob-table" class="editor-grid"></div>
+              </div>
+            </div>
+            <div id="classical-status" class="status" style="margin-top:14px"></div>
+            <div class="two-col" style="margin-top:14px">
+              <div class="field">
+                <label for="classical-name">Name for local submission</label>
+                <input id="classical-name" value="anonymous">
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <button type="button" id="submit-classical" class="action-btn primary" style="width:100%">Submit classical strategy</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Classical leaderboard</h2>
+            <p class="section-note">
+              Stored in this browser. The built-in benchmark is exact for rings of order at most 4 and local-search based for larger rings.
+            </p>
+            <div id="classical-board" class="leaderboard"></div>
+          </section>
+
+          <section class="panel">
+            <h2>Quantum strategy</h2>
+            <p class="section-note">
+              Paste or load a pure-state/PVM JSON strategy. The evaluator computes
+              (1 / |R|^2) sum Pr[a + b = x &middot; y] and checks basic PVM identities numerically.
+            </p>
+            <div class="action-row" style="margin-bottom:12px">
+              <button type="button" id="load-z2-quantum" class="action-btn">Load Z/2Z qubit preset</button>
+              <button type="button" id="score-quantum" class="action-btn primary">Calculate quantum value</button>
+            </div>
+            <textarea id="quantum-json" spellcheck="false"></textarea>
+            <div id="quantum-status" class="status" style="margin-top:14px"></div>
+            <div class="two-col" style="margin-top:14px">
+              <div class="field">
+                <label for="quantum-name">Name for local submission</label>
+                <input id="quantum-name" value="anonymous">
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <button type="button" id="submit-quantum" class="action-btn primary" style="width:100%">Submit quantum strategy</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <h2>Quantum leaderboard</h2>
+            <p class="section-note">
+              Stored in this browser. For Z/2Z, the standard qubit CHSH strategy is shown as a built-in benchmark.
+            </p>
+            <div id="quantum-board" class="leaderboard"></div>
+          </section>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <div id="table-modal-backdrop" class="modal-backdrop hidden">
+    <section class="table-modal" role="dialog" aria-modal="true" aria-labelledby="table-modal-title">
+      <div class="table-modal-header">
+        <h2 id="table-modal-title">Table</h2>
+        <button type="button" id="close-table-modal" class="icon-btn" aria-label="Close table">&times;</button>
+      </div>
+      <div id="table-modal-body" class="table-scroll"></div>
+    </section>
+  </div>
+
+<script>
+const BOARD_KEY = "chsh-ring-lab-leaderboards-v1";
+const API_URL_KEY = "chsh-ring-lab-api-url";
+const EPS = 1e-9;
+const expectedRingCounts = {1:1,2:1,3:1,4:4,5:1,6:1,7:1,8:11,9:4,10:1,11:1,12:4,13:1,14:1,15:1};
+
+const state = {
+  ring:null,
+  role:"alice",
+  x:0,
+  y:0,
+  submitted:false,
+  wins:0,
+  rounds:0,
+  sim:{wins:0, rounds:0, history:[], timer:null, running:false},
+  bestClassical:null,
+  classical:{f:[],g:[]},
+  classicalScore:null,
+  quantumScore:null
+};
+
+const els = {
+  orderSelect:document.getElementById("order-select"),
+  ringSelect:document.getElementById("ring-select"),
+  ringMeta:document.getElementById("ring-meta"),
+  ringName:document.getElementById("ring-name"),
+  ringDescription:document.getElementById("ring-description"),
+  ringElements:document.getElementById("ring-elements"),
+  showAdditionTable:document.getElementById("show-addition-table"),
+  showMultiplicationTable:document.getElementById("show-multiplication-table"),
+  tableModalBackdrop:document.getElementById("table-modal-backdrop"),
+  tableModalTitle:document.getElementById("table-modal-title"),
+  tableModalBody:document.getElementById("table-modal-body"),
+  closeTableModal:document.getElementById("close-table-modal"),
+  roleButtons:Array.prototype.slice.call(document.querySelectorAll(".role-btn")),
+  partnerControl:document.getElementById("partner-control"),
+  playActions:document.getElementById("play-actions"),
+  scoreGrid:document.getElementById("score-grid"),
+  strategySelect:document.getElementById("strategy-select"),
+  strategyMeta:document.getElementById("strategy-meta"),
+  playPanel:document.getElementById("play-panel"),
+  spectatorPanel:document.getElementById("spectator-panel"),
+  aliceCard:document.getElementById("alice-card"),
+  bobCard:document.getElementById("bob-card"),
+  aliceVisibility:document.getElementById("alice-visibility"),
+  bobVisibility:document.getElementById("bob-visibility"),
+  aliceQuestion:document.getElementById("alice-question"),
+  bobQuestion:document.getElementById("bob-question"),
+  aliceAnswer:document.getElementById("alice-answer"),
+  bobAnswer:document.getElementById("bob-answer"),
+  targetPreview:document.getElementById("target-preview"),
+  submitRound:document.getElementById("submit-round"),
+  newRound:document.getElementById("new-round"),
+  resetScore:document.getElementById("reset-score"),
+  playStatus:document.getElementById("play-status"),
+  wins:document.getElementById("wins"),
+  rounds:document.getElementById("rounds"),
+  rate:document.getElementById("rate"),
+  apiUrl:document.getElementById("api-url"),
+  saveApiUrl:document.getElementById("save-api-url"),
+  apiStatus:document.getElementById("api-status"),
+  partnerTable:document.getElementById("partner-table"),
+  aliceTable:document.getElementById("alice-table"),
+  bobTable:document.getElementById("bob-table"),
+  simStrategy:document.getElementById("sim-strategy"),
+  simStep:document.getElementById("sim-step"),
+  simLive:document.getElementById("sim-live"),
+  sim10000:document.getElementById("sim-10000"),
+  simStop:document.getElementById("sim-stop"),
+  simReset:document.getElementById("sim-reset"),
+  simTheory:document.getElementById("sim-theory"),
+  simRate:document.getElementById("sim-rate"),
+  simRounds:document.getElementById("sim-rounds"),
+  simX:document.getElementById("sim-x"),
+  simY:document.getElementById("sim-y"),
+  simA:document.getElementById("sim-a"),
+  simB:document.getElementById("sim-b"),
+  simResult:document.getElementById("sim-result"),
+  simXCard:document.getElementById("sim-x-card"),
+  simYCard:document.getElementById("sim-y-card"),
+  simACard:document.getElementById("sim-a-card"),
+  simBCard:document.getElementById("sim-b-card"),
+  simResultCard:document.getElementById("sim-result-card"),
+  simStatus:document.getElementById("sim-status"),
+  simGraph:document.getElementById("sim-graph"),
+  bestClassical:document.getElementById("best-classical"),
+  zeroClassical:document.getElementById("zero-classical"),
+  randomClassical:document.getElementById("random-classical"),
+  scoreClassical:document.getElementById("score-classical"),
+  submitClassical:document.getElementById("submit-classical"),
+  classicalName:document.getElementById("classical-name"),
+  classicalStatus:document.getElementById("classical-status"),
+  classicalBoard:document.getElementById("classical-board"),
+  quantumJson:document.getElementById("quantum-json"),
+  loadZ2Quantum:document.getElementById("load-z2-quantum"),
+  scoreQuantum:document.getElementById("score-quantum"),
+  submitQuantum:document.getElementById("submit-quantum"),
+  quantumName:document.getElementById("quantum-name"),
+  quantumStatus:document.getElementById("quantum-status"),
+  quantumBoard:document.getElementById("quantum-board"),
+  modeBtn:document.getElementById("mode-btn")
+};
+
+function coeffs(value, p, degree){
+  const out = [];
+  let n = value;
+  for(let i=0;i<degree;i++){
+    out.push(n % p);
+    n = Math.floor(n / p);
+  }
+  return out;
+}
+
+function pack(cs, p){
+  let value = 0;
+  let base = 1;
+  for(const c of cs){
+    value += c * base;
+    base *= p;
+  }
+  return value;
+}
+
+function labelPoly(cs, p, symbol){
+  const parts = [];
+  for(let i=0;i<cs.length;i++){
+    const value = ((cs[i] % p) + p) % p;
+    if(value === 0) continue;
+    const term = i === 0 ? "" : (i === 1 ? symbol : symbol + "^" + i);
+    if(i === 0) parts.push(String(value));
+    else if(value === 1) parts.push(term);
+    else parts.push(String(value) + term);
+  }
+  return parts.length ? parts.reverse().join("+") : "0";
+}
+
+function makeZeroRing(){
+  return {
+    id:"zero1",
+    name:"zero ring",
+    order:1,
+    description:"The one-element unital ring, where 0 = 1.",
+    elements:[0],
+    add:function(){ return 0; },
+    neg:function(){ return 0; },
+    sub:function(){ return 0; },
+    mul:function(){ return 0; },
+    label:function(){ return "0=1"; }
+  };
+}
+
+function makeZn(n){
+  return {
+    id:"z" + n,
+    name:"Z/" + n + "Z",
+    order:n,
+    description:"Integers modulo " + n + " with ordinary modular addition and multiplication.",
+    elements:Array.from({length:n}, function(_, i){ return i; }),
+    add:function(a,b){ return (a + b) % n; },
+    neg:function(a){ return (n - a) % n; },
+    sub:function(a,b){ return (a - b + n) % n; },
+    mul:function(a,b){ return (a * b) % n; },
+    label:function(a){ return String(a); }
+  };
+}
+
+function makeField(p, degree, modulus, id, name, description){
+  const order = Math.pow(p, degree);
+  return {
+    id:id,
+    name:name,
+    order:order,
+    description:description,
+    elements:Array.from({length:order}, function(_, i){ return i; }),
+    add:function(a,b){
+      const ac = coeffs(a,p,degree);
+      const bc = coeffs(b,p,degree);
+      return pack(ac.map(function(c,i){ return (c + bc[i]) % p; }), p);
+    },
+    neg:function(a){
+      return pack(coeffs(a,p,degree).map(function(c){ return (p - c) % p; }), p);
+    },
+    sub:function(a,b){ return this.add(a, this.neg(b)); },
+    mul:function(a,b){
+      const ac = coeffs(a,p,degree);
+      const bc = coeffs(b,p,degree);
+      const prod = Array(degree * 2 - 1).fill(0);
+      for(let i=0;i<degree;i++){
+        for(let j=0;j<degree;j++){
+          prod[i+j] = (prod[i+j] + ac[i] * bc[j]) % p;
+        }
+      }
+      for(let d=prod.length - 1; d>=degree; d--){
+        const lead = prod[d] % p;
+        if(lead === 0) continue;
+        for(let i=0;i<degree;i++){
+          prod[d-degree+i] = (prod[d-degree+i] - lead * modulus[i]) % p;
+          if(prod[d-degree+i] < 0) prod[d-degree+i] += p;
+        }
+      }
+      return pack(prod.slice(0, degree).map(function(c){ return ((c % p) + p) % p; }), p);
+    },
+    label:function(a){ return labelPoly(coeffs(a,p,degree), p, "a"); }
+  };
+}
+
+function makeProduct(id, name, componentBuilders, description){
+  const components = componentBuilders.map(function(builder){ return builder(); });
+  const strides = [];
+  let order = 1;
+  for(const component of components){
+    strides.push(order);
+    order *= component.order;
+  }
+  function tuple(index){
+    return components.map(function(component, i){
+      return Math.floor(index / strides[i]) % component.order;
+    });
+  }
+  function index(parts){
+    return parts.reduce(function(sum, part, i){ return sum + part * strides[i]; }, 0);
+  }
+  return {
+    id:id,
+    name:name,
+    order:order,
+    description:description,
+    elements:Array.from({length:order}, function(_, i){ return i; }),
+    add:function(a,b){
+      const at = tuple(a);
+      const bt = tuple(b);
+      return index(components.map(function(component, i){ return component.add(at[i], bt[i]); }));
+    },
+    neg:function(a){
+      const at = tuple(a);
+      return index(components.map(function(component, i){ return component.neg(at[i]); }));
+    },
+    sub:function(a,b){ return this.add(a, this.neg(b)); },
+    mul:function(a,b){
+      const at = tuple(a);
+      const bt = tuple(b);
+      return index(components.map(function(component, i){ return component.mul(at[i], bt[i]); }));
+    },
+    label:function(a){
+      const at = tuple(a);
+      return "(" + components.map(function(component, i){ return component.label(at[i]); }).join(",") + ")";
+    }
+  };
+}
+
+function makeDualPrime(p, id, name, description){
+  const order = p * p;
+  return {
+    id:id,
+    name:name,
+    order:order,
+    description:description,
+    elements:Array.from({length:order}, function(_, i){ return i; }),
+    add:function(x,y){
+      const a = x % p, b = Math.floor(x / p);
+      const c0 = y % p, d = Math.floor(y / p);
+      return ((a + c0) % p) + p * ((b + d) % p);
+    },
+    neg:function(x){
+      const a = x % p, b = Math.floor(x / p);
+      return ((p - a) % p) + p * ((p - b) % p);
+    },
+    sub:function(x,y){ return this.add(x, this.neg(y)); },
+    mul:function(x,y){
+      const a = x % p, b = Math.floor(x / p);
+      const c0 = y % p, d = Math.floor(y / p);
+      return (a * c0 % p) + p * ((a * d + b * c0) % p);
+    },
+    label:function(x){
+      const a = x % p, b = Math.floor(x / p);
+      return labelPoly([a,b], p, "e");
+    }
+  };
+}
+
+function makeZ4Adjoined(id, name, relConst, relLinear, description){
+  return {
+    id:id,
+    name:name,
+    order:8,
+    description:description,
+    elements:Array.from({length:8}, function(_, i){ return i; }),
+    add:function(x,y){
+      const a = x % 4, b = Math.floor(x / 4);
+      const c0 = y % 4, d = Math.floor(y / 4);
+      return ((a + c0) % 4) + 4 * ((b + d) % 2);
+    },
+    neg:function(x){
+      const a = x % 4, b = Math.floor(x / 4);
+      return ((4 - a) % 4) + 4 * b;
+    },
+    sub:function(x,y){ return this.add(x, this.neg(y)); },
+    mul:function(x,y){
+      const a = x % 4, b = Math.floor(x / 4);
+      const c0 = y % 4, d = Math.floor(y / 4);
+      const bd = b * d;
+      const constant = (a * c0 + bd * relConst) % 4;
+      const linear = ((a % 2) * d + (c0 % 2) * b + bd * relLinear) % 2;
+      return constant + 4 * linear;
+    },
+    label:function(x){
+      const a = x % 4, b = Math.floor(x / 4);
+      if(b === 0) return String(a);
+      if(a === 0) return "t";
+      return String(a) + "+t";
+    }
+  };
+}
+
+function makeF2T3(){
+  return {
+    id:"f2t3",
+    name:"F_2[t]/(t^3)",
+    order:8,
+    description:"Truncated polynomials a + b t + c t^2 over F_2, with t^3 = 0.",
+    elements:Array.from({length:8}, function(_, i){ return i; }),
+    add:function(a,b){ return a ^ b; },
+    neg:function(a){ return a; },
+    sub:function(a,b){ return a ^ b; },
+    mul:function(a,b){
+      const ac = coeffs(a,2,3);
+      const bc = coeffs(b,2,3);
+      const out = [0,0,0];
+      for(let i=0;i<3;i++){
+        for(let j=0;j<3;j++){
+          if(i + j < 3) out[i+j] = (out[i+j] + ac[i] * bc[j]) % 2;
+        }
+      }
+      return pack(out,2);
+    },
+    label:function(a){ return labelPoly(coeffs(a,2,3), 2, "t"); }
+  };
+}
+
+function makeF2SquareZero2(){
+  return {
+    id:"f2uvsquarezero",
+    name:"F_2[u,v]/(u,v)^2",
+    order:8,
+    description:"Elements a + b u + c v over F_2, with u^2 = uv = vu = v^2 = 0.",
+    elements:Array.from({length:8}, function(_, i){ return i; }),
+    add:function(a,b){ return a ^ b; },
+    neg:function(a){ return a; },
+    sub:function(a,b){ return a ^ b; },
+    mul:function(x,y){
+      const a = x & 1, b = (x >> 1) & 1, c0 = (x >> 2) & 1;
+      const d = y & 1, e = (y >> 1) & 1, f = (y >> 2) & 1;
+      const constant = a * d;
+      const u = (a * e + b * d) % 2;
+      const v = (a * f + c0 * d) % 2;
+      return constant + 2 * u + 4 * v;
+    },
+    label:function(x){
+      const a = x & 1, b = (x >> 1) & 1, c0 = (x >> 2) & 1;
+      const parts = [];
+      if(a) parts.push("1");
+      if(b) parts.push("u");
+      if(c0) parts.push("v");
+      return parts.length ? parts.join("+") : "0";
+    }
+  };
+}
+
+function makeUT2F2(){
+  return {
+    id:"ut2f2",
+    name:"UT_2(F_2)",
+    order:8,
+    description:"Upper triangular 2 by 2 matrices [[a,b],[0,c]] over F_2. The table labels mabc mean [[a,b],[0,c]].",
+    elements:Array.from({length:8}, function(_, i){ return i; }),
+    add:function(x,y){ return x ^ y; },
+    neg:function(a){ return a; },
+    sub:function(a,b){ return a ^ b; },
+    mul:function(x,y){
+      const a = x & 1, b = (x >> 1) & 1, c0 = (x >> 2) & 1;
+      const d = y & 1, e = (y >> 1) & 1, f = (y >> 2) & 1;
+      return (a * d) + 2 * ((a * e + b * f) % 2) + 4 * (c0 * f);
+    },
+    label:function(x){
+      return "m" + (x & 1) + ((x >> 1) & 1) + ((x >> 2) & 1);
+    }
+  };
+}
+
+function def(id, name, order, build){
+  return {id:id, name:name, order:order, build:build};
+}
+
+const ringDefs = [
+  def("zero1", "zero ring", 1, makeZeroRing),
+  def("z2", "Z/2Z", 2, function(){ return makeZn(2); }),
+  def("z3", "Z/3Z", 3, function(){ return makeZn(3); }),
+  def("z4", "Z/4Z", 4, function(){ return makeZn(4); }),
+  def("gf4", "F_4", 4, function(){ return makeField(2,2,[1,1,1],"gf4","F_4","The field F_2[a]/(a^2 + a + 1)."); }),
+  def("z2xz2", "F_2 x F_2", 4, function(){ return makeProduct("z2xz2","F_2 x F_2",[function(){ return makeZn(2); }, function(){ return makeZn(2); }],"Direct product of two copies of F_2."); }),
+  def("f2dual", "F_2[e]/(e^2)", 4, function(){ return makeDualPrime(2,"f2dual","F_2[e]/(e^2)","Dual numbers over F_2: elements a + b e with e^2 = 0."); }),
+  def("z5", "Z/5Z", 5, function(){ return makeZn(5); }),
+  def("z6", "Z/6Z", 6, function(){ return makeZn(6); }),
+  def("z7", "Z/7Z", 7, function(){ return makeZn(7); }),
+  def("z8", "Z/8Z", 8, function(){ return makeZn(8); }),
+  def("z4xz2", "Z/4Z x F_2", 8, function(){ return makeProduct("z4xz2","Z/4Z x F_2",[function(){ return makeZn(4); }, function(){ return makeZn(2); }],"Direct product Z/4Z x F_2."); }),
+  def("z4dual8", "Z/4Z[t]/(2t,t^2)", 8, function(){ return makeZ4Adjoined("z4dual8","Z/4Z[t]/(2t,t^2)",0,0,"Elements a + b t with a in Z/4Z, b in F_2, 2t = 0, and t^2 = 0."); }),
+  def("z4sqrt2", "Z/4Z[t]/(2t,t^2-2)", 8, function(){ return makeZ4Adjoined("z4sqrt2","Z/4Z[t]/(2t,t^2-2)",2,0,"Elements a + b t with a in Z/4Z, b in F_2, 2t = 0, and t^2 = 2."); }),
+  def("gf8", "F_8", 8, function(){ return makeField(2,3,[1,1,0,1],"gf8","F_8","The field F_2[a]/(a^3 + a + 1)."); }),
+  def("gf4xz2", "F_4 x F_2", 8, function(){ return makeProduct("gf4xz2","F_4 x F_2",[function(){ return makeField(2,2,[1,1,1],"gf4","F_4","The field F_2[a]/(a^2 + a + 1)."); }, function(){ return makeZn(2); }],"Direct product F_4 x F_2."); }),
+  def("z2x3", "F_2 x F_2 x F_2", 8, function(){ return makeProduct("z2x3","F_2 x F_2 x F_2",[function(){ return makeZn(2); }, function(){ return makeZn(2); }, function(){ return makeZn(2); }],"Direct product of three copies of F_2."); }),
+  def("f2t3", "F_2[t]/(t^3)", 8, makeF2T3),
+  def("f2uvsquarezero", "F_2[u,v]/(u,v)^2", 8, makeF2SquareZero2),
+  def("z2xf2dual", "F_2 x F_2[e]/(e^2)", 8, function(){ return makeProduct("z2xf2dual","F_2 x F_2[e]/(e^2)",[function(){ return makeZn(2); }, function(){ return makeDualPrime(2,"f2dual","F_2[e]/(e^2)","Dual numbers over F_2."); }],"Direct product F_2 x F_2[e]/(e^2)."); }),
+  def("ut2f2", "UT_2(F_2)", 8, makeUT2F2),
+  def("z9", "Z/9Z", 9, function(){ return makeZn(9); }),
+  def("gf9", "F_9", 9, function(){ return makeField(3,2,[1,0,1],"gf9","F_9","The field F_3[a]/(a^2 + 1)."); }),
+  def("z3xz3", "F_3 x F_3", 9, function(){ return makeProduct("z3xz3","F_3 x F_3",[function(){ return makeZn(3); }, function(){ return makeZn(3); }],"Direct product of two copies of F_3."); }),
+  def("f3dual", "F_3[e]/(e^2)", 9, function(){ return makeDualPrime(3,"f3dual","F_3[e]/(e^2)","Dual numbers over F_3: elements a + b e with e^2 = 0."); }),
+  def("z10", "Z/10Z", 10, function(){ return makeZn(10); }),
+  def("z11", "Z/11Z", 11, function(){ return makeZn(11); }),
+  def("z12", "Z/12Z", 12, function(){ return makeZn(12); }),
+  def("gf4xz3", "F_4 x F_3", 12, function(){ return makeProduct("gf4xz3","F_4 x F_3",[function(){ return makeField(2,2,[1,1,1],"gf4","F_4","The field F_2[a]/(a^2 + a + 1)."); }, function(){ return makeZn(3); }],"Direct product F_4 x F_3."); }),
+  def("z2xz2xz3", "F_2 x F_2 x F_3", 12, function(){ return makeProduct("z2xz2xz3","F_2 x F_2 x F_3",[function(){ return makeZn(2); }, function(){ return makeZn(2); }, function(){ return makeZn(3); }],"Direct product F_2 x F_2 x F_3."); }),
+  def("f2dualxz3", "F_2[e]/(e^2) x F_3", 12, function(){ return makeProduct("f2dualxz3","F_2[e]/(e^2) x F_3",[function(){ return makeDualPrime(2,"f2dual","F_2[e]/(e^2)","Dual numbers over F_2."); }, function(){ return makeZn(3); }],"Direct product F_2[e]/(e^2) x F_3."); }),
+  def("z13", "Z/13Z", 13, function(){ return makeZn(13); }),
+  def("z14", "Z/14Z", 14, function(){ return makeZn(14); }),
+  def("z15", "Z/15Z", 15, function(){ return makeZn(15); })
+];
+
+function makeRing(definition){
+  return definition.build();
+}
+
+function randomElement(){
+  return state.ring.elements[Math.floor(Math.random() * state.ring.order)];
+}
+
+function fillElementSelect(select){
+  select.innerHTML = "";
+  for(const e of state.ring.elements){
+    const option = document.createElement("option");
+    option.value = String(e);
+    option.textContent = state.ring.label(e);
+    select.appendChild(option);
+  }
+}
+
+function countWins(f,g,ring){
+  let wins = 0;
+  for(const x of ring.elements){
+    for(const y of ring.elements){
+      if(ring.add(f[x], g[y]) === ring.mul(x,y)) wins++;
+    }
+  }
+  return wins;
+}
+
+function scoreClassicalTables(f,g){
+  const total = state.ring.order * state.ring.order;
+  const wins = countWins(f,g,state.ring);
+  return {wins:wins,total:total,value:wins / total};
+}
+
+function bestValue(values){
+  const counts = new Map();
+  let best = values[0];
+  let bestCount = -1;
+  for(const v of values){
+    const next = (counts.get(v) || 0) + 1;
+    counts.set(v, next);
+    if(next > bestCount){
+      best = v;
+      bestCount = next;
+    }
+  }
+  return best;
+}
+
+function allFunctions(n){
+  const total = Math.pow(n,n);
+  const funcs = [];
+  for(let k=0;k<total;k++){
+    let t = k;
+    const f = Array(n);
+    for(let i=0;i<n;i++){
+      f[i] = t % n;
+      t = Math.floor(t / n);
+    }
+    funcs.push(f);
+  }
+  return funcs;
+}
+
+function exactBestClassical(ring){
+  const funcs = allFunctions(ring.order);
+  let best = {f:funcs[0], g:funcs[0], wins:-1};
+  for(const f of funcs){
+    for(const g of funcs){
+      const wins = countWins(f,g,ring);
+      if(wins > best.wins) best = {f:f.slice(), g:g.slice(), wins:wins};
+    }
+  }
+  best.exact = true;
+  return best;
+}
+
+function localBestClassical(ring){
+  const n = ring.order;
+  let best = null;
+  const seeds = Math.min(28, n + 8);
+  for(let seed=0; seed<seeds; seed++){
+    let f = Array(n).fill(0);
+    let g = Array(n).fill(0);
+    if(seed > 0){
+      f = f.map(function(){ return ring.elements[Math.floor(Math.random() * n)]; });
+      g = g.map(function(){ return ring.elements[Math.floor(Math.random() * n)]; });
+    }
+    let lastScore = -1;
+    for(let iter=0; iter<80; iter++){
+      for(const x of ring.elements){
+        f[x] = bestValue(ring.elements.map(function(y){ return ring.sub(ring.mul(x,y), g[y]); }));
+      }
+      for(const y of ring.elements){
+        g[y] = bestValue(ring.elements.map(function(x){ return ring.sub(ring.mul(x,y), f[x]); }));
+      }
+      const score = countWins(f,g,ring);
+      if(score === lastScore) break;
+      lastScore = score;
+    }
+    const wins = countWins(f,g,ring);
+    if(!best || wins > best.wins) best = {f:f.slice(), g:g.slice(), wins:wins};
+  }
+  best.exact = false;
+  return best;
+}
+
+function bestClassicalStrategy(ring){
+  return ring.order <= 4 ? exactBestClassical(ring) : localBestClassical(ring);
+}
+
+function zeroStrategy(){
+  return {f:Array(state.ring.order).fill(0), g:Array(state.ring.order).fill(0)};
+}
+
+function randomStrategy(){
+  return {
+    f:Array(state.ring.order).fill(0).map(function(){ return randomElement(); }),
+    g:Array(state.ring.order).fill(0).map(function(){ return randomElement(); })
+  };
+}
+
+function activePartnerTable(){
+  if(els.strategySelect.value === "zero") return zeroStrategy();
+  if(els.strategySelect.value === "random") return null;
+  return state.bestClassical;
+}
+
+function partnerAnswer(role){
+  if(els.strategySelect.value === "random") return randomElement();
+  const table = activePartnerTable();
+  return role === "alice" ? table.g[state.y] : table.f[state.x];
+}
+
+function formatPct(value){
+  return (Math.round(value * 10000) / 100).toFixed(2) + "%";
+}
+
+function optionMathLabel(text){
+  return text
+    .replace(/Z\/(\d+)Z/g, "Z__SLASH__$1Z")
+    .replace(/F_2/g, "F\u2082")
+    .replace(/F_3/g, "F\u2083")
+    .replace(/F_4/g, "F\u2084")
+    .replace(/F_8/g, "F\u2088")
+    .replace(/F_9/g, "F\u2089")
+    .replace(/\^2/g, "\u00b2")
+    .replace(/\^3/g, "\u00b3")
+    .replace(/ x /g, " \u00d7 ")
+    .replace(/\*/g, "\u00d7")
+    .replace(/\//g, " / ")
+    .replace(/,/g, ", ")
+    .replace(/\s+/g, " ")
+    .replace(/__SLASH__/g, "/")
+    .replace(/\( /g, "(")
+    .replace(/ \)/g, ")")
+    .trim();
+}
+
+function texMathLabel(text){
+  let out = text
+    .replace(/Z\/(\d+)Z/g, "\\mathbb{Z}/$1\\mathbb{Z}")
+    .replace(/F_(\d+)/g, "\\mathbb{F}_{$1}")
+    .replace(/ x /g, " \\times ");
+  out = out.replace(/\^(\d+)/g, "^{$1}");
+  return "\\(" + out + "\\)";
+}
+
+function typesetMath(element){
+  if(window.MathJax && window.MathJax.typesetPromise){
+    window.MathJax.typesetPromise([element]).catch(function(){});
+  }
+}
+
+function setStatus(el, kind, title, body){
+  el.className = "status" + (kind ? " " + kind : "");
+  el.innerHTML = '<div class="status-title"></div><div class="status-body"></div>';
+  el.querySelector(".status-title").textContent = title;
+  el.querySelector(".status-body").textContent = body;
+}
+
+function renderOrderSelect(){
+  const orders = Array.from(new Set(ringDefs.map(function(r){ return r.order; }))).sort(function(a,b){ return a-b; });
+  els.orderSelect.innerHTML = "";
+  for(const order of orders){
+    const option = document.createElement("option");
+    option.value = String(order);
+    option.textContent = String(order);
+    els.orderSelect.appendChild(option);
+  }
+  els.orderSelect.value = "2";
+}
+
+function renderRingSelect(){
+  const order = Number(els.orderSelect.value);
+  const rings = ringDefs.filter(function(r){ return r.order === order; });
+  els.ringSelect.innerHTML = "";
+  for(const def of rings){
+    const option = document.createElement("option");
+    option.value = def.id;
+    option.textContent = optionMathLabel(def.name);
+    els.ringSelect.appendChild(option);
+  }
+}
+
+function renderRingInfo(){
+  els.ringName.textContent = texMathLabel(state.ring.name);
+  typesetMath(els.ringName);
+  els.ringDescription.textContent = state.ring.description;
+  els.ringElements.textContent = "Elements: " + state.ring.elements.map(function(e){
+    return state.ring.label(e);
+  }).join(", ");
+}
+
+function renderCayleyTable(container, symbol, operation){
+  container.innerHTML = "";
+  const table = document.createElement("table");
+  table.className = "cayley";
+  const thead = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  const corner = document.createElement("th");
+  corner.textContent = symbol;
+  headRow.appendChild(corner);
+  for(const b of state.ring.elements){
+    const th = document.createElement("th");
+    th.textContent = state.ring.label(b);
+    headRow.appendChild(th);
+  }
+  thead.appendChild(headRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  for(const a of state.ring.elements){
+    const row = document.createElement("tr");
+    const th = document.createElement("th");
+    th.textContent = state.ring.label(a);
+    row.appendChild(th);
+    for(const b of state.ring.elements){
+      const td = document.createElement("td");
+      td.textContent = state.ring.label(operation(a,b));
+      row.appendChild(td);
+    }
+    tbody.appendChild(row);
+  }
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
+function showRingTable(kind){
+  const isAdd = kind === "addition";
+  els.tableModalTitle.textContent = (isAdd ? "Addition" : "Multiplication") + " table for " + optionMathLabel(state.ring.name);
+  renderCayleyTable(
+    els.tableModalBody,
+    isAdd ? "+" : "\u00b7",
+    isAdd ? function(a,b){ return state.ring.add(a,b); } : function(a,b){ return state.ring.mul(a,b); }
+  );
+  els.tableModalBackdrop.classList.remove("hidden");
+}
+
+function closeRingTable(){
+  els.tableModalBackdrop.classList.add("hidden");
+}
+
+function setupRing(){
+  const def = ringDefs.find(function(r){ return r.id === els.ringSelect.value; });
+  state.ring = makeRing(def);
+  fillElementSelect(els.aliceAnswer);
+  fillElementSelect(els.bobAnswer);
+  state.bestClassical = bestClassicalStrategy(state.ring);
+  applyClassicalTables(state.bestClassical.f, state.bestClassical.g, false);
+
+  const sameOrder = ringDefs.filter(function(r){ return r.order === state.ring.order; }).length;
+  const expected = expectedRingCounts[state.ring.order];
+  const bestScore = scoreClassicalTables(state.bestClassical.f, state.bestClassical.g);
+  const bestKind = state.bestClassical.exact ? "exact classical optimum" : "best local-search classical table";
+  els.ringMeta.textContent = ringDefs.length + " built-in models for orders 1 through 15. " + sameOrder +
+    "/" + expected + " unital ring model(s) at order " + state.ring.order +
+    ". Current benchmark: " + bestScore.wins + "/" + bestScore.total + " (" +
+    formatPct(bestScore.value) + "), " + bestKind + ".";
+  renderRingInfo();
+  renderPartnerMeta();
+  resetScore();
+  newRound();
+  renderClassicalEditor();
+  scoreCurrentClassical();
+  maybeLoadDefaultQuantum();
+  renderBoards();
+  resetSimulation();
+  updateSimulationTheory();
+}
+
+function renderPartnerMeta(){
+  const total = state.ring.order * state.ring.order;
+  if(els.strategySelect.value === "random"){
+    els.strategyMeta.textContent = "Computer answers uniformly at random.";
+    return;
+  }
+  const table = activePartnerTable();
+  const score = scoreClassicalTables(table.f, table.g);
+  const label = els.strategySelect.value === "zero" ? "Zero table" :
+    (state.bestClassical.exact ? "Exact classical optimum" : "Best local-search table");
+  els.strategyMeta.textContent = label + ": " + score.wins + "/" + total + " (" + formatPct(score.value) + ").";
+  renderPartnerTable();
+}
+
+function renderMode(){
+  const spectator = state.role === "spectator";
+  els.playPanel.classList.toggle("hidden", spectator);
+  els.spectatorPanel.classList.toggle("hidden", !spectator);
+  els.partnerControl.classList.toggle("hidden", spectator);
+  els.playActions.classList.toggle("hidden", spectator);
+  els.scoreGrid.classList.toggle("hidden", spectator);
+  els.roleButtons.forEach(function(btn){
+    btn.classList.toggle("active", btn.dataset.role === state.role);
+  });
+  if(!spectator) renderRoundRole();
+  else updateSimulationTheory();
+}
+
+function renderRoundRole(){
+  const asAlice = state.role === "alice";
+  els.aliceCard.classList.toggle("active", asAlice);
+  els.bobCard.classList.toggle("active", !asAlice);
+  els.aliceVisibility.textContent = asAlice ? "you" : "computer";
+  els.bobVisibility.textContent = asAlice ? "computer" : "you";
+  els.aliceAnswer.disabled = !asAlice || state.submitted;
+  els.bobAnswer.disabled = asAlice || state.submitted;
+}
+
+function newRound(){
+  if(!state.ring || state.role === "spectator") return;
+  state.x = randomElement();
+  state.y = randomElement();
+  state.submitted = false;
+  const asAlice = state.role === "alice";
+  els.aliceQuestion.textContent = asAlice ? state.ring.label(state.x) : "hidden";
+  els.bobQuestion.textContent = asAlice ? "hidden" : state.ring.label(state.y);
+  els.aliceAnswer.value = "0";
+  els.bobAnswer.value = "0";
+  els.targetPreview.textContent = "Hidden until submit";
+  setStatus(els.playStatus, "", "Round ready.", "Choose your answer using only your question.");
+  renderRoundRole();
+  renderPartnerTable();
+}
+
+function submitRound(){
+  if(state.submitted || state.role === "spectator") return;
+  const asAlice = state.role === "alice";
+  let a;
+  let b;
+  if(asAlice){
+    a = Number(els.aliceAnswer.value);
+    b = partnerAnswer("alice");
+    els.bobAnswer.value = String(b);
+  } else {
+    b = Number(els.bobAnswer.value);
+    a = partnerAnswer("bob");
+    els.aliceAnswer.value = String(a);
+  }
+  const target = state.ring.mul(state.x, state.y);
+  const sum = state.ring.add(a,b);
+  const win = sum === target;
+  state.submitted = true;
+  state.rounds++;
+  if(win) state.wins++;
+
+  els.aliceQuestion.textContent = state.ring.label(state.x);
+  els.bobQuestion.textContent = state.ring.label(state.y);
+  els.targetPreview.textContent = "x \u00b7 y = " + state.ring.label(target);
+  renderRoundRole();
+  updateScore();
+
+  const body = "a = " + state.ring.label(a) + ", b = " + state.ring.label(b) +
+    ", so a + b = " + state.ring.label(sum) + " and x \u00b7 y = " + state.ring.label(target) + ".";
+  setStatus(els.playStatus, win ? "win" : "loss", win ? "Win." : "Loss.", body);
+}
+
+function resetScore(){
+  state.wins = 0;
+  state.rounds = 0;
+  updateScore();
+}
+
+function updateScore(){
+  els.wins.textContent = String(state.wins);
+  els.rounds.textContent = String(state.rounds);
+  els.rate.textContent = state.rounds ? formatPct(state.wins / state.rounds) : "0%";
+}
+
+function renderPartnerTable(){
+  els.partnerTable.innerHTML = "";
+  if(els.strategySelect.value === "random"){
+    const item = document.createElement("div");
+    item.className = "strategy-item";
+    item.textContent = "Random strategy has no table.";
+    els.partnerTable.appendChild(item);
+    return;
+  }
+  const table = activePartnerTable();
+  const values = state.role === "alice" ? table.g : table.f;
+  const label = state.role === "alice" ? "Bob" : "Alice";
+  for(const input of state.ring.elements){
+    const item = document.createElement("div");
+    item.className = "strategy-item";
+    item.innerHTML = "<strong>" + label + "(" + state.ring.label(input) + ")</strong> = " + state.ring.label(values[input]);
+    els.partnerTable.appendChild(item);
+  }
+}
+
+function applyClassicalTables(f,g,rerender){
+  state.classical.f = f.slice();
+  state.classical.g = g.slice();
+  state.classicalScore = scoreClassicalTables(state.classical.f, state.classical.g);
+  if(rerender) renderClassicalEditor();
+}
+
+function renderClassicalEditor(){
+  renderOneClassicalTable(els.aliceTable, "f", state.classical.f);
+  renderOneClassicalTable(els.bobTable, "g", state.classical.g);
+}
+
+function renderOneClassicalTable(container, symbol, table){
+  container.innerHTML = "";
+  for(const input of state.ring.elements){
+    const row = document.createElement("div");
+    row.className = "strategy-row";
+    const label = document.createElement("span");
+    label.textContent = symbol + "(" + state.ring.label(input) + ")";
+    const select = document.createElement("select");
+    for(const output of state.ring.elements){
+      const option = document.createElement("option");
+      option.value = String(output);
+      option.textContent = state.ring.label(output);
+      select.appendChild(option);
+    }
+    select.value = String(table[input] || 0);
+    select.addEventListener("change", function(){
+      table[input] = Number(select.value);
+      state.classicalScore = scoreClassicalTables(state.classical.f, state.classical.g);
+      renderClassicalResult("Current table updated.");
+      updateSimulationTheory();
+    });
+    row.appendChild(label);
+    row.appendChild(select);
+    container.appendChild(row);
+  }
+}
+
+function renderClassicalResult(title){
+  const score = state.classicalScore || scoreClassicalTables(state.classical.f, state.classical.g);
+  setStatus(
+    els.classicalStatus,
+    "",
+    title,
+    score.wins + "/" + score.total + " wins, value " + formatPct(score.value) + "."
+  );
+}
+
+function scoreCurrentClassical(){
+  state.classicalScore = scoreClassicalTables(state.classical.f, state.classical.g);
+  renderClassicalResult("Classical score.");
+}
+
+function selectedSimulationStrategy(){
+  const kind = els.simStrategy.value;
+  if(kind === "current-classical"){
+    const score = scoreClassicalTables(state.classical.f, state.classical.g);
+    return {kind:"classical", name:"current classical table", f:state.classical.f, g:state.classical.g, value:score.value};
+  }
+  if(kind === "best-classical"){
+    const score = scoreClassicalTables(state.bestClassical.f, state.bestClassical.g);
+    return {kind:"classical", name:"best found classical table", f:state.bestClassical.f, g:state.bestClassical.g, value:score.value};
+  }
+  if(kind === "zero-classical"){
+    const table = zeroStrategy();
+    const score = scoreClassicalTables(table.f, table.g);
+    return {kind:"classical", name:"zero classical table", f:table.f, g:table.g, value:score.value};
+  }
+  if(kind === "random-classical"){
+    return {kind:"random", name:"random classical answers", value:1 / state.ring.order};
+  }
+  const parsed = JSON.parse(els.quantumJson.value);
+  const compiled = prepareQuantumStrategy(parsed);
+  const score = evaluateCompiledQuantum(compiled);
+  return {kind:"quantum", name:(parsed.name || "quantum JSON strategy"), compiled:compiled, value:score.value};
+}
+
+function sampleWeighted(items){
+  let r = Math.random();
+  for(const item of items){
+    r -= item.p;
+    if(r <= 0) return item;
+  }
+  return items[items.length - 1];
+}
+
+function sampleSimulationRound(strategy){
+  const x = randomElement();
+  const y = randomElement();
+  const target = state.ring.mul(x,y);
+  let a;
+  let b;
+  let win;
+  if(strategy.kind === "quantum"){
+    const picked = sampleWeighted(quantumPairDistribution(strategy.compiled, x, y));
+    a = picked.a;
+    b = picked.b;
+    win = picked.win;
+  } else if(strategy.kind === "random"){
+    a = randomElement();
+    b = randomElement();
+    win = state.ring.add(a,b) === target;
+  } else {
+    a = strategy.f[x];
+    b = strategy.g[y];
+    win = state.ring.add(a,b) === target;
+  }
+  return {x:x, y:y, a:a, b:b, target:target, win:win};
+}
+
+function simulateStrategy(strategy, rounds){
+  let wins = 0;
+  let last = null;
+  for(let i=0;i<rounds;i++){
+    last = sampleSimulationRound(strategy);
+    if(last.win) wins++;
+  }
+  return {wins:wins, rounds:rounds, value:wins / rounds, last:last};
+}
+
+function resetSimulation(){
+  stopSimulation();
+  state.sim.wins = 0;
+  state.sim.rounds = 0;
+  state.sim.history = [];
+  els.simX.textContent = "-";
+  els.simY.textContent = "-";
+  els.simA.textContent = "-";
+  els.simB.textContent = "-";
+  els.simResult.textContent = "-";
+  updateSimulationDisplay(null);
+  drawSimulationGraph();
+  setStatus(els.simStatus, "", "Simulation reset.", "Choose a strategy and run sampled rounds.");
+}
+
+function updateSimulationTheory(){
+  try{
+    const strategy = selectedSimulationStrategy();
+    els.simTheory.textContent = formatPct(strategy.value);
+    setStatus(els.simStatus, "", "Strategy ready.", strategy.name + " has theoretical value " + formatPct(strategy.value) + ".");
+  } catch(err){
+    els.simTheory.textContent = "-";
+    setStatus(els.simStatus, "loss", "Strategy unavailable.", err.message);
+  }
+}
+
+function updateSimulationDisplay(round){
+  els.simRounds.textContent = String(state.sim.rounds);
+  els.simRate.textContent = state.sim.rounds ? formatPct(state.sim.wins / state.sim.rounds) : "0%";
+  if(round){
+    els.simX.textContent = state.ring.label(round.x);
+    els.simY.textContent = state.ring.label(round.y);
+    els.simA.textContent = state.ring.label(round.a);
+    els.simB.textContent = state.ring.label(round.b);
+    els.simResult.textContent = round.win ? "win" : "loss";
+    [els.simXCard, els.simYCard, els.simACard, els.simBCard].forEach(function(card){
+      card.classList.remove("flash");
+      void card.offsetWidth;
+      card.classList.add("flash");
+    });
+    els.simResultCard.classList.remove("win", "loss");
+    els.simResultCard.classList.add(round.win ? "win" : "loss");
+  }
+}
+
+function drawSimulationGraph(){
+  const canvas = els.simGraph;
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  ctx.clearRect(0,0,width,height);
+  ctx.strokeStyle = "#555";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(36,12);
+  ctx.lineTo(36,height-24);
+  ctx.lineTo(width-12,height-24);
+  ctx.stroke();
+
+  const theoryText = els.simTheory.textContent;
+  const theory = theoryText.endsWith("%") ? Number(theoryText.slice(0,-1)) / 100 : null;
+  if(theory !== null && Number.isFinite(theory)){
+    const y = 12 + (1 - theory) * (height - 36);
+    ctx.strokeStyle = "#888";
+    ctx.setLineDash([5,4]);
+    ctx.beginPath();
+    ctx.moveTo(36,y);
+    ctx.lineTo(width-12,y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  if(state.sim.history.length < 2) return;
+  ctx.strokeStyle = "#3fb5ff";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  state.sim.history.forEach(function(value, i){
+    const x = 36 + i * (width - 48) / Math.max(1, state.sim.history.length - 1);
+    const y = 12 + (1 - value) * (height - 36);
+    if(i === 0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+}
+
+function recordSimulationRound(round){
+  state.sim.rounds++;
+  if(round.win) state.sim.wins++;
+  if(state.sim.rounds <= 400 || state.sim.rounds % 25 === 0){
+    state.sim.history.push(state.sim.wins / state.sim.rounds);
+    if(state.sim.history.length > 500) state.sim.history.shift();
+  }
+}
+
+function runSimulationStep(){
+  let strategy;
+  try{
+    strategy = selectedSimulationStrategy();
+  } catch(err){
+    setStatus(els.simStatus, "loss", "Cannot simulate.", err.message);
+    return;
+  }
+  els.simTheory.textContent = formatPct(strategy.value);
+  const round = sampleSimulationRound(strategy);
+  recordSimulationRound(round);
+  updateSimulationDisplay(round);
+  drawSimulationGraph();
+  setStatus(
+    els.simStatus,
+    round.win ? "win" : "loss",
+    round.win ? "Sampled round: win." : "Sampled round: loss.",
+    "Simulation " + state.sim.wins + "/" + state.sim.rounds + " = " + formatPct(state.sim.wins / state.sim.rounds) +
+      "; theory " + formatPct(strategy.value) + "."
+  );
+}
+
+function runSimulationBatch(total){
+  stopSimulation();
+  let strategy;
+  try{
+    strategy = selectedSimulationStrategy();
+  } catch(err){
+    setStatus(els.simStatus, "loss", "Cannot simulate.", err.message);
+    return;
+  }
+  els.simTheory.textContent = formatPct(strategy.value);
+  let remaining = total;
+  setStatus(els.simStatus, "", "Running simulation.", "Sampling " + total + " rounds...");
+  function chunk(){
+    const n = Math.min(250, remaining);
+    let last = null;
+    for(let i=0;i<n;i++){
+      last = sampleSimulationRound(strategy);
+      recordSimulationRound(last);
+    }
+    remaining -= n;
+    updateSimulationDisplay(last);
+    drawSimulationGraph();
+    if(remaining > 0){
+      state.sim.timer = setTimeout(chunk, 0);
+    } else {
+      state.sim.timer = null;
+      setStatus(
+        els.simStatus,
+        "",
+        "Simulation complete.",
+        total + " new rounds sampled. Simulation " + state.sim.wins + "/" + state.sim.rounds +
+          " = " + formatPct(state.sim.wins / state.sim.rounds) + "; theory " + formatPct(strategy.value) + "."
+      );
+    }
+  }
+  chunk();
+}
+
+function startLiveSimulation(){
+  stopSimulation();
+  state.sim.running = true;
+  state.sim.timer = setInterval(runSimulationStep, 450);
+}
+
+function stopSimulation(){
+  if(state.sim.timer){
+    clearInterval(state.sim.timer);
+    clearTimeout(state.sim.timer);
+    state.sim.timer = null;
+  }
+  state.sim.running = false;
+}
+
+function c(re, im){ return {re:re, im:im || 0}; }
+function cAdd(a,b){ return c(a.re + b.re, a.im + b.im); }
+function cMul(a,b){ return c(a.re*b.re - a.im*b.im, a.re*b.im + a.im*b.re); }
+function cConj(a){ return c(a.re, -a.im); }
+function cAbs2(a){ return a.re*a.re + a.im*a.im; }
+
+function asComplex(value, label){
+  if(typeof value === "number") return c(value,0);
+  if(Array.isArray(value)) return c(Number(value[0] || 0), Number(value[1] || 0));
+  if(value && typeof value === "object") return c(Number(value.re || 0), Number(value.im || 0));
+  throw new Error("Invalid complex value at " + label + ".");
+}
+
+function readMatrix(raw, rows, cols, label){
+  if(!Array.isArray(raw) || raw.length !== rows) throw new Error(label + " must have " + rows + " rows.");
+  return raw.map(function(row, i){
+    if(!Array.isArray(row) || row.length !== cols) throw new Error(label + " row " + i + " must have " + cols + " columns.");
+    return row.map(function(value, j){ return asComplex(value, label + "[" + i + "][" + j + "]"); });
+  });
+}
+
+function matrixZero(n){
+  return Array.from({length:n}, function(){
+    return Array.from({length:n}, function(){ return c(0,0); });
+  });
+}
+
+function matrixIdentity(n){
+  const out = matrixZero(n);
+  for(let i=0;i<n;i++) out[i][i] = c(1,0);
+  return out;
+}
+
+function matrixAdd(A,B){
+  return A.map(function(row,i){
+    return row.map(function(value,j){ return cAdd(value, B[i][j]); });
+  });
+}
+
+function matrixMul(A,B){
+  const n = A.length;
+  const out = matrixZero(n);
+  for(let i=0;i<n;i++){
+    for(let j=0;j<n;j++){
+      let sum = c(0,0);
+      for(let k=0;k<n;k++) sum = cAdd(sum, cMul(A[i][k], B[k][j]));
+      out[i][j] = sum;
+    }
+  }
+  return out;
+}
+
+function matrixAdjoint(A){
+  const n = A.length;
+  return Array.from({length:n}, function(_, i){
+    return Array.from({length:n}, function(_, j){ return cConj(A[j][i]); });
+  });
+}
+
+function matrixDiffNorm(A,B){
+  let max = 0;
+  for(let i=0;i<A.length;i++){
+    for(let j=0;j<A.length;j++){
+      max = Math.max(max, Math.sqrt(cAbs2(cAdd(A[i][j], c(-B[i][j].re, -B[i][j].im)))));
+    }
+  }
+  return max;
+}
+
+function normalizePsi(raw, dim){
+  if(!Array.isArray(raw) || raw.length !== dim) throw new Error("psi must have length " + dim + ".");
+  const psi = raw.map(function(value, i){ return asComplex(value, "psi[" + i + "]"); });
+  const norm = Math.sqrt(psi.reduce(function(sum, z){ return sum + cAbs2(z); }, 0));
+  if(norm < EPS) throw new Error("psi has zero norm.");
+  return psi.map(function(z){ return c(z.re / norm, z.im / norm); });
+}
+
+function validatePvmSet(mats, dim, label){
+  const tol = 1e-5;
+  let sum = matrixZero(dim);
+  for(let a=0;a<mats.length;a++){
+    const E = mats[a];
+    sum = matrixAdd(sum, E);
+    if(matrixDiffNorm(E, matrixAdjoint(E)) > tol) throw new Error(label + " output " + a + " is not Hermitian.");
+    if(matrixDiffNorm(matrixMul(E,E), E) > tol) throw new Error(label + " output " + a + " is not a projector.");
+    for(let b=0;b<a;b++){
+      if(matrixDiffNorm(matrixMul(E,mats[b]), matrixZero(dim)) > tol) throw new Error(label + " outputs " + a + " and " + b + " are not orthogonal.");
+    }
+  }
+  if(matrixDiffNorm(sum, matrixIdentity(dim)) > tol) throw new Error(label + " does not sum to the identity.");
+}
+
+function readPvmSide(strategy, side, dim){
+  if(!strategy[side] || typeof strategy[side] !== "object") throw new Error(side + " PVM data is missing.");
+  const out = {};
+  for(const question of state.ring.elements){
+    const block = strategy[side][String(question)];
+    if(!Array.isArray(block) || block.length !== state.ring.order){
+      throw new Error(side + " question " + state.ring.label(question) + " must contain " + state.ring.order + " output matrices.");
+    }
+    const mats = block.map(function(raw, output){
+      return readMatrix(raw, dim, dim, side + "[" + question + "][" + output + "]");
+    });
+    validatePvmSet(mats, dim, side + " question " + state.ring.label(question));
+    out[question] = mats;
+  }
+  return out;
+}
+
+function expectation(A,B,psi,dA,dB){
+  let sum = c(0,0);
+  const idx = function(i,j){ return i*dB + j; };
+  for(let i=0;i<dA;i++){
+    for(let j=0;j<dB;j++){
+      const left = cConj(psi[idx(i,j)]);
+      for(let k=0;k<dA;k++){
+        for(let l=0;l<dB;l++){
+          const op = cMul(A[i][k], B[j][l]);
+          const term = cMul(cMul(left, op), psi[idx(k,l)]);
+          sum = cAdd(sum, term);
+        }
+      }
+    }
+  }
+  return sum;
+}
+
+function evaluateQuantumStrategy(strategy){
+  return evaluateCompiledQuantum(prepareQuantumStrategy(strategy));
+}
+
+function prepareQuantumStrategy(strategy){
+  if(!Array.isArray(strategy.dims) || strategy.dims.length !== 2) throw new Error("dims must be [dA,dB].");
+  const dA = Number(strategy.dims[0]);
+  const dB = Number(strategy.dims[1]);
+  if(!Number.isInteger(dA) || !Number.isInteger(dB) || dA < 1 || dB < 1) throw new Error("dims must be positive integers.");
+  if(dA * dB > 64) throw new Error("Dimension too large for this browser evaluator. Keep dA*dB <= 64.");
+  const psi = normalizePsi(strategy.psi, dA*dB);
+  const pvm = {
+    alice:readPvmSide(strategy, "alice", dA),
+    bob:readPvmSide(strategy, "bob", dB)
+  };
+  return {dA:dA, dB:dB, psi:psi, pvm:pvm};
+}
+
+function evaluateCompiledQuantum(compiled){
+  let totalProb = 0;
+  let imagLeak = 0;
+  for(const x of state.ring.elements){
+    for(const y of state.ring.elements){
+      const target = state.ring.mul(x,y);
+      for(const a of state.ring.elements){
+        const b = state.ring.sub(target, a);
+        const A = compiled.pvm.alice[x][a];
+        const B = compiled.pvm.bob[y][b];
+        const prob = expectation(A,B,compiled.psi,compiled.dA,compiled.dB);
+        totalProb += prob.re;
+        imagLeak = Math.max(imagLeak, Math.abs(prob.im));
+      }
+    }
+  }
+  const totalQuestions = state.ring.order * state.ring.order;
+  const value = Math.max(0, Math.min(1, totalProb / totalQuestions));
+  return {value:value, rawValue:totalProb / totalQuestions, imagLeak:imagLeak};
+}
+
+function quantumPairDistribution(compiled, x, y){
+  const out = [];
+  let total = 0;
+  const target = state.ring.mul(x,y);
+  for(const a of state.ring.elements){
+    for(const b of state.ring.elements){
+      const prob = expectation(compiled.pvm.alice[x][a], compiled.pvm.bob[y][b], compiled.psi, compiled.dA, compiled.dB);
+      const p = Math.max(0, prob.re);
+      total += p;
+      out.push({a:a, b:b, p:p, win:state.ring.add(a,b) === target});
+    }
+  }
+  if(total <= EPS) return [{a:0,b:0,p:1,win:target === 0}];
+  return out.map(function(item){
+    return {a:item.a, b:item.b, p:item.p / total, win:item.win};
+  });
+}
+
+function projectorFromObservable(O, sign){
+  return [
+    [(1 + sign * O[0][0]) / 2, sign * O[0][1] / 2],
+    [sign * O[1][0] / 2, (1 + sign * O[1][1]) / 2]
+  ];
+}
+
+function z2QuantumPreset(){
+  const s = Math.SQRT1_2;
+  const Z = [[1,0],[0,-1]];
+  const X = [[0,1],[1,0]];
+  const B0 = [[s,s],[s,-s]];
+  const B1 = [[s,-s],[-s,-s]];
+  return {
+    name:"Z/2Z CHSH qubit strategy",
+    dims:[2,2],
+    psi:[s,0,0,s],
+    alice:{
+      "0":[projectorFromObservable(Z,1), projectorFromObservable(Z,-1)],
+      "1":[projectorFromObservable(X,1), projectorFromObservable(X,-1)]
+    },
+    bob:{
+      "0":[projectorFromObservable(B0,1), projectorFromObservable(B0,-1)],
+      "1":[projectorFromObservable(B1,1), projectorFromObservable(B1,-1)]
+    }
+  };
+}
+
+function maybeLoadDefaultQuantum(){
+  if(state.ring.id === "z2"){
+    els.quantumJson.value = JSON.stringify(z2QuantumPreset(), null, 2);
+    calculateQuantum(false);
+  } else {
+    els.quantumJson.value = "";
+    state.quantumScore = null;
+    setStatus(els.quantumStatus, "warn", "No quantum strategy loaded.", "Use the Z/2Z preset only with Z/2Z, or paste a PVM strategy for the current ring.");
+  }
+}
+
+function calculateQuantum(showSuccess){
+  try{
+    const strategy = JSON.parse(els.quantumJson.value);
+    const result = evaluateQuantumStrategy(strategy);
+    state.quantumScore = result;
+    const leak = result.imagLeak > 1e-7 ? " Imaginary leakage " + result.imagLeak.toExponential(2) + "." : "";
+    setStatus(els.quantumStatus, "", showSuccess === false ? "Quantum benchmark loaded." : "Quantum value.", formatPct(result.value) + "." + leak);
+    return result;
+  } catch(err){
+    state.quantumScore = null;
+    setStatus(els.quantumStatus, "loss", "Could not evaluate quantum strategy.", err.message);
+    return null;
+  }
+}
+
+function loadBoards(){
+  try{
+    const parsed = JSON.parse(localStorage.getItem(BOARD_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch(err){
+    return [];
+  }
+}
+
+function apiBase(){
+  return (localStorage.getItem(API_URL_KEY) || "").trim().replace(/\/+$/, "");
+}
+
+function renderApiStatus(message){
+  const api = apiBase();
+  if(message){
+    els.apiStatus.textContent = message;
+  } else if(api){
+    els.apiStatus.textContent = "Shared leaderboard enabled: " + api;
+  } else {
+    els.apiStatus.textContent = "Blank means browser-local leaderboard only.";
+  }
+}
+
+async function fetchRemoteEntries(type){
+  const api = apiBase();
+  if(!api) return [];
+  try{
+    const url = api + "/leaderboard?type=" + encodeURIComponent(type) +
+      "&ringId=" + encodeURIComponent(state.ring.id) + "&limit=20";
+    const response = await fetch(url);
+    if(!response.ok) throw new Error("HTTP " + response.status);
+    const data = await response.json();
+    return (data.entries || []).map(function(entry){
+      return {
+        remote:true,
+        type:entry.type,
+        ringId:entry.ringId,
+        ringName:entry.ringName,
+        name:entry.name,
+        value:Number(entry.value),
+        wins:entry.wins,
+        total:entry.total,
+        simWins:entry.simWins,
+        simTotal:entry.simTotal,
+        simValue:entry.simValue,
+        date:entry.date
+      };
+    });
+  } catch(err){
+    renderApiStatus("Shared leaderboard unavailable: " + err.message + ". Showing local entries.");
+    return [];
+  }
+}
+
+async function postRemoteEntry(entry){
+  const api = apiBase();
+  if(!api) return false;
+  const response = await fetch(api + "/leaderboard", {
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(entry)
+  });
+  if(!response.ok){
+    let message = "HTTP " + response.status;
+    try{
+      const data = await response.json();
+      if(data.error) message = data.error;
+    } catch(err){}
+    throw new Error(message);
+  }
+  return true;
+}
+
+async function saveBoardEntry(entry){
+  const boards = loadBoards();
+  boards.push(entry);
+  localStorage.setItem(BOARD_KEY, JSON.stringify(boards));
+  if(apiBase()){
+    await postRemoteEntry(entry);
+  }
+  await renderBoards();
+}
+
+function currentDate(){
+  return new Date().toISOString().slice(0,10);
+}
+
+async function submitClassical(){
+  scoreCurrentClassical();
+  const score = state.classicalScore;
+  const sim = simulateStrategy(
+    {kind:"classical", name:"submitted classical table", f:state.classical.f, g:state.classical.g, value:score.value},
+    10000
+  );
+  const entry = {
+    type:"classical",
+    ringId:state.ring.id,
+    ringName:state.ring.name,
+    name:els.classicalName.value.trim() || "anonymous",
+    value:score.value,
+    wins:score.wins,
+    total:score.total,
+    simWins:sim.wins,
+    simTotal:sim.rounds,
+    simValue:sim.value,
+    date:currentDate(),
+    strategy:{f:state.classical.f, g:state.classical.g}
+  };
+  try{
+    await saveBoardEntry(entry);
+    setStatus(els.classicalStatus, "win", "Submitted.", apiBase() ? "Saved locally and to the shared leaderboard." : "Saved to this browser's classical leaderboard.");
+  } catch(err){
+    setStatus(els.classicalStatus, "warn", "Saved locally only.", "Shared leaderboard failed: " + err.message);
+    await renderBoards();
+  }
+}
+
+async function submitQuantum(){
+  const score = calculateQuantum(true);
+  if(!score) return;
+  let parsed = null;
+  try{ parsed = JSON.parse(els.quantumJson.value); } catch(err){ parsed = null; }
+  const sim = simulateStrategy(
+    {kind:"quantum", name:(parsed && parsed.name) || "submitted quantum strategy", compiled:prepareQuantumStrategy(parsed), value:score.value},
+    10000
+  );
+  const entry = {
+    type:"quantum",
+    ringId:state.ring.id,
+    ringName:state.ring.name,
+    name:els.quantumName.value.trim() || (parsed && parsed.name) || "anonymous",
+    value:score.value,
+    simWins:sim.wins,
+    simTotal:sim.rounds,
+    simValue:sim.value,
+    date:currentDate(),
+    strategy:parsed
+  };
+  try{
+    await saveBoardEntry(entry);
+    setStatus(els.quantumStatus, "win", "Submitted.", apiBase() ? "Saved locally and to the shared leaderboard." : "Saved to this browser's quantum leaderboard.");
+  } catch(err){
+    setStatus(els.quantumStatus, "warn", "Saved locally only.", "Shared leaderboard failed: " + err.message);
+    await renderBoards();
+  }
+}
+
+function benchmarkEntries(type){
+  if(type === "classical" && state.bestClassical){
+    const score = scoreClassicalTables(state.bestClassical.f, state.bestClassical.g);
+    return [{
+      benchmark:true,
+      type:"classical",
+      ringId:state.ring.id,
+      name:state.bestClassical.exact ? "Exact classical optimum" : "Best found classical benchmark",
+      value:score.value,
+      wins:score.wins,
+      total:score.total,
+      date:"built-in"
+    }];
+  }
+  if(type === "quantum" && state.ring.id === "z2"){
+    const result = evaluateQuantumStrategy(z2QuantumPreset());
+    return [{
+      benchmark:true,
+      type:"quantum",
+      ringId:state.ring.id,
+      name:"Standard qubit CHSH strategy",
+      value:result.value,
+      date:"built-in"
+    }];
+  }
+  return [];
+}
+
+async function renderBoard(type, container){
+  const stored = loadBoards().filter(function(entry){
+    return entry.type === type && entry.ringId === state.ring.id;
+  });
+  const remote = await fetchRemoteEntries(type);
+  const localRows = apiBase() && remote.length ? [] : stored;
+  const rows = benchmarkEntries(type).concat(remote).concat(localRows)
+    .sort(function(a,b){ return b.value - a.value; })
+    .slice(0,8);
+  container.innerHTML = "";
+  if(rows.length === 0){
+    const empty = document.createElement("div");
+    empty.className = "meta";
+    empty.textContent = "No submitted strategies for this ring yet.";
+    container.appendChild(empty);
+    return;
+  }
+  rows.forEach(function(entry, index){
+    const row = document.createElement("div");
+    row.className = "board-row";
+    const left = document.createElement("div");
+    const right = document.createElement("div");
+    right.className = "board-value";
+    left.innerHTML = '<div class="board-name"></div><div class="board-meta"></div>';
+    left.querySelector(".board-name").textContent = (index + 1) + ". " + entry.name;
+    const exact = entry.wins !== undefined ? entry.wins + "/" + entry.total + " wins, " : "";
+    const source = entry.benchmark ? "benchmark" : (entry.remote ? "shared" : "local");
+    const sim = entry.simValue !== undefined && entry.simValue !== null ?
+      " | sim " + formatPct(Number(entry.simValue)) + " over " + entry.simTotal + " rounds" : "";
+    left.querySelector(".board-meta").textContent = exact + source + " - " + entry.date + sim;
+    right.textContent = formatPct(entry.value);
+    row.appendChild(left);
+    row.appendChild(right);
+    container.appendChild(row);
+  });
+}
+
+async function renderBoards(){
+  await Promise.all([
+    renderBoard("classical", els.classicalBoard),
+    renderBoard("quantum", els.quantumBoard)
+  ]);
+}
+
+function initEvents(){
+  els.orderSelect.addEventListener("change", function(){
+    renderRingSelect();
+    setupRing();
+  });
+  els.ringSelect.addEventListener("change", setupRing);
+  els.strategySelect.addEventListener("change", function(){
+    renderPartnerMeta();
+    newRound();
+  });
+  els.roleButtons.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      state.role = btn.dataset.role;
+      renderMode();
+      if(state.role !== "spectator") newRound();
+      renderBoards();
+    });
+  });
+  els.newRound.addEventListener("click", newRound);
+  els.submitRound.addEventListener("click", submitRound);
+  els.resetScore.addEventListener("click", resetScore);
+  els.showAdditionTable.addEventListener("click", function(){ showRingTable("addition"); });
+  els.showMultiplicationTable.addEventListener("click", function(){ showRingTable("multiplication"); });
+  els.closeTableModal.addEventListener("click", closeRingTable);
+  els.tableModalBackdrop.addEventListener("click", function(event){
+    if(event.target === els.tableModalBackdrop) closeRingTable();
+  });
+  els.saveApiUrl.addEventListener("click", function(){
+    const value = els.apiUrl.value.trim().replace(/\/+$/, "");
+    if(value) localStorage.setItem(API_URL_KEY, value);
+    else localStorage.removeItem(API_URL_KEY);
+    renderApiStatus(value ? "Saved shared leaderboard API URL." : "Shared leaderboard disabled.");
+    renderBoards();
+  });
+  els.bestClassical.addEventListener("click", function(){
+    applyClassicalTables(state.bestClassical.f, state.bestClassical.g, true);
+    renderClassicalResult(state.bestClassical.exact ? "Exact optimum loaded." : "Best found table loaded.");
+    updateSimulationTheory();
+  });
+  els.zeroClassical.addEventListener("click", function(){
+    const table = zeroStrategy();
+    applyClassicalTables(table.f, table.g, true);
+    renderClassicalResult("Zero table loaded.");
+    updateSimulationTheory();
+  });
+  els.randomClassical.addEventListener("click", function(){
+    const table = randomStrategy();
+    applyClassicalTables(table.f, table.g, true);
+    renderClassicalResult("Random table loaded.");
+    updateSimulationTheory();
+  });
+  els.scoreClassical.addEventListener("click", function(){
+    scoreCurrentClassical();
+    updateSimulationTheory();
+  });
+  els.submitClassical.addEventListener("click", submitClassical);
+  els.simStrategy.addEventListener("change", function(){
+    resetSimulation();
+    updateSimulationTheory();
+  });
+  els.simStep.addEventListener("click", runSimulationStep);
+  els.simLive.addEventListener("click", startLiveSimulation);
+  els.sim10000.addEventListener("click", function(){ runSimulationBatch(10000); });
+  els.simStop.addEventListener("click", function(){
+    stopSimulation();
+    setStatus(els.simStatus, "", "Simulation stopped.", "Current tally is preserved.");
+  });
+  els.simReset.addEventListener("click", resetSimulation);
+  els.loadZ2Quantum.addEventListener("click", function(){
+    els.quantumJson.value = JSON.stringify(z2QuantumPreset(), null, 2);
+    if(state.ring.id !== "z2"){
+      setStatus(els.quantumStatus, "warn", "Preset loaded.", "This preset is for Z/2Z. Switch to order 2, Z/2Z before scoring it.");
+    } else {
+      calculateQuantum(true);
+    }
+    updateSimulationTheory();
+  });
+  els.scoreQuantum.addEventListener("click", function(){
+    calculateQuantum(true);
+    updateSimulationTheory();
+  });
+  els.submitQuantum.addEventListener("click", submitQuantum);
+  els.modeBtn.addEventListener("click", function(){
+    document.body.classList.toggle("light");
+  });
+}
+
+function init(){
+  els.apiUrl.value = localStorage.getItem(API_URL_KEY) || "";
+  renderApiStatus();
+  renderOrderSelect();
+  renderRingSelect();
+  initEvents();
+  setupRing();
+  renderMode();
+}
+
+init();
+</script>
+</body>
 </html>

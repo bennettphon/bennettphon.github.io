@@ -77,6 +77,10 @@
     .han-name {
       font-family: "DFKai-SB", "KaiTi", "楷体", serif;
     }
+    .han-name.is-ipa {
+      font-family: 'Segoe UI', 'Arial', 'Helvetica', 'Charis SIL', 'Doulos SIL', sans-serif;
+      font-size: 0.9em;
+    }
 
     
     /* --- SOCIAL ICONS (uniform & spaced) --- */
@@ -103,26 +107,18 @@
 
     .ipa-toggle {
       cursor: pointer;
-      font-size: 0.7em;
-      color: gray;
-      margin-left: 4px;
-    }
-  
-    .ipa-popup {
-      display: none;
-      position: absolute;
-      top: 1.6em;
-      left: 0;  /* Now truly aligned under 韓本一 */
-      background: #f9f9f9;
-      border: 1px solid #ccc;
-      padding: 4px 8px;
-      font-size: 0.7em;
-      font-family: 'Segoe UI', 'Arial', 'Helvetica', 'Charis SIL', 'Doulos SIL', sans-serif;
-      color: black;
+      font-size: 0.65rem;
+      color: var(--fg);
+      margin-left: 6px;
+      padding: 2px 6px;
+      border: 1px solid #888;
       border-radius: 4px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      z-index: 100;
-      white-space: nowrap;
+      background: none;
+      vertical-align: middle;
+    }
+    .ipa-toggle[aria-pressed="true"] {
+      border-color: #3fb5ff;
+      color: #3fb5ff;
     }
     .top-link {
       margin-right: 10px;
@@ -136,6 +132,14 @@
     
     .top-link:hover {
       background: rgba(0,0,0,0.06);
+    }
+    .top-link.is-hidden {
+      opacity: 0;
+      border-color: transparent;
+      cursor: default;
+    }
+    .top-link.is-hidden:hover {
+      background: none;
     }
 
     .games-grid{display:flex;gap:14px;margin-top:16px;flex-wrap:wrap}
@@ -161,14 +165,108 @@
     .game-arrow{display:none}
     .game-badge{font-size:0.7rem;color:#888;border:1px solid #555;border-radius:4px;padding:2px 8px;margin-left:8px;font-weight:400}
     body:not(.dark) .game-badge{border-color:#ccc;color:#999}
+    .content-section {
+      margin-bottom: 18px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+    }
+    .content-section > summary {
+      cursor: pointer;
+      list-style: none;
+    }
+    .content-section > summary::-webkit-details-marker {
+      display: none;
+    }
+    .content-section > summary h2 {
+      display: inline-block;
+      margin: 0;
+    }
+    .content-section > summary::before {
+      content: "+";
+      display: inline-block;
+      width: 1.2em;
+      color: gray;
+      font-weight: 700;
+    }
+    .content-section[open] > summary::before {
+      content: "-";
+    }
+    .section-body {
+      margin-top: 14px;
+    }
+    .research-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .research-group {
+      margin: 0;
+    }
+    .research-group summary {
+      list-style: none;
+    }
+    .research-group summary::-webkit-details-marker {
+      display: none;
+    }
+    .research-banner {
+      width: 100%;
+      min-height: 54px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #1a1a1a;
+      color: var(--fg);
+      text-decoration: none;
+      font: inherit;
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+    body:not(.dark) .research-banner {
+      border-color: #ddd;
+      background: #f8f8f8;
+    }
+    .research-banner:hover {
+      border-color: #3fb5ff;
+      background: #1a2030;
+      text-decoration: none;
+    }
+    body:not(.dark) .research-banner:hover {
+      background: #eef6ff;
+    }
+    .research-group > summary .research-banner::after {
+      content: "+";
+      color: gray;
+      font-weight: 700;
+    }
+    .research-group[open] > summary .research-banner::after {
+      content: "-";
+    }
+    .research-subtopics {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 8px 0 4px 18px;
+    }
+    .research-subtopic {
+      min-height: 46px;
+      justify-content: flex-start;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
   </style>
 </head>
 
 <body>
   <!-- TOP BAR -->
   <div class="top-bar">
+    <a href="resources.html" class="top-link is-hidden" aria-hidden="true" tabindex="-1">Resources</a>
     <a href="index.html" class="top-link active">Home</a>
-    <a href="resources.html" class="top-link" style="opacity:0;border-color:transparent;">Resources</a>
     <button id="mode-btn" aria-label="Toggle dark mode" style="font-size:1.3rem">☯</button>
   </div>
 
@@ -181,11 +279,8 @@
       <!-- 1.  wrap the Chinese part of your name -->
       <h2 style="margin:0;">
         Bennett Hon | 
-        <span class="han-name" style="position: relative; display: inline-block;">
-          韓本一
-          <span id="ipa-popup" class="ipa-popup">[ɦɑn pʷənʔiɪt̚]</span>
-        </span>
-        <span class="ipa-toggle" onclick="toggleIPA()">ℹ️</span>
+        <span id="han-name" class="han-name">韓本一</span>
+        <button type="button" id="ipa-toggle" class="ipa-toggle" aria-pressed="false" onclick="toggleIPA()">IPA</button>
       </h2>
 
 
@@ -216,36 +311,68 @@
   <!-- MAIN CONTENT -->
   <div class="main-content">
 
-    <h2>Updates</h2>
+    <details class="content-section">
+      <summary><h2>Updates</h2></summary>
+      <div class="section-body">
+        <p>
+          I'm the current VP Academic of the
+          <a href="https://sites.google.com/view/uottawa-msgsa/home" target="_blank">MSGSA</a>
+          at the University of Ottawa,
+          and I coordinate the <a href="https://sites.google.com/view/uottawa-msgsa/events/graduate-student-colloquium" target="_blank">Graduate Student Colloquium</a> series. If you'd like to give a talk, feel free to reach out.
+        </p>
+        
+        <p>
+          Some events in Ottawa this summer:
+          <a href="https://quorumuottawa.ca/" target="_blank">QUORUM</a> (May 5–7),
+          <a href="https://representationtheory.ca/mmrt2026/" target="_blank">MMRT 2026</a> (July 7–10),
+          <a href="https://sacworkshop.org/" target="_blank">SAC 2026</a> and
+          <a href="https://qcrypt.net/2026/" target="_blank">QCrypt 2026</a> (August 24–28).
+        </p>
+      </div>
+    </details>
 
-    <p>
-      I'm the current VP Academic of the
-      <a href="https://sites.google.com/view/uottawa-msgsa/home" target="_blank">MSGSA</a>
-      at the University of Ottawa,
-      and I coordinate the <a href="https://sites.google.com/view/uottawa-msgsa/events/graduate-student-colloquium" target="_blank">Graduate Student Colloquium</a> series. If you'd like to give a talk, feel free to reach out.
-    </p>
-    
-    <p>
-      Some events in Ottawa this summer:
-      <a href="https://quorumuottawa.ca/" target="_blank">QUORUM</a> (May 5–7),
-      <a href="https://representationtheory.ca/mmrt2026/" target="_blank">MMRT 2026</a> (July 7–10),
-      <a href="https://sacworkshop.org/" target="_blank">SAC 2026</a> and
-      <a href="https://qcrypt.net/2026/" target="_blank">QCrypt 2026</a> (August 24–28).
-    </p>
+    <details class="content-section">
+      <summary><h2>Bio</h2></summary>
+      <div class="section-body">
+        <p>
+          I am a graduate student in the <a href="https://quasarlab.org/about/" target="_blank">QUASAR</a> research group at the University of Ottawa,
+          interested in algebraic and geometric aspects of quantum information and post-quantum cryptography,
+          particularly nonlocal games, quantum complexity, and lattice-based cryptography.
+          Previously, I did my undergrad in 
+          <a href="https://wp.phy.cuhk.edu.hk/undergraduate-admissions/jupas/enrichment-stream-in-theoretical-physics" target="_blank">Theoretical Physics</a>
+          at the Chinese University of Hong Kong (CUHK). I am very fortunate to have been advised and mentored by Prof. <a href="https://andrejb.net/" target="_blank">A. Bogdanov</a>, 
+          Prof. P. M. Hui, 
+          Prof. <a href="https://mysite.science.uottawa.ca/amehta2/" target="_blank">A. Mehta</a>, 
+          and Prof. M. Nevins.
+        </p>
+      </div>
+    </details>
 
-    <h2>Bio</h2>
+    <details class="content-section">
+      <summary><h2>Research</h2></summary>
+      <div class="section-body">
+        <div class="research-stack">
+          <details class="research-group">
+            <summary><span class="research-banner">Nonlocal games</span></summary>
+            <div class="research-subtopics">
+              <button type="button" class="research-banner research-subtopic" aria-disabled="true">CHSH games</button>
+              <button type="button" class="research-banner research-subtopic">Commutator game</button>
+              <button type="button" class="research-banner research-subtopic" aria-disabled="true">Isomorphism games</button>
+            </div>
+          </details>
 
-    <p>
-      I am a graduate student in the <a href="https://quasarlab.org/about/" target="_blank">QUASAR</a> research group at the University of Ottawa,
-      interested in algebraic and geometric aspects of quantum information and post-quantum cryptography,
-      particularly nonlocal games, quantum complexity, and lattice-based cryptography.
-      Previously, I did my undergrad in 
-      <a href="https://wp.phy.cuhk.edu.hk/undergraduate-admissions/jupas/enrichment-stream-in-theoretical-physics" target="_blank">Theoretical Physics</a>
-      at the Chinese University of Hong Kong (CUHK). I am very fortunate to have been advised and mentored by Prof. <a href="https://andrejb.net/" target="_blank">A. Bogdanov</a>, 
-      Prof. P. M. Hui, 
-      Prof. A. Mehta, 
-      and Prof. M. Nevins.
-    </p>
+          <details class="research-group">
+            <summary><span class="research-banner">Quantum complexity</span></summary>
+            <div class="research-subtopics">
+              <button type="button" class="research-banner research-subtopic">C-Q channels</button>
+              <button type="button" class="research-banner research-subtopic">QMA(2)</button>
+            </div>
+          </details>
+
+          <button type="button" class="research-banner">Algebra</button>
+        </div>
+      </div>
+    </details>
 
     <!--
     <hr style="border:none;border-top:1px solid #ccc;margin:36px 0 24px;">
@@ -325,8 +452,13 @@
   
   <script>
     function toggleIPA() {
-      const popup = document.getElementById('ipa-popup');
-      popup.style.display = (popup.style.display === 'block') ? 'none' : 'block';
+      const name = document.getElementById('han-name');
+      const btn = document.getElementById('ipa-toggle');
+      const showingIPA = btn.getAttribute('aria-pressed') === 'true';
+
+      name.textContent = showingIPA ? '韓本一' : '[ɦɑn pʷənʔiɪt̚]';
+      name.classList.toggle('is-ipa', !showingIPA);
+      btn.setAttribute('aria-pressed', String(!showingIPA));
     }
   </script>
 
