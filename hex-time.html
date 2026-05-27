@@ -154,8 +154,8 @@ input[type="range"]{accent-color:var(--acc)}
 .cal-cell.drag-preview{outline:2px solid var(--acc);outline-offset:-1px;z-index:2}
 /* Projects */
 .proj-fill{flex:1;display:flex;flex-direction:column;padding:0;min-height:0;overflow:hidden}
-.proj-top{display:flex;gap:4px;padding:8px 12px;flex-shrink:0;border-bottom:1px solid var(--bd);align-items:center}
-.proj-view-btn{font-family:var(--mono);font-size:10px;color:var(--dim);background:var(--sf2);border:1px solid var(--bd);border-radius:5px;padding:5px 12px;cursor:pointer;transition:all 0.15s}
+.proj-top{display:flex;gap:8px;padding:10px 14px;flex-shrink:0;border-bottom:1px solid var(--bd);align-items:center}
+.proj-view-btn{font-family:var(--mono);font-size:11px;color:var(--dim);background:var(--sf2);border:1px solid var(--bd);border-radius:6px;padding:7px 14px;cursor:pointer;transition:all 0.15s}
 .proj-view-btn:hover{color:var(--tx)}
 .proj-view-btn.active{color:#fff;background:var(--accD);border-color:var(--accD);font-weight:600}
 .proj-scroll{flex:1;overflow-y:auto;padding:12px}
@@ -181,7 +181,7 @@ input[type="range"]{accent-color:var(--acc)}
 .proj-timer-wrap{margin-top:10px;padding:16px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px}
 .proj-hex-big{font-family:var(--mono);font-size:clamp(32px,6vw,48px);font-weight:700;text-align:center;letter-spacing:0.04em;line-height:1}
 .proj-hex-big .dd{color:var(--acc)}.proj-hex-big .ff{color:var(--blue)}.proj-hex-big .dot{color:var(--dim)}
-.proj-hex-big.done{color:var(--err)}
+.proj-hex-big.done,.proj-hex-big.done .dd,.proj-hex-big.done .ff,.proj-hex-big.done .dot{color:var(--acc)}
 .proj-civil-hint{font-family:var(--mono);font-size:9px;color:var(--dim);text-align:center;margin-top:3px;opacity:0.6}
 .proj-timer-progress{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin:10px 0}
 .proj-timer-progress-bar{height:100%;border-radius:2px;transition:width 0.5s;background:var(--acc)}
@@ -190,24 +190,75 @@ input[type="range"]{accent-color:var(--acc)}
 .proj-dur-presets{display:flex;gap:4px;justify-content:center;flex-wrap:wrap}
 .proj-dur-preset{font-family:var(--mono);font-size:10px;color:var(--dim);background:transparent;border:1px solid var(--bd);border-radius:4px;padding:4px 10px;cursor:pointer}
 .proj-dur-preset:hover{color:var(--acc);border-color:var(--accD)}
+.proj-session-grid{display:grid;grid-template-columns:1fr;grid-template-rows:repeat(32,minmax(0,1fr));gap:1px;width:100%;aspect-ratio:1/1;margin:4px 0 8px 0;padding:2px;border:1px solid var(--bd);border-radius:8px;background:rgba(255,255,255,0.025)}
 .proj-session{background:var(--sf2);border:1px solid var(--bd);border-radius:6px;margin-bottom:4px;padding:8px 10px;font-family:var(--mono)}
+.proj-session-grid .proj-session{margin-bottom:0;min-width:0;position:relative;padding:0;overflow:hidden;border-radius:4px}
 .proj-session-row1{display:flex;gap:8px;align-items:center;font-size:11px}
+.proj-session-grid .proj-session-row1{position:absolute;left:4px;right:4px;top:2px;z-index:2;display:flex;gap:4px;align-items:center;font-size:9px;opacity:0.22;transition:opacity 0.12s;background:rgba(18,22,31,0.65);border-radius:3px;padding:1px 3px;pointer-events:none}
+.proj-session-grid .proj-session:hover .proj-session-row1{opacity:1}
+.proj-session-grid .proj-session-row1 button{pointer-events:auto}
 .proj-session-hex{color:var(--acc);font-weight:600;font-size:11px}
+.proj-session-grid .proj-session-hex{font-size:10px;white-space:nowrap}
 .proj-session-range{color:var(--dim);font-size:9px}
 .proj-session-civil{font-size:8px;color:var(--dim);opacity:0.5}
 .proj-session-status{font-size:9px;padding:1px 5px;border-radius:3px;flex-shrink:0}
-.proj-session-summary{color:var(--tx);font-size:11px;cursor:text;padding:2px 4px;border-radius:3px;border:1px solid transparent;min-height:16px;word-break:break-word;margin-top:4px;display:block}
+.proj-session-unit-notes{display:grid;gap:5px;margin:6px 0 0 22px;justify-content:start}
+.proj-session-grid .proj-session-unit-notes{position:absolute;inset:2px 4px;margin:0;width:auto;min-height:0;display:grid;align-items:stretch;gap:1px}
+.proj-session-unit-notes.merged{max-width:100%}
+.proj-unit-note{display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:3px;min-width:0;min-height:0;background:rgba(255,255,255,0.018);border-radius:2px}
+.proj-unit-note.merged{height:100%;display:grid;grid-template-columns:34px minmax(0,1fr)}
+.proj-unit-label{font-family:var(--mono);font-size:8px;color:var(--dim);line-height:1;white-space:nowrap;padding-left:1px}
+.proj-session-summary{color:var(--tx);font-size:11px;cursor:text;padding:3px 5px;border-radius:4px;border:1px solid transparent;min-height:18px;word-break:break-word;display:block;min-width:0}
+.proj-session-grid .proj-session-summary{min-height:0;height:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;display:flex;align-items:center}
 .proj-session-summary:hover{border-color:var(--bd)}
 .proj-session-summary:focus{outline:none;border-color:var(--acc);background:var(--sf)}
 .proj-session-summary:empty::before{content:attr(placeholder);color:var(--dim);opacity:0.4;pointer-events:none}
+.proj-summary-mode-btn{color:var(--dim);cursor:pointer;background:transparent;border:1px solid var(--bd);border-radius:4px;font-size:9px;font-family:var(--mono);padding:2px 6px;margin-left:auto}
+.proj-session-grid .proj-summary-mode-btn{font-size:8px;padding:1px 4px;margin-left:auto}
+.proj-session-grid .proj-session-del{margin-left:auto}
+.proj-summary-mode-btn:hover{color:var(--acc);border-color:var(--accD)}
 .proj-session-del{color:var(--dim);cursor:pointer;background:none;border:none;font-size:11px;font-family:var(--mono);padding:0 2px;flex-shrink:0}
 .proj-session-del:hover{color:var(--err)}
+.proj-unit-slice{background:#17202b;border:1px solid #44536b;border-radius:3px;display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:7px;align-items:center;padding:0 7px;min-height:0;font-family:var(--mono);position:relative;overflow:hidden;cursor:pointer;user-select:none}
+.proj-unit-slice.done{background:#10251a;border-color:#3d9663}
+.proj-unit-slice.running{background:#10243a;border-color:#5ba8ff}
+.proj-unit-slice.paused{background:#2b2312;border-color:#c69a34}
+.proj-unit-slice.incomplete{background:#24181c;border-color:#8b4d5c}
+.proj-unit-slice.merged{box-shadow:inset 3px 0 0 var(--acc)}
+.proj-unit-slice.merged.done{background:#173421;border-color:#6ae4a0}
+.proj-unit-slice.merged.running{background:#17324e;border-color:#7bbcff}
+.proj-unit-slice.merged.paused{background:#3a2d13;border-color:#d7aa43}
+.proj-unit-slice.merged.incomplete{background:#351b22;border-color:#b15f72}
+.proj-unit-slice.selected{outline:2px solid #f3fff7;outline-offset:-2px;background:#2f5a3f;box-shadow:inset 5px 0 0 #f3fff7}
+.proj-unit-slice-label{font-size:10px;color:#b8c7e6;white-space:nowrap;font-weight:700}
+.proj-unit-slice-summary{color:#f0f4ff;font-size:11px;line-height:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;border:1px solid transparent;border-radius:3px;padding:2px 5px;cursor:pointer}
+.proj-unit-slice-summary[contenteditable="true"]{cursor:text;background:#0e1420;border-color:var(--acc)}
+.proj-unit-slice-summary:hover{border-color:#5a6d8e}
+.proj-unit-slice-summary:focus{outline:none;border-color:var(--acc);background:var(--sf)}
+.proj-unit-slice-summary:empty::before{content:attr(placeholder);color:#92a1bd;opacity:0.75}
+.proj-unit-slice-actions{display:flex;gap:4px;align-items:center}
+.sprint-merge-tools{display:flex;align-items:center;gap:6px;margin:4px 0 5px 0;font-family:var(--mono);font-size:9px;color:var(--dim)}
+.sprint-merge-tools .project-secondary{font-size:9px;min-height:22px;padding:3px 7px}
 .proj-sessions-hdr{font-family:var(--mono);font-size:10px;color:var(--dim);letter-spacing:0.04em;text-transform:uppercase;margin:14px 0 6px;display:flex;align-items:center;gap:6px}
 .proj-stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px}
 .proj-stat-card{background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:12px 14px}
 .proj-stat-label{font-family:var(--mono);font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:0.06em}
 .proj-stat-val{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--acc);margin-top:2px}
 .proj-stat-sub{font-family:var(--mono);font-size:9px;color:var(--dim);margin-top:1px;opacity:0.6}
+.journal-row{display:grid;grid-template-columns:130px minmax(0,1fr);gap:10px;align-items:center;background:var(--sf);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;margin-bottom:8px;overflow:visible}
+.journal-date-main{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--tx)}
+.journal-date-sub{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:2px}
+.journal-date-sub strong{color:var(--acc);font-size:13px}
+.journal-lane{display:grid;grid-template-columns:repeat(16,minmax(0,1fr));gap:5px;align-items:center;min-height:36px;width:100%;overflow:visible;position:relative;--journal-cell:calc((100% - 75px)/16)}
+.journal-block{width:100%;aspect-ratio:1.1/1;border-radius:5px;border:1px solid rgba(255,255,255,0.22);box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);cursor:pointer;transition:transform 0.12s,border-color 0.12s}
+.journal-block:hover{transform:translateY(-2px);border-color:rgba(255,255,255,0.6)}
+.journal-overflow-block{position:absolute;left:calc(100% + 5px);top:0;width:var(--journal-cell);display:flex;align-items:center;justify-content:center;background:var(--sf2);color:var(--acc);font-family:var(--mono);font-size:11px;font-weight:700}
+.journal-overflow-block.open{color:var(--err);border-color:rgba(228,106,106,0.5)}
+.journal-overflow-menu{display:none;grid-template-columns:repeat(16,minmax(0,1fr));gap:5px;align-items:center;margin-top:5px}
+.journal-overflow-menu.open{display:grid}
+.journal-legend{display:flex;gap:6px 10px;align-items:center;flex-wrap:wrap;margin-top:7px;font-family:var(--mono);font-size:9px;color:var(--dim)}
+.journal-chip{display:inline-flex;gap:4px;align-items:center}
+.journal-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
 .proj-back{font-family:var(--mono);font-size:11px;color:var(--dim);background:none;border:none;cursor:pointer;padding:4px 8px}
 .proj-back:hover{color:var(--acc)}
 .proj-detail-head{display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap}
@@ -270,6 +321,84 @@ input[type="range"]{accent-color:var(--acc)}
 .proj-edit-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:8px}
 .proj-edit-field{display:flex;flex-direction:column;gap:3px}
 .proj-edit-field .label{margin-bottom:0}
+.work-duration-field{min-width:260px}
+.work-duration-controls{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.duration-preset{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--dim);background:var(--sf2);border:1px solid var(--bd);border-radius:6px;min-width:44px;height:31px;cursor:pointer}
+.duration-preset:hover{color:var(--tx);border-color:var(--dim)}
+.duration-preset.active{color:#07140d;background:var(--acc);border-color:var(--acc)}
+.duration-custom{font-family:var(--mono);font-size:11px;color:var(--tx);background:var(--sf2);border:1px solid var(--bd);border-radius:6px;width:76px;height:31px;padding:0 9px}
+.duration-custom:focus{outline:none;border-color:var(--acc)}
+.proj-list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+.proj-list-title{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--tx)}
+.proj-list-sub{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:2px}
+.project-card{padding:0;overflow:hidden}
+.project-card-main{display:grid;grid-template-columns:minmax(0,1fr) 206px;gap:14px;padding:12px 14px;align-items:center}
+.project-card-body{min-width:0}
+.project-card-name-row{display:flex;align-items:center;gap:8px;min-width:0}
+.project-card-name{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--tx);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.project-card-meta{display:flex;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:6px}
+.project-card-meta strong{color:var(--tx);font-weight:600}
+.project-progress-track{height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin-top:8px}
+.project-progress-fill{height:100%;background:var(--acc);border-radius:4px}
+.project-session-strip{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;margin-top:8px}
+.project-session-cell{height:8px;border-radius:2px;background:rgba(255,255,255,0.06)}
+.project-session-cell.done{background:var(--acc)}
+.project-session-cell.active{background:var(--blue);animation:proj-pulse 1.2s ease-in-out infinite}
+.project-card-side{min-width:0;display:grid;grid-template-columns:70px minmax(0,1fr);grid-template-rows:auto auto;gap:6px 10px;align-items:center;text-align:left}
+.project-card-percent{font-family:var(--mono);font-size:23px;font-weight:700;color:#fff;line-height:1;white-space:nowrap}
+.project-card-session{grid-column:1;grid-row:2;display:flex;justify-content:center;min-height:62px}
+.project-card-session.empty{display:none;min-height:0}
+.project-card-actions-panel{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.project-card-mini-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.project-card-mini-grid .project-secondary,.project-card-mini-grid .proj-card-act{width:100%;min-height:25px;text-align:center;padding-left:0;padding-right:0}
+.project-badge{font-family:var(--mono);font-size:9px;color:var(--dim);border:1px solid var(--bd);border-radius:999px;padding:2px 7px;white-space:nowrap}
+.project-badge.active{color:var(--acc);border-color:var(--accD);background:rgba(106,228,160,0.08)}
+.project-card-actions-bar{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.project-primary-stack{display:flex;flex-direction:column;align-items:stretch;gap:6px}
+.project-secondary-stack{display:flex;gap:6px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.project-primary{font-family:var(--mono);font-size:11px;font-weight:700;background:var(--accD);color:#fff;border:none;border-radius:6px;padding:7px 12px;min-height:30px;cursor:pointer}
+.project-primary.running{background:var(--blue);color:#08111e}
+.project-primary.paused{background:var(--warn);color:#15120a}
+.project-primary.done{background:var(--acc);color:#07140d}
+.project-primary.switching{background:#5b6475;color:#fff}
+.project-primary:disabled{opacity:0.45;cursor:not-allowed}
+.project-secondary{font-family:var(--mono);font-size:10px;color:var(--dim);background:transparent;border:1px solid var(--bd);border-radius:6px;padding:5px 10px;min-height:25px;cursor:pointer}
+.project-secondary:hover{color:var(--acc);border-color:var(--accD)}
+.project-session-clock-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}
+.project-session-clock{width:58px;height:58px;display:block}
+.project-session-clock .ring{fill:none;stroke:var(--bd);stroke-width:1.5}
+.project-session-clock .tick{stroke:var(--dim);stroke-width:0.7;stroke-linecap:round;opacity:0.55}
+.project-session-clock .tick.major{stroke:var(--tx);stroke-width:1.2;opacity:0.75}
+.project-session-clock .hand-hour{stroke:var(--warn);stroke-width:2.25}
+.project-session-clock .hand-a{stroke:var(--tx);stroke-width:1.9}
+.project-session-clock .hand-b{stroke:var(--blue);stroke-width:1.15}
+.project-session-clock .hand-c{stroke:var(--acc);stroke-width:0.75}
+.project-session-clock .hand{stroke-linecap:round}
+.project-session-clock .hub{fill:var(--sf);stroke:var(--tx);stroke-width:1}
+.project-session-clock-readout{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--tx);line-height:1;text-align:center}
+.project-session-clock-readout span{display:block;font-size:7px;font-weight:400;color:var(--dim);margin-top:3px}
+.project-create-card{border-color:var(--accD)}
+.project-detail-action{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:14px 16px;margin:10px 0;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.project-detail-action-title{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--tx)}
+.project-detail-action-sub{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:3px}
+.session-focus-overlay{position:fixed;inset:0;background:rgba(12,15,20,0.96);z-index:100;display:none;flex-direction:column;padding:18px;gap:10px}
+.session-focus-overlay.open{display:flex}
+.session-focus-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
+.session-focus-title{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--tx)}
+.session-focus-sub{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px}
+.session-focus-close{font-family:var(--mono);font-size:12px;color:var(--tx);background:var(--sf2);border:1px solid var(--bd);border-radius:7px;padding:8px 12px;cursor:pointer}
+.session-focus-clock{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.session-focus-clock svg{width:min(86vw,78vh);height:min(86vw,78vh);display:block}
+.session-focus-readout{font-family:var(--mono);font-size:clamp(30px,7vw,84px);font-weight:700;letter-spacing:0.04em;text-align:center;line-height:1;flex-shrink:0}
+.session-focus-readout .dd{color:var(--acc)}.session-focus-readout .ff{color:var(--blue)}.session-focus-readout .dot{color:var(--dim)}
+.session-focus-civil{font-family:var(--mono);font-size:12px;color:var(--dim);text-align:center;flex-shrink:0}
+@media(max-width:720px){
+  .proj-top{flex-wrap:wrap}
+  .project-card-main{grid-template-columns:1fr}
+  .project-card-side{grid-template-columns:70px minmax(0,1fr);width:100%}
+  .journal-row{grid-template-columns:1fr}
+  .proj-list-head{align-items:flex-start;flex-direction:column}
+}
 </style>
 </head>
 <body>
@@ -397,9 +526,10 @@ input[type="range"]{accent-color:var(--acc)}
       <div class="proj-top">
         <button class="proj-view-btn active" data-pv="list">Projects</button>
         <button class="proj-view-btn" data-pv="planner">Planner</button>
+        <button class="proj-view-btn" data-pv="journal">Journal</button>
         <button class="proj-view-btn" data-pv="stats">Stats</button>
         <div style="flex:1"></div>
-        <button class="btn" id="projNewBtn" style="font-size:10px;padding:5px 12px">+ New project</button>
+        <button class="project-primary" id="projNewBtn" type="button">New project</button>
       </div>
       <div class="proj-scroll">
         <div class="proj-constrained" id="projContent"></div>
@@ -466,6 +596,20 @@ input[type="range"]{accent-color:var(--acc)}
     <footer class="footer">hex time · no DST · no accounts · no tracking</footer>
     </div></div>
   </div>
+</div>
+<div class="session-focus-overlay" id="sessionFocus" aria-hidden="true">
+  <div class="session-focus-top">
+    <div>
+      <div class="session-focus-title" id="sessionFocusTitle">Session clock</div>
+      <div class="session-focus-sub" id="sessionFocusSub"></div>
+    </div>
+    <button class="session-focus-close" id="sessionFocusClose" type="button">Close</button>
+  </div>
+  <div class="session-focus-clock">
+    <svg id="sessionFocusSvg" viewBox="0 0 180 180" aria-label="Focused session clock"></svg>
+  </div>
+  <div class="session-focus-readout" id="sessionFocusHex"></div>
+  <div class="session-focus-civil" id="sessionFocusCivil"></div>
 </div>
 <script>
 (function(){"use strict";
@@ -1455,6 +1599,7 @@ var projTimerInterval=null;
 var projView=cfg.projView||"list";
 var projDetailId=null;
 var projCreating=false;
+var projUnitSelection=[];
 var planSlots=ldJ("hx-plan",{});
 var planWeekBase=cfg.planWeekBase||null;// null = auto (current week)
 var planBrush=null;// selected project ID for painting, null = eraser
@@ -1464,11 +1609,205 @@ var _planClickCell=null;// cell that was clicked (for picker)
 var showPlanPicker=null;// set by renderProjPlanner
 
 var HEX_HOUR=5400;// exactly 1/16 day in seconds
-var PLAN_HOURS=(cfg.planHours||[6,7,9,10,13,14]).sort(function(a,b){return a-b;});
+var WORK_UNIT_SEC=HEX_HOUR/2;// .0800 day = half a hex hour = 45 civil minutes
+var miniClockRAF=null;
+var DEFAULT_PLAN_HOURS=[4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10.5,11,11.5];
+function sameNums(a,b){if(!a||!b||a.length!==b.length)return false;for(var i=0;i<a.length;i++)if(Number(a[i])!==Number(b[i]))return false;return true;}
+if(!cfg.planUnitSec||cfg.planUnitSec!==WORK_UNIT_SEC){
+  if(!cfg.planHours||sameNums(cfg.planHours,[6,7,9,10,13,14]))cfg.planHours=DEFAULT_PLAN_HOURS.slice();
+  cfg.planUnitSec=WORK_UNIT_SEC;
+  svJ("hx-c8",cfg);
+}
+var PLAN_HOURS=(cfg.planHours||DEFAULT_PLAN_HOURS.slice()).sort(function(a,b){return a-b;});
 function planHourToCivil(ph){var dss=pDSv(cfg.ds);var cs=Math.round((ph/16)*86400+dss);cs=((cs%86400)+86400)%86400;return p2(Math.floor(cs/3600))+":"+p2(Math.floor((cs%3600)/60));}
 function civilToPlanHour(str){var p=str.split(":").map(Number);if(p.length<2||isNaN(p[0])||isNaN(p[1]))return null;var dss=pDSv(cfg.ds);var cs=p[0]*3600+p[1]*60;var hs=((cs-dss)%86400+86400)%86400;return(hs/86400)*16;}
 function planHourToHex(ph){var f=ph/16;var fi=Math.floor(f*65536);return"."+fF(fi);}
 function savePlanHours(){cfg.planHours=PLAN_HOURS;svJ("hx-c8",cfg);}
+function workUnitsToHex(units){units=Math.max(1,Math.round(Number(units)||1));var whole=Math.floor(units/2),half=units%2;return whole.toString(16).toUpperCase()+"."+(half?"8":"0");}
+function workUnitLabel(idx){idx=Math.max(0,Math.round(Number(idx)||0));return Math.floor(idx/2).toString(16).toUpperCase()+"."+(idx%2?"8":"0");}
+function parseSessCount(v){v=String(v||"0").trim().toUpperCase();var n=parseInt(v,16);return isNaN(n)?0:n;}
+function parseWorkDurationUnits(v){
+  v=String(v||"").trim().toUpperCase();
+  if(!v)return null;
+  v=v.replace(/H.*/,"");
+  var parts=v.split("."),whole=parseInt(parts[0]||"0",16),half=0;
+  if(isNaN(whole))return null;
+  if(parts.length>1){
+    var f=parseInt((parts[1]||"0").charAt(0)||"0",16);
+    if(isNaN(f))return null;
+    half=f>=8?1:0;
+  }
+  return Math.max(1,whole*2+half);
+}
+function selectedWorkUnits(){
+  var custom=document.getElementById("startUnitsCustom");
+  var parsed=custom?parseWorkDurationUnits(custom.value):null;
+  if(parsed)return parsed;
+  var el=document.getElementById("startUnitsValue");
+  return el?Math.max(1,parseInt(el.value,10)||2):2;
+}
+function workDurationSelectHTML(){
+  return '<div class="proj-edit-field work-duration-field"><div class="label">work duration</div><div class="work-duration-controls" id="startDurationControls"><button class="duration-preset" data-units="1" type="button">0.8</button><button class="duration-preset active" data-units="2" type="button">1.0</button><button class="duration-preset" data-units="3" type="button">1.8</button><input class="duration-custom" id="startUnitsCustom" type="text" placeholder="other" title="hex hôurs, e.g. 2.0 or 3.8"><input type="hidden" id="startUnitsValue" value="2"></div></div>';
+}
+function bindWorkDurationControls(root){
+  var wrap=(root||document).querySelector("#startDurationControls");if(!wrap)return;
+  var hidden=wrap.querySelector("#startUnitsValue"),custom=wrap.querySelector("#startUnitsCustom");
+  var presets=wrap.querySelectorAll(".duration-preset");
+  presets.forEach(function(btn){
+    btn.onclick=function(e){
+      e.stopPropagation();
+      if(hidden)hidden.value=btn.dataset.units;
+      if(custom)custom.value="";
+      presets.forEach(function(b){b.classList.toggle("active",b===btn);});
+    };
+  });
+  if(custom)custom.oninput=function(){
+    var has=custom.value.trim().length>0;
+    presets.forEach(function(b){b.classList.toggle("active",!has&&hidden&&b.dataset.units===hidden.value);});
+  };
+}
+function sessionTargetSec(sess){return (sess&&sess.targetSec)||WORK_UNIT_SEC;}
+function activeTargetSec(){return activeTimer&&activeTimer.targetSec?activeTimer.targetSec:WORK_UNIT_SEC;}
+function sessionWorkUnits(sess){return Math.max(1,Math.round(sessionTargetSec(sess)/WORK_UNIT_SEC));}
+function ensureUnitSummaries(sess){
+  var units=sessionWorkUnits(sess);
+  if(!Array.isArray(sess.unitSummaries)){
+    sess.unitSummaries=[];
+    if(sess.summary)sess.unitSummaries[0]=sess.summary;
+  }
+  while(sess.unitSummaries.length<units)sess.unitSummaries.push("");
+  return sess.unitSummaries;
+}
+function sessionUnitSummary(sess,idx){
+  if(sess&&sess.summaryMode==="merged"&&sess.summary)return sess.summary;
+  var arr=Array.isArray(sess.unitSummaries)?sess.unitSummaries:null;
+  return (arr&&arr[idx])||(idx===0&&sess.summary?sess.summary:"");
+}
+function toggleSessionSummaryMode(proj,sidx){
+  var sess=proj&&proj.sessions?proj.sessions[sidx]:null;if(!sess)return;
+  var arr=ensureUnitSummaries(sess);
+  if(sess.summaryMode==="merged"){
+    sess.summaryMode="split";
+    if(sess.summary&&!arr.some(function(x){return String(x||"").trim();}))arr[0]=sess.summary;
+  }else{
+    sess.summaryMode="merged";
+    if(!sess.summary){
+      sess.summary=arr.filter(function(x){return String(x||"").trim();}).join(" / ");
+    }
+  }
+  saveProjData();renderProjects();
+}
+function unitSelectionKey(pid,sprint,uidx){return pid+":"+sprint+":"+uidx;}
+function unitSelectionHas(pid,sprint,uidx){return projUnitSelection.indexOf(unitSelectionKey(pid,sprint,uidx))>=0;}
+function toggleUnitSelection(pid,sprint,uidx){
+  var key=unitSelectionKey(pid,sprint,uidx),i=projUnitSelection.indexOf(key);
+  if(i>=0)projUnitSelection.splice(i,1);else projUnitSelection.push(key);
+  renderProjects();
+}
+function toggleUnitSelectionRange(pid,sprint,start,len){
+  for(var i=0;i<len;i++){
+    var key=unitSelectionKey(pid,sprint,start+i),pos=projUnitSelection.indexOf(key);
+    if(pos>=0)projUnitSelection.splice(pos,1);
+    else projUnitSelection.push(key);
+  }
+  renderProjects();
+}
+function setUnitSelectionRange(pid,sprint,start,len,on){
+  for(var i=0;i<len;i++){
+    var key=unitSelectionKey(pid,sprint,start+i),pos=projUnitSelection.indexOf(key);
+    if(on&&pos<0)projUnitSelection.push(key);
+    if(!on&&pos>=0)projUnitSelection.splice(pos,1);
+  }
+}
+function selectedUnitRange(pid){
+  var parsed=projUnitSelection.map(function(k){var p=k.split(":");return{pid:p[0],sprint:parseInt(p[1],10),uidx:parseInt(p[2],10)};}).filter(function(x){return !pid||x.pid===pid;});
+  if(parsed.length<2)return null;
+  var selPid=parsed[0].pid,sprint=parsed[0].sprint;
+  if(parsed.some(function(x){return x.pid!==selPid||x.sprint!==sprint||isNaN(x.uidx);}))return null;
+  parsed.sort(function(a,b){return a.uidx-b.uidx;});
+  for(var i=1;i<parsed.length;i++)if(parsed[i].uidx!==parsed[i-1].uidx+1)return null;
+  return{pid:selPid,sprint:sprint,start:parsed[0].uidx,len:parsed.length};
+}
+function sprintUnits(proj,si){
+  var rows=[],ss=getSprintSessions(proj,si),unitCursor=0;
+  for(var j=0;j<ss.length&&unitCursor<32;j++){
+    var sess=ss[j],sidx=si*16+j,unitCount=sessionWorkUnits(sess),visibleUnits=Math.min(unitCount,32-unitCursor);
+    ensureUnitSummaries(sess);
+    for(var ui=0;ui<visibleUnits;ui++){
+      rows[unitCursor+ui]={sess:sess,sidx:sidx,uidx:ui,global:unitCursor+ui,summary:sessionUnitSummary(sess,ui)};
+    }
+    unitCursor+=unitCount;
+  }
+  return rows;
+}
+function projectSprintGroups(proj,si){
+  return (Array.isArray(proj.unitGroups)?proj.unitGroups:[]).filter(function(g){return g.sprint===si&&g.len>1;}).sort(function(a,b){return(a.start||0)-(b.start||0);});
+}
+function projectUnitState(unit){
+  if(!unit||!unit.sess)return"incomplete";
+  if(activeTimer&&activeTimer.sessId===unit.sess.id)return activeTimer.paused?"paused":"running";
+  return unit.sess.completed?"done":"incomplete";
+}
+function projectGroupState(rows,start,len){
+  var hasIncomplete=false,hasPaused=false;
+  for(var i=0;i<len;i++){
+    var st=projectUnitState(rows[start+i]);
+    if(st==="running")return"running";
+    if(st==="paused")hasPaused=true;
+    if(st==="incomplete")hasIncomplete=true;
+  }
+  return hasPaused?"paused":hasIncomplete?"incomplete":"done";
+}
+function groupOverlaps(groups,start,len){
+  var end=start+len-1;
+  return groups.some(function(g){
+    var gs=g.start||0,ge=gs+(g.len||1)-1;
+    return !(ge<start||gs>end);
+  });
+}
+function groupSessionIndex(rows,start,len){
+  var sidx=null;
+  for(var i=0;i<len;i++){
+    var row=rows[start+i];if(!row)return null;
+    if(sidx===null)sidx=row.sidx;
+    else if(row.sidx!==sidx)return null;
+  }
+  return sidx;
+}
+function mergeSelectedUnits(proj){
+  var r=selectedUnitRange(proj.id);if(!r||!proj.sessions)return;
+  var rows=sprintUnits(proj,r.sprint);
+  if(!rows[r.start])return;
+  if(!Array.isArray(proj.unitGroups))proj.unitGroups=[];
+  proj.unitGroups=proj.unitGroups.filter(function(g){
+    if(g.sprint!==r.sprint)return true;
+    var gs=g.start||0,ge=gs+(g.len||1)-1,re=r.start+r.len-1;
+    return ge<r.start||gs>re;
+  });
+  proj.unitGroups.push({
+    sprint:r.sprint,
+    start:r.start,
+    len:r.len,
+    summary:rows.slice(r.start,r.start+r.len).map(function(x){return x&&x.summary;}).filter(function(x){return String(x||"").trim();}).join(" / ")
+  });
+  proj.unitGroups.sort(function(a,b){return(a.sprint-b.sprint)||((a.start||0)-(b.start||0));});
+  projUnitSelection=[];
+  saveProjData();renderProjects();
+}
+function splitUnitGroup(proj,sprint,gstart){
+  if(!proj||!Array.isArray(proj.unitGroups))return;
+  proj.unitGroups=proj.unitGroups.filter(function(g){return !(g.sprint===sprint&&(g.start||0)===gstart);});
+  saveProjData();renderProjects();
+}
+function splitSessionBlock(proj,sidx){
+  var sess=proj&&proj.sessions?proj.sessions[sidx]:null;if(!sess)return;
+  var arr=ensureUnitSummaries(sess);
+  sess.splitUnits=true;
+  sess.summaryMode="split";
+  if(sess.summary&&!arr.some(function(x){return String(x||"").trim();}))arr[0]=sess.summary;
+  saveProjData();renderProjects();
+}
+function localDateKey(ts){var d=new Date(ts||Date.now());return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());}
 
 function saveProjData(){svJ("hx-proj",projects);}
 function saveTimerState(){svJ("hx-proj-tmr",activeTimer);}
@@ -1534,9 +1873,9 @@ function getSessionCalEvents(lo,hi){
         var sess=doneArr[usedComp[pid]];usedComp[pid]++;
         var as=parseHexStamp(sess.hexStart),ae=parseHexStamp(sess.hexEnd);
         if(as!==null&&ae!==null&&ae>as){evDs=as;evDe=ae;}
-        else{evDs=hd+slotHour/16;evDe=hd+(slotHour+1)/16;}
+        else{evDs=hd+slotHour/16;evDe=hd+(slotHour+0.5)/16;}
       }else{
-        evDs=hd+slotHour/16;evDe=hd+(slotHour+1)/16;
+        evDs=hd+slotHour/16;evDe=hd+(slotHour+0.5)/16;
       }
       var sn=sNums[hd+":"+sl];var snHex=sn!==undefined?H[sn%16]:"?";
       var spNum=sn!==undefined?Math.floor(sn/16):-1;
@@ -1565,6 +1904,45 @@ function secToCivil(sec){
   var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60);
   if(h>23){var dd=Math.floor(h/24);return dd+"d "+p2(h%24)+"h";}
   if(h>0)return h+"h"+p2(m)+"m";return m+"m";
+}
+function sessionClockParts(elapsed,target){
+  target=target||WORK_UNIT_SEC;
+  var rem=Math.max(0,target-elapsed),hrs=rem/HEX_HOUR;
+  return {
+    rem:rem,
+    hasHour:target>HEX_HOUR,
+    hour:(hrs/16)%1,
+    mark:hrs%1,
+    minute:(hrs*16)%1,
+    second:(hrs*256)%1
+  };
+}
+function miniClockAttrs(frac,len,tail){
+  var a=frac*360-90,rd=a*Math.PI/180,cx=50,cy=50;
+  return 'x1="'+(cx-tail*Math.cos(rd)).toFixed(2)+'" y1="'+(cy-tail*Math.sin(rd)).toFixed(2)+'" x2="'+(cx+len*Math.cos(rd)).toFixed(2)+'" y2="'+(cy+len*Math.sin(rd)).toFixed(2)+'"';
+}
+function setMiniLine(line,frac,len,tail){
+  if(!line)return;
+  miniClockAttrs(frac,len,tail).split(" ").forEach(function(part){
+    var p=part.split("=");line.setAttribute(p[0],p[1].replace(/"/g,""));
+  });
+}
+function miniClockHTML(elapsed,remText,label,isLive,targetSec){
+  var target=targetSec||WORK_UNIT_SEC;
+  var cp=sessionClockParts(elapsed,target),htm='<div class="project-session-clock-wrap" title="'+esc(label)+'">';
+  htm+='<svg class="project-session-clock" viewBox="0 0 100 100"'+(isLive?' data-active-session-clock="true"':'')+'>';
+  htm+='<circle class="ring" cx="50" cy="50" r="44"></circle>';
+  for(var i=0;i<16;i++){
+    var a=i/16*360-90,rd=a*Math.PI/180,mj=i%4===0,outer=44,inner=mj?35:39;
+    htm+='<line class="tick'+(mj?' major':'')+'" x1="'+(50+outer*Math.cos(rd)).toFixed(2)+'" y1="'+(50+outer*Math.sin(rd)).toFixed(2)+'" x2="'+(50+inner*Math.cos(rd)).toFixed(2)+'" y2="'+(50+inner*Math.sin(rd)).toFixed(2)+'"></line>';
+  }
+  if(cp.hasHour)htm+='<line class="hand hand-hour" data-hand="h" '+miniClockAttrs(cp.hour,22,5)+'></line>';
+  htm+='<line class="hand hand-a" data-hand="a" '+miniClockAttrs(cp.mark,28,5)+'></line>';
+  htm+='<line class="hand hand-b" data-hand="b" '+miniClockAttrs(cp.minute,35,4)+'></line>';
+  htm+='<line class="hand hand-c" data-hand="c" '+miniClockAttrs(cp.second,41,3)+'></line>';
+  htm+='<circle class="hub" cx="50" cy="50" r="3.2"></circle>';
+  htm+='</svg><div class="project-session-clock-readout"><span class="project-session-clock-value">'+remText+'</span><span>left</span></div></div>';
+  return htm;
 }
 // Hex percentage: XX.X% where 10.0% = 100%
 function hexPctStr(frac){
@@ -1627,20 +2005,39 @@ function initTimerOnLoad(){
   }
   updateTabInfo();
 }
-function startTickInterval(){if(projTimerInterval)clearInterval(projTimerInterval);projTimerInterval=setInterval(updateTimerUI,500);}
-function stopTickInterval(){if(projTimerInterval){clearInterval(projTimerInterval);projTimerInterval=null;}}
+function startTickInterval(){if(projTimerInterval)clearInterval(projTimerInterval);projTimerInterval=setInterval(updateTimerUI,500);startMiniClockRAF();}
+function stopTickInterval(){if(projTimerInterval){clearInterval(projTimerInterval);projTimerInterval=null;}stopMiniClockRAF();}
+
+function pauseActiveSessionForSwitch(){
+  if(!activeTimer)return;
+  closeSessionFocus();
+  var elapsed=timerElapsed(),target=activeTargetSec(),proj=getProjById(activeTimer.projId);
+  if(proj){
+    var sess=getSessById(proj,activeTimer.sessId);
+    if(sess){sess.elapsed=Math.min(elapsed,target);sess.completed=elapsed>=target;saveProjData();}
+  }
+  activeTimer=null;
+  saveTimerState();
+  stopTickInterval();
+  stopClockRAF();
+}
 
 function startOrContinue(projId){
-  if(activeTimer)return;
+  if(activeTimer&&activeTimer.projId===projId){
+    if(activeTimer.paused)resumeSession();
+    return;
+  }
+  if(activeTimer)pauseActiveSessionForSwitch();
   var proj=getProjById(projId);if(!proj)return;
   if(!proj.sessions)proj.sessions=[];
   var inc=getIncomplete(proj);
   if(inc){
-    activeTimer={projId:projId,sessId:inc.id,startedAt:Date.now(),accumulated:inc.elapsed||0,targetSec:HEX_HOUR,paused:false};
+    activeTimer={projId:projId,sessId:inc.id,startedAt:Date.now(),accumulated:inc.elapsed||0,targetSec:sessionTargetSec(inc),paused:false};
   }else{
-    var sess={id:genId(),elapsed:0,completed:false,hexStart:curHexAbs(),hexEnd:null,date:Date.now(),summary:""};
+    var target=selectedWorkUnits()*WORK_UNIT_SEC;
+    var sess={id:genId(),elapsed:0,targetSec:target,completed:false,hexStart:curHexAbs(),hexEnd:null,date:Date.now(),summary:"",unitSummaries:[]};
     proj.sessions.push(sess);saveProjData();
-    activeTimer={projId:projId,sessId:sess.id,startedAt:Date.now(),accumulated:0,targetSec:HEX_HOUR,paused:false};
+    activeTimer={projId:projId,sessId:sess.id,startedAt:Date.now(),accumulated:0,targetSec:target,paused:false};
   }
   saveTimerState();startTickInterval();updateTabInfo();renderProjects();
 }
@@ -1656,35 +2053,95 @@ function resumeSession(){
 }
 function finishSession(discard){
   if(!activeTimer)return;stopTickInterval();stopClockRAF();
-  var elapsed=timerElapsed(),proj=getProjById(activeTimer.projId);
+  closeSessionFocus();
+  var elapsed=timerElapsed(),target=activeTargetSec(),proj=getProjById(activeTimer.projId);
   if(proj){
     var sess=getSessById(proj,activeTimer.sessId);
     if(discard){proj.sessions=proj.sessions.filter(function(s){return s.id!==activeTimer.sessId;});}
     else if(sess){
-      sess.elapsed=Math.min(elapsed,HEX_HOUR);
+      sess.elapsed=Math.min(elapsed,target);
+      sess.targetSec=target;
+      ensureUnitSummaries(sess);
       sess.hexEnd=curHexAbs();
-      // Only mark complete if the full .1000 has been worked
-      sess.completed=(elapsed>=HEX_HOUR);
+      sess.completed=(elapsed>=target);
     }
     saveProjData();
   }
   activeTimer=null;saveTimerState();updateIdleTab();renderProjects();
 }
+function fastForwardActiveSession(){
+  if(!activeTimer)return;
+  activeTimer.accumulated=activeTargetSec();
+  activeTimer.startedAt=null;
+  activeTimer.paused=true;
+  finishSession(false);
+}
+function completeSavedSession(projId){
+  var proj=getProjById(projId);if(!proj)return;
+  var sess=getIncomplete(proj);if(!sess)return;
+  var target=sessionTargetSec(sess);
+  sess.elapsed=target;
+  sess.targetSec=target;
+  ensureUnitSummaries(sess);
+  sess.completed=true;
+  if(!sess.hexStart)sess.hexStart=curHexAbs();
+  sess.hexEnd=curHexAbs();
+  sess.date=sess.date||Date.now();
+  saveProjData();renderProjects();
+}
+function logCompletedSession(projId){
+  var proj=getProjById(projId);if(!proj)return;
+  if(!proj.sessions)proj.sessions=[];
+  var target=selectedWorkUnits()*WORK_UNIT_SEC;
+  var nowHex=curHexAbs();
+  proj.sessions.push({id:genId(),elapsed:target,targetSec:target,completed:true,hexStart:nowHex,hexEnd:nowHex,date:Date.now(),summary:"",unitSummaries:[]});
+  saveProjData();renderProjects();
+}
 function syncSessElapsed(){
   if(!activeTimer)return;var proj=getProjById(activeTimer.projId);if(!proj)return;
-  var sess=getSessById(proj,activeTimer.sessId);if(sess){sess.elapsed=timerElapsed();saveProjData();}
+  var target=activeTargetSec();
+  var sess=getSessById(proj,activeTimer.sessId);if(sess){sess.elapsed=Math.min(timerElapsed(),target);sess.targetSec=target;saveProjData();}
+}
+function updateActiveProjectClocks(){
+  if(!activeTimer)return;
+  var target=activeTargetSec();
+  var elapsed=timerElapsedSmooth(),cp=sessionClockParts(elapsed,target),rem=cp.rem;
+  document.querySelectorAll("[data-active-session-clock]").forEach(function(svg){
+    setMiniLine(svg.querySelector('[data-hand="h"]'),cp.hour,22,5);
+    setMiniLine(svg.querySelector('[data-hand="a"]'),cp.mark,28,5);
+    setMiniLine(svg.querySelector('[data-hand="b"]'),cp.minute,35,4);
+    setMiniLine(svg.querySelector('[data-hand="c"]'),cp.second,41,3);
+    var value=svg.parentNode.querySelector(".project-session-clock-value");
+    if(value)value.textContent=secToHexFrac(rem);
+  });
+}
+function miniClockRAFLoop(){
+  if(!activeTimer||activeTimer.paused||!document.querySelector("[data-active-session-clock]")){miniClockRAF=null;return;}
+  updateActiveProjectClocks();
+  miniClockRAF=requestAnimationFrame(miniClockRAFLoop);
+}
+function startMiniClockRAF(){
+  if(miniClockRAF)cancelAnimationFrame(miniClockRAF);
+  if(activeTimer&&!activeTimer.paused&&document.querySelector("[data-active-session-clock]"))miniClockRAF=requestAnimationFrame(miniClockRAFLoop);
+}
+function stopMiniClockRAF(){
+  if(miniClockRAF){cancelAnimationFrame(miniClockRAF);miniClockRAF=null;}
 }
 function updateTimerUI(){
-  var el=document.getElementById("projTimerHex");if(!el||!activeTimer)return;
-  var elapsed=timerElapsed(),rem=Math.max(0,HEX_HOUR-elapsed);
-  var pct=Math.min(100,(elapsed/HEX_HOUR)*100);
-  el.innerHTML=hexFracHTML(rem);el.classList.toggle("done",rem<=0);
+  if(!activeTimer)return;
+  var el=document.getElementById("projTimerHex");
+  var target=activeTargetSec();
+  var elapsed=timerElapsed(),rem=Math.max(0,target-elapsed);
+  var pct=Math.min(100,(elapsed/target)*100);
+  if(el){el.innerHTML=hexFracHTML(rem);el.classList.toggle("done",rem<=0);}
   var civEl=document.getElementById("projTimerCivil");
   if(civEl)civEl.textContent="\u2248"+secToCivil(rem)+" left \xb7 "+secToCivil(elapsed)+" elapsed";
   var progEl=document.getElementById("projTimerProg");
-  if(progEl){progEl.style.width=Math.min(100,pct)+"%";progEl.classList.toggle("over",elapsed>HEX_HOUR);}
+  if(progEl){progEl.style.width=Math.min(100,pct)+"%";progEl.classList.toggle("over",elapsed>target);}
   var elHex=document.getElementById("projTimerElHex");
   if(elHex)elHex.textContent=secToHexFrac(elapsed)+" worked";
+  updateActiveProjectClocks();
+  updateSessionFocusReadout();
   if(rem<=0&&!activeTimer.notified){activeTimer.notified=true;
     try{if(Notification.permission==="granted")new Notification("Session complete",{body:getProjById(activeTimer.projId).name});}catch(e){}
     renderProjects();// re-render to show Complete button
@@ -1699,7 +2156,8 @@ var _favLastUpdate=0;
 
 function updateTabInfo(){
   if(!activeTimer){updateIdleTab();return;}
-  var elapsed=timerElapsed(),rem=Math.max(0,HEX_HOUR-elapsed);
+  var target=activeTargetSec();
+  var elapsed=timerElapsed(),rem=Math.max(0,target-elapsed);
   var proj=getProjById(activeTimer.projId);
   var pName=proj?proj.name:"session";
   var remHex=secToHexFrac(rem);
@@ -1708,8 +2166,8 @@ function updateTabInfo(){
   }else{
     document.title=remHex+" \u2014 "+pName;
   }
-  // Favicon shows session progress — hands freeze on pause (same frac)
-  var sessFrac=Math.min(1,elapsed/HEX_HOUR);
+  // Favicon uses the fixed hôur countdown rate, not the selected duration as a full lap.
+  var sessFrac=Math.max(0,rem/HEX_HOUR);
   drawClockFavicon(activeTimer.paused?"paused":"running",sessFrac);
 }
 
@@ -1761,10 +2219,8 @@ function drawClockFavicon(mode,frac){
     c.strokeStyle=tickColor;c.lineWidth=2;c.lineCap="round";c.stroke();
   }
 
-  // Hand angles
-  // For idle: frac = st.fs (time of day, 0-1 = one day cycle)
-  // For session: frac = elapsed/HEX_HOUR (0-1 = one session cycle)
-  // Both: hour hand does one full rotation, minute hand does 16 rotations
+  // Hand angles. Session mode receives remaining hôurs, so it counts down
+  // at the same rate regardless of the chosen duration.
   var hourAng=(frac*360-90)*Math.PI/180;
   var minAng=(((frac*16)%1)*360-90)*Math.PI/180;
 
@@ -1855,10 +2311,11 @@ function hexProgressHTML(worked,estSec,color){
   return htm+'</div>';
 }
 
-// Session clock: 3-needle hôur clock (mark, minute, second — no hour hand)
+// Session countdown clock: fixed hôur-rate hands; targets over 1 hôur include an hour hand.
 var sessClock={needles:null,svg:null,raf:null};
 function mkSessionClock(svg){
   svg.innerHTML="";var cx=90,cy=90,r=80;
+  var hasHour=activeTargetSec()>HEX_HOUR;
   var pl=PALS[0];
   var rg=document.createElementNS(SN,"circle");rg.setAttribute("cx",cx);rg.setAttribute("cy",cy);rg.setAttribute("r",r);rg.setAttribute("fill","none");rg.setAttribute("stroke",pl.ring);rg.setAttribute("stroke-width","1.2");svg.appendChild(rg);
   for(var i=0;i<16;i++){
@@ -1867,14 +2324,14 @@ function mkSessionClock(svg){
     var ln=document.createElementNS(SN,"line");ln.setAttribute("x1",cx+(r-1)*Math.cos(rd));ln.setAttribute("y1",cy+(r-1)*Math.sin(rd));ln.setAttribute("x2",cx+(r-tl)*Math.cos(rd));ln.setAttribute("y2",cy+(r-tl)*Math.sin(rd));ln.setAttribute("stroke",mj?pl.tM:pl.tN);ln.setAttribute("stroke-width",mj?1.5:md?0.9:0.5);ln.setAttribute("stroke-linecap","round");svg.appendChild(ln);
     var tx=document.createElementNS(SN,"text");tx.setAttribute("x",cx+lr*Math.cos(rd));tx.setAttribute("y",cy+lr*Math.sin(rd));tx.setAttribute("fill",mj?pl.lM:pl.lN);tx.setAttribute("font-size",mj?"10":"7");tx.setAttribute("font-family","'IBM Plex Mono',monospace");tx.setAttribute("font-weight",mj?"600":"400");tx.setAttribute("text-anchor","middle");tx.setAttribute("dominant-baseline","central");tx.textContent=H[i];svg.appendChild(tx);
   }
-  var cf=[{l:50,w:2,t:8},{l:62,w:1.2,t:6},{l:72,w:0.7,t:5}];
-  var colors=[pl.n[1],pl.n[2],pl.n[3]];
+  var cf=hasHour?[{l:38,w:2.9,t:9},{l:51,w:2,t:8},{l:63,w:1.2,t:6},{l:73,w:0.7,t:5}]:[{l:51,w:2,t:8},{l:63,w:1.2,t:6},{l:73,w:0.7,t:5}];
+  var colors=hasHour?[pl.n[0],pl.n[1],pl.n[2],pl.n[3]]:[pl.n[1],pl.n[2],pl.n[3]];
   var nl=[];
-  for(var ni=0;ni<3;ni++){
+  for(var ni=0;ni<cf.length;ni++){
     var l2=document.createElementNS(SN,"line");l2.setAttribute("stroke",colors[ni]);l2.setAttribute("stroke-width",cf[ni].w);l2.setAttribute("stroke-linecap","round");l2._l=cf[ni].l;l2._t=cf[ni].t;l2._cx=cx;l2._cy=cy;svg.appendChild(l2);nl.push(l2);
   }
   var cp=document.createElementNS(SN,"circle");cp.setAttribute("cx",cx);cp.setAttribute("cy",cy);cp.setAttribute("r","3.5");cp.setAttribute("fill",pl.c);cp.setAttribute("stroke",pl.n[1]);cp.setAttribute("stroke-width","1");svg.appendChild(cp);
-  sessClock.needles=nl;sessClock.svg=svg;
+  sessClock.needles=nl;sessClock.svg=svg;sessClock.hasHour=hasHour;
   startClockRAF();
 }
 // Smooth elapsed (fractional seconds, no floor)
@@ -1887,14 +2344,10 @@ function timerElapsedSmooth(){
 function updateSessionClockNeedles(){
   if(!sessClock.needles)return;
   var elapsed=timerElapsedSmooth();
-  var frac=elapsed/HEX_HOUR;
-  var angles=[
-    (frac%1)*360,
-    ((frac*16)%1)*360,
-    ((frac*256)%1)*360
-  ];
-  for(var i=0;i<3;i++){
-    var an=angles[i]-90,rd=an*Math.PI/180;
+  var cp=sessionClockParts(elapsed,activeTargetSec());
+  var fracs=sessClock.hasHour?[cp.hour,cp.mark,cp.minute,cp.second]:[cp.mark,cp.minute,cp.second];
+  for(var i=0;i<sessClock.needles.length;i++){
+    var an=fracs[i]*360-90,rd=an*Math.PI/180;
     var n=sessClock.needles[i],cx=n._cx,cy=n._cy;
     n.setAttribute("x1",cx-n._t*Math.cos(rd));n.setAttribute("y1",cy-n._t*Math.sin(rd));
     n.setAttribute("x2",cx+n._l*Math.cos(rd));n.setAttribute("y2",cy+n._l*Math.sin(rd));
@@ -1912,6 +2365,47 @@ function startClockRAF(){
 function stopClockRAF(){
   if(sessClock.raf){cancelAnimationFrame(sessClock.raf);sessClock.raf=null;}
 }
+
+function updateSessionFocusReadout(){
+  var overlay=document.getElementById("sessionFocus");
+  if(!overlay||!overlay.classList.contains("open")||!activeTimer)return;
+  var proj=getProjById(activeTimer.projId);
+  var target=activeTargetSec();
+  var elapsed=timerElapsed(),rem=Math.max(0,target-elapsed);
+  var hexEl=document.getElementById("sessionFocusHex");
+  var civEl=document.getElementById("sessionFocusCivil");
+  var subEl=document.getElementById("sessionFocusSub");
+  if(hexEl)hexEl.innerHTML=hexFracHTML(rem);
+  if(civEl)civEl.textContent="\u2248"+secToCivil(rem)+" left / "+secToCivil(elapsed)+" elapsed";
+  if(subEl)subEl.textContent=(proj?proj.name:"session")+" / "+(activeTimer.paused?"paused":"running");
+}
+
+function openSessionFocus(){
+  if(!activeTimer)return;
+  var overlay=document.getElementById("sessionFocus"),svg=document.getElementById("sessionFocusSvg");
+  var title=document.getElementById("sessionFocusTitle"),proj=getProjById(activeTimer.projId);
+  if(title)title.textContent=proj?proj.name:"Session clock";
+  if(overlay){overlay.classList.add("open");overlay.setAttribute("aria-hidden","false");}
+  if(svg){mkSessionClock(svg);updateSessionClockNeedles();}
+  updateSessionFocusReadout();
+}
+
+function closeSessionFocus(){
+  var overlay=document.getElementById("sessionFocus");
+  if(overlay){overlay.classList.remove("open");overlay.setAttribute("aria-hidden","true");}
+  stopClockRAF();
+  var scSvg=document.getElementById("sessClockSvg");
+  if(scSvg&&activeTimer){mkSessionClock(scSvg);updateSessionClockNeedles();}
+}
+
+var sessionFocusCloseBtn=document.getElementById("sessionFocusClose");
+if(sessionFocusCloseBtn)sessionFocusCloseBtn.onclick=closeSessionFocus;
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){
+    var overlay=document.getElementById("sessionFocus");
+    if(overlay&&overlay.classList.contains("open"))closeSessionFocus();
+  }
+});
 
 // Views
 document.querySelectorAll(".proj-view-btn").forEach(function(btn){
@@ -1938,93 +2432,137 @@ function renderProjects(){
   var activeView=projView;if(projView==="detail")activeView="list";
   document.querySelectorAll(".proj-view-btn").forEach(function(b){b.classList.toggle("active",b.dataset.pv===activeView);});
   if(projView==="stats")return renderProjStats(el);
+  if(projView==="journal")return renderProjJournal(el);
   if(projView==="planner")return renderProjPlanner(el);
   if(projView==="detail"&&projDetailId)return renderProjDetail(el);
   renderProjList(el);
 }
 
 function renderProjList(el){
-  var htm="",dayU=uName(4),hourU=uName(5);
+  var htm="",dayU=uName(4),weekU=uName(3);
+  var totalWorked=0,totalUnits=0;
+  projects.forEach(function(p){
+    totalWorked+=totalProjSec(p);
+    (p.sessions||[]).forEach(function(s){if(s.completed)totalUnits+=sessionWorkUnits(s);});
+  });
+  var activeProj=activeTimer?getProjById(activeTimer.projId):null;
+  htm+='<div class="proj-list-head">';
+  htm+='<div><div class="proj-list-title">Projects</div>';
+  htm+='<div class="proj-list-sub">'+projects.length+' project'+(projects.length===1?'':'s')+' / '+totalUnits.toString(16).toUpperCase()+' completed units / '+secToHexFrac(totalWorked)+' worked</div></div>';
+  if(activeProj){
+    htm+='<div class="project-badge active">Active: '+esc(activeProj.name)+' '+(activeTimer.paused?'paused':'running')+'</div>';
+  }else{
+    htm+='<button class="project-secondary" data-empty-create type="button">New project</button>';
+  }
+  htm+='</div>';
+
   if(projCreating){
-    htm+='<div class="proj-card no-click" style="border-color:var(--accD)">';
-    htm+='<div class="label" style="margin-bottom:6px">New project</div>';
-    htm+='<div style="display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap">';
-    htm+='<div style="flex:1;min-width:140px"><div class="label">name</div><input type="text" class="input" id="projNewName" placeholder="Project name..." style="font-size:13px;padding:7px 10px"></div>';
-    htm+='<div style="flex:0 0 80px"><div class="label">sprints (hex)</div><input type="text" class="input" id="projNewEst" value="4" style="font-size:13px;padding:7px 10px;text-align:center"></div>';
-    htm+='<div style="flex:0 0 80px"><div class="label">sessions</div><input type="number" class="input" id="projNewPace" value="1" min="1" max="256" style="font-size:13px;padding:7px 10px;text-align:center"></div>';
-    htm+='<div style="flex:0 0 50px;display:flex;align-items:flex-end"><button class="btn-sm" id="projPaceToggle" style="width:100%;text-align:center;padding:8px 0;font-size:10px">/ '+esc(dayU)+'</button></div>';
+    htm+='<div class="proj-card no-click project-create-card">';
+    htm+='<div class="label" style="margin-bottom:8px">New project</div>';
+    htm+='<div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">';
+    htm+='<div style="flex:1;min-width:180px"><div class="label">name</div><input type="text" class="input" id="projNewName" placeholder="Project name..." style="font-size:13px;padding:8px 10px"></div>';
+    htm+='<div style="flex:0 0 96px"><div class="label">size</div><input type="text" class="input" id="projNewEst" value="4" style="font-size:13px;padding:8px 10px;text-align:center"></div>';
+    htm+='<div style="flex:0 0 96px"><div class="label">units</div><input type="text" class="input" id="projNewPace" value="C" style="font-size:13px;padding:8px 10px;text-align:center"></div>';
+    htm+='<div style="flex:0 0 58px;display:flex;align-items:flex-end"><button class="btn-sm" id="projPaceToggle" style="width:100%;text-align:center;padding:8px 0;font-size:10px">/ '+esc(dayU)+'</button></div>';
     htm+='</div>';
-    htm+='<div id="projNewEta" style="font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:6px"></div>';
-    htm+='<div style="display:flex;gap:4px;align-items:center;margin-top:6px;flex-wrap:wrap">';
+    htm+='<div id="projNewEta" style="font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:8px"></div>';
+    htm+='<div style="display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap">';
     htm+='<div class="label" style="margin:0">color</div><div id="projNewColor" style="display:flex;gap:3px"></div>';
     htm+='<div style="flex:1"></div>';
     htm+='<button class="btn-dim" id="projCreateCancel" style="font-size:10px">Cancel</button>';
     htm+='<button class="btn" id="projCreateConfirm" style="font-size:10px">Create</button>';
     htm+='</div></div>';
   }
-  if(projects.length===0&&!projCreating){el.innerHTML='<div class="proj-empty">No projects yet.<br>Click <strong>+ New project</strong> to begin.</div>';return;}
+  if(projects.length===0&&!projCreating){
+    htm+='<div class="proj-empty">No projects yet.<br><button class="btn" data-empty-create type="button" style="margin-top:12px">Create first project</button></div>';
+    el.innerHTML=htm;
+    el.querySelectorAll("[data-empty-create]").forEach(function(btn){btn.onclick=function(){projCreating=true;renderProjects();};});
+    return;
+  }
 
   projects.forEach(function(proj){
     var worked=totalProjSec(proj),estSec=(proj.estDays||0)*86400;
+    var sessions=proj.sessions||[],doneUnits=0;
+    sessions.forEach(function(s){if(s.completed)doneUnits+=sessionWorkUnits(s);});
     var spIdx=getCurrentSprintIdx(proj),spSess=getSprintSessions(proj,spIdx),spDone=getSprintDone(spSess);
-    var isAct=activeTimer&&activeTimer.projId===proj.id,isPsd=isAct&&activeTimer.paused;
     var plannedSp=Math.max(Math.ceil(proj.estDays||1),getSprintCount(proj)||1);
+    var isAct=activeTimer&&activeTimer.projId===proj.id,isPsd=isAct&&activeTimer.paused;
+    var inc=getIncomplete(proj);
     var color=EC[proj.color%EC.length].b;
+    var frac=estSec>0?worked/estSec:0;
+    var pct=Math.max(0,Math.min(100,frac*100));
+    var pace=proj.pace||1;
+    var paceText=pace>=1?Math.round(pace).toString(16).toUpperCase()+'/'+dayU:Math.round(pace*16).toString(16).toUpperCase()+'/'+weekU;
+    var remSess=Math.max(0,Math.round(plannedSp*16)-sessions.length);
+    var remDays=pace>0?Math.ceil(remSess/pace):0;
+    var primaryLabel=inc?'Continue':'Start';
+    var primaryState="",sessionRemText="",sessionRemLabel="",sessionElapsed=0,sessionClockLive=false,sessionClockTarget=WORK_UNIT_SEC;
+    if(isAct){
+      var activeTarget=activeTargetSec();
+      var activeElapsed=timerElapsed(),activeRem=Math.max(0,activeTarget-activeElapsed);
+      sessionClockTarget=activeTarget;
+      sessionElapsed=activeElapsed;
+      sessionRemText=secToHexFrac(activeRem);
+      sessionRemLabel=isPsd?'paused remaining':'remaining now';
+      sessionClockLive=!isPsd&&activeRem>0;
+      if(activeRem<=0){primaryLabel='Complete';primaryState='done';}
+      else if(isPsd){primaryLabel='Resume';primaryState='paused';}
+      else{primaryLabel='Open timer';primaryState='running';}
+    }else if(activeTimer){
+      primaryLabel=inc?'Switch back':'Switch';
+      primaryState='switching';
+    }else if(inc){
+      primaryState='paused';
+    }
+    if(!isAct&&inc){
+      var savedRem=Math.max(0,sessionTargetSec(inc)-(inc.elapsed||0));
+      sessionClockTarget=sessionTargetSec(inc);
+      sessionElapsed=inc.elapsed||0;
+      sessionRemText=secToHexFrac(savedRem);
+      sessionRemLabel=activeTimer?'saved remaining':'remaining';
+    }
 
-    htm+='<div class="proj-card" data-pid="'+proj.id+'" draggable="true">';
-    htm+='<div class="proj-card-head">';
+    htm+='<div class="proj-card project-card" data-pid="'+proj.id+'" draggable="true">';
+    htm+='<div class="project-card-main">';
+    htm+='<div class="project-card-body">';
+    htm+='<div class="project-card-name-row">';
     htm+='<div class="proj-card-color" style="background:'+color+'"></div>';
-    htm+='<span class="proj-card-name">'+esc(proj.name)+'</span>';
+    htm+='<span class="project-card-name">'+esc(proj.name)+'</span>';
     if(isAct&&!isPsd)htm+='<span class="proj-running-indicator"></span>';
-    if(isPsd)htm+='<span style="font-family:var(--mono);font-size:8px;color:var(--dim);border:1px solid var(--bd);border-radius:3px;padding:1px 4px">paused</span>';
-    htm+='<div class="proj-card-actions" onclick="event.stopPropagation()">';
-    htm+='<button class="proj-card-act proj-edit-btn" data-pid="'+proj.id+'" title="Rename">\u270e</button>';
-    htm+='<button class="proj-card-act del proj-del-btn" data-pid="'+proj.id+'" title="Delete">\u2715</button>';
-    htm+='</div></div>';
-
-    // Sprint grid + big percentage side by side
-    htm+='<div style="display:flex;gap:12px;padding:6px 0 4px 18px;align-items:center">';
-    // Left: sprint rows
-    htm+='<div style="flex:1;min-width:0">';
-    htm+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">';
-    htm+='<span style="font-family:var(--mono);font-size:9px;color:var(--dim)">'+fmtHexCompact(worked/86400)+' / '+fmtHexCompact(proj.estDays||0)+'</span>';
-    htm+='<span style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-left:auto">'+fmtHexCompact(plannedSp)+' sprints</span>';
+    if(isPsd)htm+='<span class="project-badge">paused</span>';
     htm+='</div>';
-    for(var si=0;si<plannedSp;si++){
-      var sSess=getSprintSessions(proj,si),sDone=getSprintDone(sSess);
-      var isCur=si===spIdx&&(proj.sessions||[]).length>0;
-      var isFut=si>spIdx||(proj.sessions||[]).length===0;
-      htm+='<div style="display:flex;align-items:center;gap:3px;margin-bottom:1px'+(isFut?';opacity:0.3':'')+'">';
-      htm+='<span style="font-family:var(--mono);font-size:7px;color:'+(isCur?'var(--acc)':'var(--dim)')+';min-width:10px">'+H[si%16]+'</span>';
-      htm+='<div class="sprint-bar" style="height:6px;flex:1">';
-      for(var ci=0;ci<16;ci++){
-        var sc=sSess[ci];
-        var ccls=!sc?"empty":sc.completed?"done":(activeTimer&&activeTimer.sessId===sc.id)?"active":"empty";
-        htm+='<div class="sprint-cell '+ccls+'" style="height:6px"></div>';
-      }
-      htm+='</div>';
-      htm+='<span style="font-family:var(--mono);font-size:7px;color:'+(sDone>=16?'var(--acc)':'var(--dim)')+'">'+H[sDone]+'</span>';
-      htm+='</div>';
+    htm+='<div class="project-card-meta">';
+    htm+='<span><strong>'+secToHexFrac(worked)+'</strong> worked</span>';
+    htm+='<span><strong>'+doneUnits.toString(16).toUpperCase()+'</strong> units</span>';
+    htm+='<span>sprint <strong>'+H[spIdx%16]+'</strong> / '+H[Math.max(0,plannedSp-1)%16]+'</span>';
+    htm+='<span>pace <strong>'+esc(paceText)+'</strong></span>';
+    htm+='</div>';
+    htm+='<div class="project-progress-track"><div class="project-progress-fill" style="width:'+pct+'%;background:'+color+'"></div></div>';
+    htm+='<div class="project-session-strip">';
+    for(var ci=0;ci<16;ci++){
+      var sc=spSess[ci];
+      var ccls=!sc?'':sc.completed?' done':(activeTimer&&activeTimer.sessId===sc.id)?' active':'';
+      htm+='<div class="project-session-cell'+ccls+'"></div>';
     }
     htm+='</div>';
-    // Right: big hex percentage as XX.X%
-    if(estSec>0){
-      var frac=worked/estSec;
-      htm+='<div style="text-align:center;flex-shrink:0;min-width:80px">';
-      htm+='<div style="font-family:var(--mono);font-size:clamp(24px,4vw,36px);font-weight:700;color:#fff;line-height:1;letter-spacing:-0.02em">'+hexPctStr(frac)+'</div>';
-      var pace=proj.pace||1;
-      var remSess=Math.max(0,Math.round(plannedSp*16)-((proj.sessions||[]).length));
-      var remDays=pace>0?Math.ceil(remSess/pace):0;
-      if(remDays>0&&frac<1){
-        var eta=new Date();eta.setDate(eta.getDate()+remDays);
-        htm+='<div style="font-family:var(--mono);font-size:10px;color:var(--tx);margin-top:4px">'+eta.toISOString().slice(0,10)+'</div>';
-        htm+='<div style="font-family:var(--mono);font-size:8px;color:var(--dim);opacity:0.5">\u2248'+remDays+' civil days</div>';
-      }else if(frac>=1){
-        htm+='<div style="font-family:var(--mono);font-size:10px;color:var(--acc);margin-top:4px">\u2713 done</div>';
-      }
-      htm+='</div>';
-    }
-    htm+='</div></div>';
+    htm+='<div class="project-card-meta"><span>current sprint: '+H[spDone]+'/10 complete</span>';
+    if(remDays>0&&frac<1)htm+='<span>ETA '+remDays+' civil days</span>';
+    htm+='</div>';
+    htm+='</div>';
+    htm+='<div class="project-card-side" onclick="event.stopPropagation()">';
+    htm+='<div class="project-card-percent">'+(estSec>0?hexPctStr(frac):'--')+'</div>';
+    htm+='<div class="project-card-session'+(sessionRemText?'':' empty')+'">';
+    if(sessionRemText)htm+=miniClockHTML(sessionElapsed,sessionRemText,sessionRemLabel,sessionClockLive,sessionClockTarget);
+    htm+='</div>';
+    htm+='<div class="project-card-actions-panel">';
+    htm+='<button class="project-primary proj-start-btn'+(primaryState?' '+primaryState:'')+'" data-pid="'+proj.id+'" type="button">'+primaryLabel+'</button>';
+    htm+='<div class="project-card-mini-grid">';
+    htm+='<button class="project-secondary proj-open-btn" data-pid="'+proj.id+'" type="button">Open</button>';
+    htm+='<button class="project-secondary proj-plan-btn" data-pid="'+proj.id+'" type="button">Plan</button>';
+    htm+='<button class="proj-card-act proj-edit-btn" data-pid="'+proj.id+'" title="Rename" type="button">edit</button>';
+    htm+='<button class="proj-card-act del proj-del-btn" data-pid="'+proj.id+'" title="Delete" type="button">delete</button>';
+    htm+='</div>';
+    htm+='</div></div></div></div>';
   });
   el.innerHTML=htm;
 
@@ -2050,12 +2588,12 @@ function renderProjList(el){
       var estDays=parseHexEst(document.getElementById("projNewEst").value||"4");
       if(estDays<=0)estDays=4;
       var totalSess=Math.round(estDays*16);
-      var paceVal=parseInt(document.getElementById("projNewPace").value)||1;
+      var paceVal=parseSessCount(document.getElementById("projNewPace").value)||1;
       var dailyRate=paceUnit==="day"?paceVal:paceVal/16;
       var civilDays=dailyRate>0?Math.ceil(totalSess/dailyRate):999;
       var eta=new Date();eta.setDate(eta.getDate()+civilDays);
       var etaEl=document.getElementById("projNewEta");
-      if(etaEl)etaEl.innerHTML=fmtHexCompact(estDays)+' sprints \xb7 '+fmtHexCompact(totalSess/16)+' \xd7 10 = '+totalSess.toString(16).toUpperCase()+' sess \xb7 '+paceVal+'/'+esc(paceUnit==="day"?dayU:uName(3))+' \u2192 <span style="color:var(--tx)">'+eta.toISOString().slice(0,10)+'</span> <span style="opacity:0.5">(\u2248'+civilDays+' civil days)</span>';
+      if(etaEl)etaEl.innerHTML=fmtHexCompact(estDays)+' sprints \xb7 '+fmtHexCompact(totalSess/16)+' \xd7 10 = '+totalSess.toString(16).toUpperCase()+' units \xb7 '+paceVal.toString(16).toUpperCase()+'/'+esc(paceUnit==="day"?dayU:uName(3))+' \u2192 <span style="color:var(--tx)">'+eta.toISOString().slice(0,10)+'</span> <span style="opacity:0.5">(\u2248'+civilDays+' civil days)</span>';
     }
     updateCreateEta();
     document.getElementById("projNewEst").oninput=updateCreateEta;
@@ -2064,7 +2602,7 @@ function renderProjList(el){
       var name=document.getElementById("projNewName").value.trim()||"untitled";
       var estDays=parseHexEst(document.getElementById("projNewEst").value||"4");
       if(estDays<=0)estDays=4;
-      var paceVal=parseInt(document.getElementById("projNewPace").value)||1;
+      var paceVal=parseSessCount(document.getElementById("projNewPace").value)||1;
       var dailyRate=paceUnit==="day"?paceVal:paceVal/16;
       projects.unshift({id:genId(),name:name,color:nci,estDays:estDays,pace:dailyRate,sessions:[],created:Date.now()});
       // Auto-fill planner for 2 hex weeks from today (use fast fill for more)
@@ -2088,6 +2626,31 @@ function renderProjList(el){
     document.getElementById("projNewEst").onkeydown=function(e){if(e.key==="Enter")document.getElementById("projCreateConfirm").click();if(e.key==="Escape"){projCreating=false;renderProjects();}};
     document.getElementById("projNewPace").onkeydown=function(e){if(e.key==="Enter")document.getElementById("projCreateConfirm").click();if(e.key==="Escape"){projCreating=false;renderProjects();}};
   }
+  el.querySelectorAll("[data-empty-create]").forEach(function(btn){
+    btn.onclick=function(e){e.stopPropagation();projCreating=true;renderProjects();};
+  });
+  el.querySelectorAll(".proj-start-btn").forEach(function(btn){
+    btn.onclick=function(e){
+      e.stopPropagation();
+      var pid=btn.dataset.pid;
+      if(activeTimer&&activeTimer.projId===pid){
+        var rem=Math.max(0,activeTargetSec()-timerElapsed());
+        if(rem<=0){finishSession(false);return;}
+        if(activeTimer.paused){resumeSession();return;}
+        openSessionFocus();
+        return;
+      }
+      projView="detail";projDetailId=pid;renderProjects();
+      var p=getProjById(pid);
+      if(p&&getIncomplete(p))startOrContinue(pid);
+    };
+  });
+  el.querySelectorAll(".proj-open-btn").forEach(function(btn){
+    btn.onclick=function(e){e.stopPropagation();projView="detail";projDetailId=btn.dataset.pid;renderProjects();};
+  });
+  el.querySelectorAll(".proj-plan-btn").forEach(function(btn){
+    btn.onclick=function(e){e.stopPropagation();projView="planner";projDetailId=null;planBrush=btn.dataset.pid;renderProjects();};
+  });
   el.querySelectorAll(".proj-card[data-pid]").forEach(function(card){
     card.onclick=function(){projView="detail";projDetailId=card.dataset.pid;renderProjects();};
   });
@@ -2143,6 +2706,7 @@ function renderProjList(el){
       saveProjData();renderProjects();
     });
   });
+  startMiniClockRAF();
 }
 
 function renderProjPlanner(el){
@@ -2188,7 +2752,7 @@ function renderProjPlanner(el){
   htm+='<div class="proj-edit-field"><div class="label">project</div><select class="select" id="ffProj" style="font-size:11px;padding:4px 8px">';
   projects.forEach(function(p){htm+='<option value="'+p.id+'"'+(planBrush===p.id?' selected':'')+'>'+esc(p.name)+'</option>';});
   htm+='</select></div>';
-  htm+='<div class="proj-edit-field" style="flex:0 0 60px"><div class="label">sess/'+esc(dayU)+'</div><input type="number" class="input" id="ffCount" value="2" min="1" max="'+PLAN_HOURS.length+'" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
+  htm+='<div class="proj-edit-field" style="flex:0 0 60px"><div class="label">units/'+esc(dayU)+'</div><input type="text" class="input" id="ffCount" value="C" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
   htm+='<div class="proj-edit-field" style="flex:0 0 70px"><div class="label">from '+esc(dayU)+'</div><input type="text" class="input" id="ffFrom" value="'+fD(planWeekBase).replace(/^0+/,"")+'" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
   htm+='<div class="proj-edit-field" style="flex:0 0 70px"><div class="label">to '+esc(dayU)+'</div><input type="text" class="input" id="ffTo" value="'+fD(planWeekBase+15).replace(/^0+/,"")+'" style="font-size:11px;padding:4px 8px;text-align:center"></div>';
   htm+='<button class="btn" id="ffApply" style="font-size:10px;padding:5px 14px">Fill empty</button>';
@@ -2269,7 +2833,7 @@ function renderProjPlanner(el){
   for(var d=0;d<16;d++)htm+='<div></div>';
   htm+='</div>';
 
-  htm+='<div style="font-family:var(--mono);font-size:8px;color:var(--dim);opacity:0.5;text-align:center;margin-top:4px;flex-shrink:0">click # to edit time \xb7 click cell = pick project \xb7 drag = paint \xb7 '+nSlots+' sessions/day</div>';
+  htm+='<div style="font-family:var(--mono);font-size:8px;color:var(--dim);opacity:0.5;text-align:center;margin-top:4px;flex-shrink:0">click # to edit time \xb7 click cell = pick project \xb7 drag = paint \xb7 max '+nSlots.toString(16).toUpperCase()+' half-hour units/'+esc(dayU)+'</div>';
   htm+='</div>';// close flex column wrapper
 
   // Picker popup
@@ -2405,7 +2969,7 @@ function renderProjPlanner(el){
   // Smart fast fill: respects existing sessions + quota, carries over to next day
   document.getElementById("ffApply").onclick=function(){
     var pid=document.getElementById("ffProj").value;
-    var quota=parseInt(document.getElementById("ffCount").value)||2;
+    var quota=parseSessCount(document.getElementById("ffCount").value)||12;
     var fromD=parseInt(document.getElementById("ffFrom").value.trim(),16);
     var toD=parseInt(document.getElementById("ffTo").value.trim(),16);
     if(!pid||isNaN(fromD)||isNaN(toD)||fromD>toD)return;
@@ -2508,8 +3072,9 @@ function renderProjPlanner(el){
   // Add slot button
   document.getElementById("planAddSlot").onclick=function(){
     // Default: 1 hour after the last slot, or 8 if empty
-    var newHour=PLAN_HOURS.length>0?PLAN_HOURS[PLAN_HOURS.length-1]+1:8;
-    if(newHour>=16)newHour=15;
+    if(PLAN_HOURS.length>=16)return;
+    var newHour=PLAN_HOURS.length>0?PLAN_HOURS[PLAN_HOURS.length-1]+0.5:4;
+    if(newHour>=16)newHour=15.5;
     PLAN_HOURS.push(newHour);
     PLAN_HOURS.sort(function(a,b){return a-b;});
     savePlanHours();renderProjects();
@@ -2541,13 +3106,49 @@ function renderProjDetail(el){
     htm+='<div style="font-family:var(--mono);font-size:13px;color:var(--acc);font-weight:600;margin-bottom:8px;text-align:center">'+secToHexFrac(worked)+' <span style="font-size:9px;color:var(--dim)">worked \u2248'+secToCivil(worked)+'</span></div>';
   }
 
-  // Sprint plan — show ALL planned sprints
+  // Quick action panel
+  htm+='<div class="project-detail-action">';
+  if(isAct){
+    var qTarget=activeTargetSec(),qElapsed=timerElapsed(),qRem=Math.max(0,qTarget-qElapsed);
+    var qSlot=proj.sessions.indexOf(getSessById(proj,activeTimer.sessId))%16;
+    htm+='<div><div class="project-detail-action-title">Session '+H[qSlot]+' '+(isPsd?'paused':'running')+'</div>';
+    htm+='<div class="project-detail-action-sub">'+secToHexFrac(qRem)+' remaining / '+secToCivil(qElapsed)+' elapsed</div></div>';
+    htm+='<div class="project-card-actions-bar">';
+    if(isPsd)htm+='<button class="project-primary" id="projQuickResumeBtn" type="button">Resume</button>';
+    else htm+='<button class="project-secondary" id="projQuickPauseBtn" type="button">Pause</button>';
+    htm+='<button class="project-secondary projFocusClockBtn" type="button">Focus clock</button>';
+    htm+='<button class="project-primary" id="projQuickFinishBtn" type="button">'+(qRem<=0?'Complete session':'Save progress')+'</button>';
+    if(qRem>0)htm+='<button class="project-secondary" id="projQuickFastForwardBtn" type="button">Fast-forward</button>';
+    htm+='<button class="project-secondary" id="projQuickDiscardBtn" type="button" style="color:var(--err);border-color:rgba(228,106,106,0.3)">Discard</button>';
+    htm+='</div>';
+  }else if(activeTimer){
+    var qOther=getProjById(activeTimer.projId);
+    htm+='<div><div class="project-detail-action-title">Another session is active</div>';
+    htm+='<div class="project-detail-action-sub">'+esc(qOther?qOther.name:'another project')+'</div></div>';
+    htm+='<div class="project-card-actions-bar">';
+    if(!inc)htm+=workDurationSelectHTML();
+    htm+='<button class="project-primary" id="projQuickSwitchBtn" type="button">Switch to this project</button>';
+    if(qOther)htm+='<button class="project-secondary" id="projQuickOpenActiveBtn" type="button" data-pid="'+qOther.id+'">Open active project</button>';
+    htm+='</div>';
+  }else{
+    var qLabel=inc?'Continue session '+H[incSlot]:(spDone>=16?'Start next sprint':'Start session '+H[spSess.length]);
+    var qSub=inc?secToHexFrac(Math.max(0,sessionTargetSec(inc)-(inc.elapsed||0)))+' remaining':'Choose work duration below.';
+    htm+='<div><div class="project-detail-action-title">'+qLabel+'</div>';
+    htm+='<div class="project-detail-action-sub">'+qSub+'</div></div>';
+    if(!inc)htm+=workDurationSelectHTML();
+    htm+='<button class="project-primary" id="projQuickWorkBtn" type="button">'+qLabel+'</button>';
+    if(inc)htm+='<button class="project-secondary" id="projQuickCompleteSavedBtn" type="button">Complete now</button>';
+    else htm+='<button class="project-secondary" id="projQuickLogCompleteBtn" type="button">Log completed</button>';
+  }
+  htm+='</div>';
+
+  // Sprint plan - show ALL planned sprints
   var plannedSprints=Math.max(Math.ceil(proj.estDays||1),getSprintCount(proj)||1);
   htm+='<div class="sprint-plan">';
   htm+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">';
   htm+='<span style="font-family:var(--mono);font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:0.04em">Sprint plan</span>';
   htm+='<span style="font-family:var(--mono);font-size:10px;color:var(--acc);font-weight:600">'+fmtHexCompact(proj.estDays||plannedSprints)+' sprints</span>';
-  htm+='<span style="font-family:var(--mono);font-size:10px;color:var(--dim)">\xb7 '+((proj.pace||1)>=1?Math.round(proj.pace||1):((proj.pace||1)*16).toFixed(0)+'/'+esc(uName(3)))+' sess/'+esc(dayU)+'</span>';
+  htm+='<span style="font-family:var(--mono);font-size:10px;color:var(--dim)">\xb7 '+((proj.pace||1)>=1?Math.round(proj.pace||1).toString(16).toUpperCase():Math.round((proj.pace||1)*16).toString(16).toUpperCase()+'/'+esc(uName(3)))+' units/'+esc(dayU)+'</span>';
   htm+='<button class="proj-card-act" id="projEditToggle" style="margin-left:auto;font-size:9px" title="Edit project settings">\u270e settings</button>';
   htm+='</div>';
   // Collapsible edit section
@@ -2555,7 +3156,7 @@ function renderProjDetail(el){
   htm+='<div class="proj-edit-row">';
   htm+='<div class="proj-edit-field" style="flex:1;min-width:140px"><div class="label">name</div><input type="text" class="input" id="projEditName" value="'+esc(proj.name)+'" style="font-size:12px;padding:5px 8px"></div>';
   htm+='<div class="proj-edit-field" style="flex:0 0 70px"><div class="label">sprints (hex)</div><input type="text" class="input" id="projEditEst" value="'+fD(proj.estDays||1).replace(/^0+/,"")+'" style="font-size:12px;padding:5px 8px;text-align:center"></div>';
-  htm+='<div class="proj-edit-field" style="flex:0 0 80px"><div class="label">sess / '+esc(dayU)+'</div><input type="number" class="input" id="projEditPace" value="'+(proj.pace||1)+'" min="0.1" step="0.5" style="font-size:12px;padding:5px 8px;text-align:center"></div>';
+  htm+='<div class="proj-edit-field" style="flex:0 0 80px"><div class="label">units / '+esc(dayU)+'</div><input type="text" class="input" id="projEditPace" value="'+Math.round(proj.pace||1).toString(16).toUpperCase()+'" style="font-size:12px;padding:5px 8px;text-align:center"></div>';
   htm+='</div>';
   htm+='<div class="proj-edit-row" style="margin-top:6px">';
   htm+='<div class="proj-edit-field"><div class="label">color</div><div id="projEditColor" style="display:flex;gap:3px;flex-wrap:wrap"></div></div>';
@@ -2585,24 +3186,58 @@ function renderProjDetail(el){
     // Expandable session details
     htm+='<div class="sprint-detail'+(isCurrent?' open':'')+'" data-si="'+si+'">';
     if(ss.length>0){
-      for(var j=0;j<ss.length;j++){
-        var sess2=ss[j],sidx2=si*16+j;
-        var isThis2=activeTimer&&activeTimer.sessId===sess2.id;
+      var selRange=selectedUnitRange(proj.id);
+      htm+='<div class="sprint-merge-tools">';
+      if(selRange&&selRange.sprint===si)htm+='<button class="project-secondary merge-selected-units" type="button">Merge '+selRange.len+' selected rows</button>';
+      else htm+='<span>drag row labels to select neighboring rows; double-click summary text to edit</span>';
+      if(projUnitSelection.length)htm+='<button class="project-secondary clear-unit-selection" type="button">Clear selection</button>';
+      htm+='</div>';
+      htm+='<div class="proj-session-grid">';
+      var units=sprintUnits(proj,si),groups=projectSprintGroups(proj,si),groupStart={};
+      groups.forEach(function(g){groupStart[g.start||0]=g;});
+      for(var rowIdx=0;rowIdx<Math.min(32,units.length);rowIdx++){
+        var group=groupStart[rowIdx];
+        if(group){
+          var glen=Math.min(group.len||1,32-rowIdx),gLabel=workUnitLabel(rowIdx)+'-'+workUnitLabel(rowIdx+glen-1);
+          var groupState=projectGroupState(units,rowIdx,glen);
+          var groupSidx=groupSessionIndex(units,rowIdx,glen);
+          var gSel=true;for(var gu=0;gu<glen;gu++)if(!unitSelectionHas(proj.id,si,rowIdx+gu))gSel=false;
+          htm+='<div class="proj-unit-slice merged '+groupState+(gSel?' selected':'')+'" data-sprint="'+si+'" data-gidx="'+rowIdx+'" data-ulen="'+glen+'" style="grid-row:span '+glen+'" title="'+esc(gLabel)+'">';
+          htm+='<span class="proj-unit-slice-label">'+gLabel+'</span>';
+          htm+='<span class="proj-unit-slice-summary" contenteditable="false" spellcheck="false" data-sprint="'+si+'" data-pgstart="'+rowIdx+'" placeholder="merged summary...">'+esc(group.summary||'')+'</span>';
+          htm+='<span class="proj-unit-slice-actions"><button class="proj-summary-mode-btn split-unit-group" data-sprint="'+si+'" data-gstart="'+rowIdx+'" type="button">split</button>';
+          if(groupSidx!==null&&!(activeTimer&&activeTimer.sessId===units[rowIdx].sess.id))htm+='<button class="proj-session-del" data-sidx="'+groupSidx+'" title="Delete work block" type="button">\u2715</button>';
+          htm+='</span>';
+          htm+='</div>';
+          rowIdx+=glen-1;
+          continue;
+        }
+        var unit=units[rowIdx];if(!unit)continue;
+        var sess2=unit.sess,isThis2=activeTimer&&activeTimer.sessId===sess2.id;
         var dur2=isThis2?timerElapsed():(sess2.elapsed||0);
         var st2=isThis2?(activeTimer.paused?"paused":"running"):(sess2.completed?"done":"incomplete");
-        var sC2=st2==="done"?"var(--acc)":st2==="running"?"var(--blue)":st2==="paused"?"var(--dim)":"var(--err)";
-        htm+='<div class="proj-session">';
-        htm+='<div class="proj-session-row1">';
-        htm+='<span style="font-family:var(--mono);font-size:10px;color:var(--dim);font-weight:600;min-width:16px">'+H[j]+'</span>';
-        htm+='<span class="proj-session-hex">'+secToHexFrac(dur2)+'</span>';
-        htm+='<span style="color:var(--dim);font-size:9px">/ .1000</span>';
-        htm+='<span class="proj-session-status" style="color:'+sC2+';border:1px solid '+sC2+'">'+st2+'</span>';
-        htm+='<span style="flex:1"></span>';
-        if(!isThis2)htm+='<button class="proj-session-del" data-sidx="'+sidx2+'">\u2715</button>';
-        htm+='</div>';
-        htm+='<span class="proj-session-summary" contenteditable="true" spellcheck="false" data-sidx="'+sidx2+'" style="margin-left:22px" placeholder="session notes...">'+(sess2.summary?esc(sess2.summary):'')+'</span>';
+        var sessionUnits=sessionWorkUnits(sess2),sessionVisibleUnits=Math.min(sessionUnits,32-rowIdx);
+        if(unit.uidx===0&&sessionVisibleUnits>1&&!sess2.splitUnits&&!groupOverlaps(groups,rowIdx,sessionVisibleUnits)){
+          var blockLabel=workUnitLabel(rowIdx)+'-'+workUnitLabel(rowIdx+sessionVisibleUnits-1);
+          var blockSummary=sess2.summary||ensureUnitSummaries(sess2).filter(function(x){return String(x||"").trim();}).join(" / ");
+          var blockSel=true;for(var bu=0;bu<sessionVisibleUnits;bu++)if(!unitSelectionHas(proj.id,si,rowIdx+bu))blockSel=false;
+          htm+='<div class="proj-unit-slice merged '+st2+(blockSel?' selected':'')+'" data-sprint="'+si+'" data-gidx="'+rowIdx+'" data-sidx="'+unit.sidx+'" data-ulen="'+sessionVisibleUnits+'" style="grid-row:span '+sessionVisibleUnits+'" title="'+esc(blockLabel+' / '+secToHexFrac(dur2)+' of '+secToHexFrac(sessionTargetSec(sess2))+' '+st2)+'">';
+          htm+='<span class="proj-unit-slice-label">'+blockLabel+'</span>';
+          htm+='<span class="proj-unit-slice-summary" contenteditable="false" spellcheck="false" data-sidx="'+unit.sidx+'" data-sessionblock="1" placeholder="block summary...">'+esc(blockSummary)+'</span>';
+          htm+='<span class="proj-unit-slice-actions"><button class="proj-summary-mode-btn split-session-block" data-sidx="'+unit.sidx+'" type="button">split</button>';
+          if(!isThis2)htm+='<button class="proj-session-del" data-sidx="'+unit.sidx+'" title="Delete work block" type="button">\u2715</button>';
+          htm+='</span></div>';
+          rowIdx+=sessionVisibleUnits-1;
+          continue;
+        }
+        var partLabel=workUnitLabel(rowIdx);
+        htm+='<div class="proj-unit-slice '+st2+(unitSelectionHas(proj.id,si,rowIdx)?' selected':'')+'" data-sprint="'+si+'" data-gidx="'+rowIdx+'" data-sidx="'+unit.sidx+'" data-uidx="'+unit.uidx+'" data-ulen="1" style="grid-row:span 1" title="'+esc(partLabel+' / '+secToHexFrac(dur2)+' of '+secToHexFrac(sessionTargetSec(sess2))+' '+st2)+'">';
+        htm+='<span class="proj-unit-slice-label">'+partLabel+'</span>';
+        htm+='<span class="proj-unit-slice-summary" contenteditable="false" spellcheck="false" data-sidx="'+unit.sidx+'" data-uidx="'+unit.uidx+'" placeholder="summary...">'+(unit.summary?esc(unit.summary):'')+'</span>';
+        if(!isThis2)htm+='<span class="proj-unit-slice-actions"><button class="proj-session-del" data-sidx="'+unit.sidx+'" title="Delete work block" type="button">\u2715</button></span>';
         htm+='</div>';
       }
+      htm+='</div>';
     }
     htm+='</div>';
   }
@@ -2611,25 +3246,27 @@ function renderProjDetail(el){
   // Timer area
   htm+='<div class="proj-timer-wrap" style="margin-top:10px">';
   if(isAct){
-    var elapsed=timerElapsed(),rem=Math.max(0,HEX_HOUR-elapsed);
-    var tPct=Math.min(100,(elapsed/HEX_HOUR)*100);
+    var target=activeTargetSec(),elapsed=timerElapsed(),rem=Math.max(0,target-elapsed);
+    var tPct=Math.min(100,(elapsed/target)*100);
     var sessSlot=proj.sessions.indexOf(getSessById(proj,activeTimer.sessId))%16;
-    htm+='<div style="font-family:var(--mono);font-size:10px;color:var(--dim);text-align:center;margin-bottom:4px">Session '+H[sessSlot]+' of sprint '+H[spIdx%16]+(isPsd?' \u2014 paused':'')+'</div>';
+    htm+='<div style="font-family:var(--mono);font-size:10px;color:var(--dim);text-align:center;margin-bottom:4px">Session '+H[sessSlot]+' of sprint '+H[spIdx%16]+' / target '+workUnitsToHex(Math.round(target/WORK_UNIT_SEC))+' '+esc(hourU)+'s'+(isPsd?' \u2014 paused':'')+'</div>';
     htm+='<div style="display:flex;align-items:center;justify-content:center;gap:16px">';
     htm+='<svg id="sessClockSvg" viewBox="0 0 180 180" style="width:clamp(160px,25vw,220px);height:clamp(160px,25vw,220px);flex-shrink:0"></svg>';
     htm+='<div style="flex-shrink:0">';
     htm+='<div class="proj-hex-big'+(rem<=0?' done':'')+'" id="projTimerHex" style="text-align:left">'+hexFracHTML(rem)+'</div>';
     htm+='<div style="font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:2px" id="projTimerElHex">'+secToHexFrac(elapsed)+' worked</div>';
     htm+='</div></div>';
-    htm+='<div class="proj-timer-progress"><div class="proj-timer-progress-bar'+(elapsed>HEX_HOUR?" over":"")+'" id="projTimerProg" style="width:'+Math.min(100,tPct)+'%"></div></div>';
+    htm+='<div class="proj-timer-progress"><div class="proj-timer-progress-bar'+(elapsed>target?" over":"")+'" id="projTimerProg" style="width:'+Math.min(100,tPct)+'%"></div></div>';
     htm+='<div class="proj-civil-hint" id="projTimerCivil">\u2248'+secToCivil(rem)+' left \xb7 '+secToCivil(elapsed)+' elapsed</div>';
     htm+='<div class="proj-timer-btns">';
     if(isPsd)htm+='<button class="btn" id="projResumeBtn">Resume</button>';
     else htm+='<button class="btn-dim" id="projPauseBtn">Pause</button>';
+    htm+='<button class="btn-dim projFocusClockBtn" type="button">Focus clock</button>';
     if(rem<=0){
       htm+='<button class="btn" id="projFinishBtn" style="background:var(--acc);color:var(--bg)">\u2713 Complete session</button>';
     }else{
       htm+='<button class="btn-dim" id="projFinishBtn" style="font-size:10px">Stop early (save progress)</button>';
+      htm+='<button class="btn-dim" id="projFastForwardBtn" style="font-size:10px">Fast-forward</button>';
     }
     htm+='<button class="btn-dim" id="projDiscardBtn" style="color:var(--err);border-color:rgba(228,106,106,0.3);font-size:10px">Discard</button>';
     htm+='</div>';
@@ -2638,21 +3275,20 @@ function renderProjDetail(el){
     htm+='<div style="font-family:var(--mono);font-size:11px;color:var(--dim);text-align:center;padding:8px">Session active on <strong style="color:var(--tx)">'+(otherP?esc(otherP.name):'another project')+'</strong></div>';
   }else{
     if(inc){
-      var remSec=Math.max(0,HEX_HOUR-(inc.elapsed||0));
+      var remSec=Math.max(0,sessionTargetSec(inc)-(inc.elapsed||0));
       htm+='<div style="font-family:var(--mono);text-align:center">';
       htm+='<div style="font-size:11px;color:var(--dim);margin-bottom:4px">Session '+H[incSlot]+' incomplete \u2014 '+secToHexFrac(remSec)+' remaining</div>';
-      htm+='<div style="font-size:9px;color:var(--dim);opacity:0.5;margin-bottom:8px">\u2248'+secToCivil(remSec)+' left</div>';
-      htm+='<button class="btn" id="projWorkBtn" style="font-size:12px;padding:8px 20px">Continue session '+H[incSlot]+'</button>';
+      htm+='<div style="font-size:9px;color:var(--dim);opacity:0.5">\u2248'+secToCivil(remSec)+' left / use the controls above</div>';
       htm+='</div>';
     }else if(spDone>=16){
       htm+='<div style="font-family:var(--mono);text-align:center">';
-      htm+='<div style="font-size:12px;color:var(--acc);margin-bottom:6px">\u2713 Sprint '+H[spIdx%16]+' complete!</div>';
-      htm+='<button class="btn" id="projWorkBtn" style="font-size:12px;padding:8px 20px">Start sprint '+H[(spIdx+1)%16]+' \u2014 session 0</button>';
+      htm+='<div style="font-size:12px;color:var(--acc);margin-bottom:6px">\u2713 Sprint '+H[spIdx%16]+' complete</div>';
+      htm+='<div style="font-size:9px;color:var(--dim);opacity:0.5">Choose the next work duration above.</div>';
       htm+='</div>';
     }else{
       htm+='<div style="font-family:var(--mono);text-align:center">';
-      htm+='<div style="font-size:11px;color:var(--dim);margin-bottom:6px">Next: session '+H[spSess.length]+' of sprint '+H[spIdx%16]+' <span style="opacity:0.5">(.1000 = 1 '+esc(hourU)+')</span></div>';
-      htm+='<button class="btn" id="projWorkBtn" style="font-size:12px;padding:8px 20px">Start session '+H[spSess.length]+'</button>';
+      htm+='<div style="font-size:11px;color:var(--dim);margin-bottom:6px">Next: session '+H[spSess.length]+' of sprint '+H[spIdx%16]+'</div>';
+      htm+='<div style="font-size:9px;color:var(--dim);opacity:0.5">Choose duration and start above.</div>';
       htm+='</div>';
     }
   }
@@ -2687,7 +3323,7 @@ function renderProjDetail(el){
   document.getElementById("projEditSave").onclick=function(){
     var nm=document.getElementById("projEditName").value.trim();
     var est=parseInt(document.getElementById("projEditEst").value.trim(),16);
-    var pace=parseFloat(document.getElementById("projEditPace").value);
+    var pace=parseSessCount(document.getElementById("projEditPace").value);
     if(nm)proj.name=nm;
     if(!isNaN(est)&&est>0)proj.estDays=est;
     if(!isNaN(pace)&&pace>0)proj.pace=pace;
@@ -2698,6 +3334,38 @@ function renderProjDetail(el){
   document.getElementById("projEditName").onkeydown=function(e2){if(e2.key==="Enter")document.getElementById("projEditSave").click();if(e2.key==="Escape")document.getElementById("projEditSection").style.display="none";};
 
   document.getElementById("projBackBtn").onclick=function(){projView="list";projDetailId=null;renderProjects();};
+  bindWorkDurationControls(el);
+  var qWorkBtn=document.getElementById("projQuickWorkBtn");
+  if(qWorkBtn)qWorkBtn.onclick=function(){startOrContinue(proj.id);};
+  var qSwitchBtn=document.getElementById("projQuickSwitchBtn");
+  if(qSwitchBtn)qSwitchBtn.onclick=function(){startOrContinue(proj.id);projView="detail";projDetailId=proj.id;renderProjects();};
+  var qResumeBtn=document.getElementById("projQuickResumeBtn");
+  if(qResumeBtn)qResumeBtn.onclick=resumeSession;
+  var qPauseBtn=document.getElementById("projQuickPauseBtn");
+  if(qPauseBtn)qPauseBtn.onclick=pauseSession;
+  var qFinishBtn=document.getElementById("projQuickFinishBtn");
+  if(qFinishBtn)qFinishBtn.onclick=function(){finishSession(false);};
+  var qFastBtn=document.getElementById("projQuickFastForwardBtn");
+  if(qFastBtn)qFastBtn.onclick=function(){
+    inlineConfirm(qFastBtn.parentNode,"Skip ahead and complete this session?",fastForwardActiveSession);
+  };
+  var qCompleteSavedBtn=document.getElementById("projQuickCompleteSavedBtn");
+  if(qCompleteSavedBtn)qCompleteSavedBtn.onclick=function(){
+    inlineConfirm(qCompleteSavedBtn.parentNode,"Skip ahead and complete this saved session?",function(){completeSavedSession(proj.id);});
+  };
+  var qLogCompleteBtn=document.getElementById("projQuickLogCompleteBtn");
+  if(qLogCompleteBtn)qLogCompleteBtn.onclick=function(){
+    inlineConfirm(qLogCompleteBtn.parentNode,"Log this as a completed work block now?",function(){logCompletedSession(proj.id);});
+  };
+  var qDiscardBtn=document.getElementById("projQuickDiscardBtn");
+  if(qDiscardBtn)qDiscardBtn.onclick=function(){
+    inlineConfirm(qDiscardBtn.parentNode,"Discard this session?",function(){finishSession(true);});
+  };
+  var qOpenActiveBtn=document.getElementById("projQuickOpenActiveBtn");
+  if(qOpenActiveBtn)qOpenActiveBtn.onclick=function(){projView="detail";projDetailId=qOpenActiveBtn.dataset.pid;renderProjects();};
+  el.querySelectorAll(".projFocusClockBtn").forEach(function(btn){
+    btn.onclick=function(e){e.stopPropagation();openSessionFocus();};
+  });
   if(isAct){
     // Init session clock
     var scSvg=document.getElementById("sessClockSvg");
@@ -2708,19 +3376,181 @@ function renderProjDetail(el){
     if(document.getElementById("projPauseBtn"))document.getElementById("projPauseBtn").onclick=pauseSession;
     if(document.getElementById("projResumeBtn"))document.getElementById("projResumeBtn").onclick=resumeSession;
     document.getElementById("projFinishBtn").onclick=function(){finishSession(false);};
+    var ffBtn=document.getElementById("projFastForwardBtn");
+    if(ffBtn)ffBtn.onclick=function(){
+      inlineConfirm(ffBtn.parentNode,"Skip ahead and complete this session?",fastForwardActiveSession);
+    };
     document.getElementById("projDiscardBtn").onclick=function(){
       inlineConfirm(document.getElementById("projDiscardBtn").parentNode,"Discard this session?",function(){finishSession(true);});
     };
-  }else if(!activeTimer){
-    var wb=document.getElementById("projWorkBtn");
-    if(wb)wb.onclick=function(){startOrContinue(proj.id);};
   }
-  el.querySelectorAll(".proj-session-summary").forEach(function(sumEl){
-    sumEl.onblur=function(){var idx=parseInt(sumEl.dataset.sidx);if(proj.sessions[idx]!==undefined){proj.sessions[idx].summary=sumEl.textContent.trim();saveProjData();}};
+  el.querySelectorAll(".proj-session-summary,.proj-unit-slice-summary").forEach(function(sumEl){
+    sumEl.onblur=function(){
+      var idx=parseInt(sumEl.dataset.sidx),uidx=parseInt(sumEl.dataset.uidx);
+      if(sumEl.dataset.sessionblock==="1"&&proj.sessions[idx]!==undefined){
+        var blockSess=proj.sessions[idx];
+        blockSess.summaryMode="merged";
+        blockSess.summary=sumEl.textContent.trim();
+        sumEl.setAttribute("contenteditable","false");
+        saveProjData();
+      }else if(sumEl.dataset.pgstart!==undefined){
+        var sprint=parseInt(sumEl.dataset.sprint,10),gs=parseInt(sumEl.dataset.pgstart,10);
+        if(Array.isArray(proj.unitGroups)){
+          proj.unitGroups.forEach(function(g){if(g.sprint===sprint&&(g.start||0)===gs)g.summary=sumEl.textContent.trim();});
+        }
+        sumEl.setAttribute("contenteditable","false");
+        saveProjData();
+      }else if(proj.sessions[idx]!==undefined){
+        var sess=proj.sessions[idx],arr=ensureUnitSummaries(sess);
+        if(sumEl.dataset.merged==="1"){
+          sess.summaryMode="merged";
+          sess.summary=sumEl.textContent.trim();
+        }else if(sumEl.dataset.gstart!==undefined){
+          var gs=parseInt(sumEl.dataset.gstart,10);
+          if(Array.isArray(sess.unitGroups)){
+            sess.unitGroups.forEach(function(g){if((g.start||0)===gs)g.summary=sumEl.textContent.trim();});
+          }
+        }else if(!isNaN(uidx))arr[uidx]=sumEl.textContent.trim();
+        else sess.summary=sumEl.textContent.trim();
+        sumEl.setAttribute("contenteditable","false");
+        saveProjData();
+      }
+    };
     sumEl.onkeydown=function(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sumEl.blur();}};
+    sumEl.ondblclick=function(e){e.stopPropagation();sumEl.setAttribute("contenteditable","true");sumEl.focus();};
+  });
+  el.querySelectorAll(".proj-summary-mode-btn").forEach(function(btn){
+    btn.onclick=function(e){
+      e.stopPropagation();
+      if(btn.classList.contains("split-session-block"))splitSessionBlock(proj,parseInt(btn.dataset.sidx,10));
+      else if(btn.classList.contains("split-unit-group"))splitUnitGroup(proj,parseInt(btn.dataset.sprint,10),parseInt(btn.dataset.gstart,10));
+      else toggleSessionSummaryMode(proj,parseInt(btn.dataset.sidx,10));
+    };
+  });
+  var rowDrag=null;
+  function sliceAllSelected(slice){
+    var sprint=parseInt(slice.dataset.sprint,10),start=parseInt(slice.dataset.gidx,10),len=parseInt(slice.dataset.ulen,10)||1;
+    for(var i=0;i<len;i++)if(!unitSelectionHas(proj.id,sprint,start+i))return false;
+    return true;
+  }
+  function markSliceSelection(slice,on){
+    var sprint=parseInt(slice.dataset.sprint,10),start=parseInt(slice.dataset.gidx,10),len=parseInt(slice.dataset.ulen,10)||1;
+    setUnitSelectionRange(proj.id,sprint,start,len,on);
+    slice.classList.toggle("selected",on);
+  }
+  function finishRowDrag(){
+    if(!rowDrag)return;
+    rowDrag=null;
+    renderProjects();
+  }
+  el.querySelectorAll(".proj-unit-slice").forEach(function(slice){
+    slice.onpointerdown=function(e){
+      if((e.button!==undefined&&e.button!==0)||e.target.closest("button")||e.target.closest(".proj-unit-slice-summary"))return;
+      e.preventDefault();
+      rowDrag={on:!sliceAllSelected(slice)};
+      markSliceSelection(slice,rowDrag.on);
+      document.addEventListener("pointerup",finishRowDrag,{once:true});
+    };
+    slice.onpointerenter=function(){
+      if(!rowDrag)return;
+      markSliceSelection(slice,rowDrag.on);
+    };
+  });
+  el.querySelectorAll(".merge-selected-units").forEach(function(btn){
+    btn.onclick=function(e){e.stopPropagation();mergeSelectedUnits(proj);};
+  });
+  el.querySelectorAll(".clear-unit-selection").forEach(function(btn){
+    btn.onclick=function(e){e.stopPropagation();projUnitSelection=[];renderProjects();};
   });
   el.querySelectorAll(".proj-session-del").forEach(function(btn){
-    btn.onclick=function(){proj.sessions.splice(parseInt(btn.dataset.sidx),1);saveProjData();renderProjects();};
+    btn.onclick=function(e){
+      e.stopPropagation();
+      var box=btn.closest(".sprint-detail")||btn.parentNode;
+      inlineConfirm(box,"Delete this work block?",function(){
+        proj.sessions.splice(parseInt(btn.dataset.sidx),1);saveProjData();renderProjects();
+      });
+    };
+  });
+}
+
+function renderProjJournal(el){
+  var days={};
+  projects.forEach(function(proj){
+    (proj.sessions||[]).forEach(function(sess,idx){
+      if(!sess.completed)return;
+      var date=localDateKey(sess.date||Date.now());
+      var units=sessionWorkUnits(sess);
+      if(!days[date])days[date]={units:0,items:[],byProj:{}};
+      days[date].units+=units;
+      days[date].items.push({proj:proj,sess:sess,idx:idx,units:units});
+      if(!days[date].byProj[proj.id])days[date].byProj[proj.id]={proj:proj,units:0};
+      days[date].byProj[proj.id].units+=units;
+    });
+  });
+  var keys=Object.keys(days).sort().reverse();
+  if(!keys.length){el.innerHTML='<div class="proj-empty">No completed work units yet.<br>Complete a work block to start the journal.</div>';return;}
+  var htm='';
+  keys.forEach(function(date,dayIdx){
+    var day=days[date],civil=secToCivil(day.units*WORK_UNIT_SEC);
+    htm+='<div class="journal-row">';
+    htm+='<div>';
+    htm+='<div class="journal-date-main">'+date+'</div>';
+    htm+='<div class="journal-date-sub"><strong>'+day.units.toString(16).toUpperCase()+'</strong> units / approx '+esc(civil)+'</div>';
+    htm+='</div>';
+    htm+='<div>';
+    htm+='<div class="journal-lane">';
+    day.items.sort(function(a,b){return (a.sess.date||0)-(b.sess.date||0);});
+    var shown=0,extraItems=[];
+    day.items.forEach(function(item){
+      var color=EC[item.proj.color%EC.length].b;
+      for(var u=0;u<item.units;u++){
+        var note=sessionUnitSummary(item.sess,u);
+        var title=item.proj.name+' - 0.8 unit '+(u+1).toString(16).toUpperCase()+'/'+item.units.toString(16).toUpperCase();
+        if(note)title+='\n'+note;
+        if(shown>=16){
+          extraItems.push({proj:item.proj,idx:item.idx,uidx:u,color:color,title:title});
+          continue;
+        }
+        htm+='<div class="journal-block" data-pid="'+item.proj.id+'" data-sidx="'+item.idx+'" data-uidx="'+u+'" style="background:'+color+'" title="'+esc(title)+'"></div>';
+        shown++;
+      }
+    });
+    if(extraItems.length>0){
+      htm+='<div class="journal-block journal-overflow-block" data-overflow="'+dayIdx+'" data-count="'+extraItems.length+'" title="'+esc(extraItems.length+' extra work unit'+(extraItems.length!==1?'s':''))+'">+'+extraItems.length+'</div>';
+    }
+    htm+='</div>';
+    if(extraItems.length>0){
+      htm+='<div class="journal-overflow-menu" data-overflow-menu="'+dayIdx+'">';
+      extraItems.forEach(function(item){
+        htm+='<div class="journal-block" data-pid="'+item.proj.id+'" data-sidx="'+item.idx+'" data-uidx="'+item.uidx+'" style="background:'+item.color+'" title="'+esc(item.title)+'"></div>';
+      });
+      htm+='</div>';
+    }
+    htm+='<div class="journal-legend">';
+    Object.keys(day.byProj).sort(function(a,b){
+      return day.byProj[b].units-day.byProj[a].units;
+    }).forEach(function(pid){
+      var x=day.byProj[pid],color=EC[x.proj.color%EC.length].b;
+      htm+='<span class="journal-chip"><span class="journal-dot" style="background:'+color+'"></span>'+esc(x.proj.name)+' '+x.units.toString(16).toUpperCase()+'</span>';
+    });
+    htm+='</div>';
+    htm+='</div>';
+    htm+='</div>';
+  });
+  el.innerHTML=htm;
+  el.querySelectorAll(".journal-block").forEach(function(block){
+    block.onclick=function(){
+      if(block.dataset.overflow!==undefined){
+        var menu=el.querySelector('.journal-overflow-menu[data-overflow-menu="'+block.dataset.overflow+'"]');
+        if(menu){
+          var isOpen=menu.classList.toggle("open");
+          block.classList.toggle("open",isOpen);
+          block.textContent=isOpen?"-":"+"+block.dataset.count;
+        }
+        return;
+      }
+      projView="detail";projDetailId=block.dataset.pid;renderProjects();
+    };
   });
 }
 
@@ -2778,10 +3608,10 @@ function renderProjStats(el){
 
   // Summary cards
   htm+='<div class="proj-stat-grid">';
-  htm+='<div class="proj-stat-card"><div class="proj-stat-label">Total worked</div><div class="proj-stat-val">'+secToHexFrac(totalAll)+'</div><div class="proj-stat-sub">'+totalDone+' sessions done \xb7 \u2248'+secToCivil(totalAll)+'</div></div>';
+  htm+='<div class="proj-stat-card"><div class="proj-stat-label">Total worked</div><div class="proj-stat-val">'+secToHexFrac(totalAll)+'</div><div class="proj-stat-sub">'+totalDone.toString(16).toUpperCase()+' work blocks done \xb7 \u2248'+secToCivil(totalAll)+'</div></div>';
   htm+='<div class="proj-stat-card"><div class="proj-stat-label">Streak</div><div class="proj-stat-val">'+streak+' <span style="font-size:12px;color:var(--dim)">'+esc(dayU)+'s</span></div></div>';
-  htm+='<div class="proj-stat-card"><div class="proj-stat-label">Avg / '+esc(weekU)+'</div><div class="proj-stat-val">'+avgPerWeek.toFixed(1)+'</div><div class="proj-stat-sub">sessions per 10 '+esc(dayU)+'s</div></div>';
-  htm+='<div class="proj-stat-card"><div class="proj-stat-label">Today</div><div class="proj-stat-val">'+todaySessions.length+'</div><div class="proj-stat-sub">sessions \xb7 '+secToHexFrac(todayTotal)+'</div></div>';
+  htm+='<div class="proj-stat-card"><div class="proj-stat-label">Avg / '+esc(weekU)+'</div><div class="proj-stat-val">'+avgPerWeek.toFixed(1)+'</div><div class="proj-stat-sub">work blocks per 10 '+esc(dayU)+'s</div></div>';
+  htm+='<div class="proj-stat-card"><div class="proj-stat-label">Today</div><div class="proj-stat-val">'+todaySessions.length.toString(16).toUpperCase()+'</div><div class="proj-stat-sub">work blocks \xb7 '+secToHexFrac(todayTotal)+'</div></div>';
   htm+='</div>';
 
   // Today breakdown by project
