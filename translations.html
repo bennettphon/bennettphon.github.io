@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Translations - Bennett Hon</title>
+  <link rel="icon" href="puonx.png" type="image/png">
+
+  <style>
+    :root{--bg:#fff;--fg:#000;--line:#ccc;--accent:#8d163b}
+    body.dark{--bg:#121212;--fg:#f0f0f0;--line:#343434;--accent:#ff8daf}
+
+    body{margin:0;font-family:sans-serif;background:var(--bg);color:var(--fg)}
+    .top-bar{
+      position:fixed;top:0;left:0;right:0;height:50px;
+      background:var(--bg);border-bottom:1px solid var(--line);
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 20px;z-index:1000;box-sizing:border-box;
+    }
+    .top-left,.top-right{display:flex;align-items:center}
+    .top-link{
+      padding:6px 12px;border:1px solid var(--fg);border-radius:4px;
+      color:var(--fg);text-decoration:none;font-size:0.9rem;margin-right:10px;
+    }
+    .top-link:hover{background:rgba(0,0,0,0.06);text-decoration:none}
+    body.dark .top-link:hover{background:rgba(255,255,255,0.08)}
+    .top-link.active{font-weight:600}
+    .top-bar button{
+      height:32px;padding:0 12px;border:1px solid var(--fg);
+      background:none;color:var(--fg);border-radius:4px;cursor:pointer;
+    }
+    #mode-btn{font-size:1.3rem}
+
+    main{
+      min-height:100vh;padding:90px 24px 48px;
+      box-sizing:border-box;display:flex;justify-content:center;
+    }
+    .visually-hidden{
+      position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+    }
+    .translation-list{
+      width:min(560px,100%);
+      border-top:1px solid var(--line);
+      font-size:1.15rem;
+    }
+    .translation-row{
+      display:grid;grid-template-columns:minmax(8em,1fr) minmax(9em,1fr);
+      gap:24px;align-items:center;
+      padding:18px 0;border-bottom:1px solid var(--line);
+      scroll-margin-top:74px;
+    }
+    .translation-row.is-header{
+      padding-top:0;color:var(--accent);font-size:0.9rem;
+      font-weight:700;letter-spacing:0;
+    }
+    .translation-row.is-header .han,
+    .translation-row.is-header .ipa{
+      font-family:"DFKai-SB","KaiTi","PMingLiU","MingLiU",serif;
+      font-size:1rem;
+    }
+    .translation-row:target{
+      color:var(--accent);
+    }
+    .han{
+      font-family:"DFKai-SB","KaiTi","PMingLiU","MingLiU",serif;
+      font-size:1.45rem;
+    }
+    .ipa{
+      font-family:"Charis","Charis SIL","Doulos SIL","Times New Roman",serif;
+      font-size:1.05rem;
+    }
+    @media(max-width:560px){
+      .top-bar{position:sticky;top:0;padding:0 12px}
+      .top-link{margin-right:6px;padding-inline:9px}
+      main{padding:18px 20px 40px}
+      .translation-row{grid-template-columns:1fr;gap:6px;padding:16px 0}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="top-bar">
+    <div class="top-left">
+      <a href="blog.html#post" class="top-link">Return</a>
+    </div>
+    <div class="top-right">
+      <a href="index.html" class="top-link">Home</a>
+      <a href="blog.html" class="top-link">Blog</a>
+      <button id="mode-btn" aria-label="Toggle dark mode">☯</button>
+    </div>
+  </div>
+
+  <main>
+    <h1 class="visually-hidden">Translations</h1>
+    <section class="translation-list" aria-label="Chinese and IPA">
+      <div class="translation-row is-header" aria-hidden="true">
+        <span class="han" lang="zh-Hant">譯名</span>
+        <span class="ipa">周音</span>
+      </div>
+      <div class="translation-row" id="xiyu" tabindex="-1">
+        <span class="han" lang="zh-Hant">希預</span>
+        <span class="ipa">[hel.las]</span>
+      </div>
+      <div class="translation-row" id="socrates" tabindex="-1">
+        <span class="han" lang="zh-Hant">須賈帝</span>
+        <span class="ipa">[so.krá.tes]</span>
+      </div>
+      <div class="translation-row" id="platon" tabindex="-1">
+        <span class="han" lang="zh-Hant">不予端</span>
+        <span class="ipa">[pə.lá.ton]</span>
+      </div>
+      <div class="translation-row" id="aristoteles" tabindex="-1">
+        <span class="han" lang="zh-Hant">於利朱紙遞</span>
+        <span class="ipa">[a.ris.to.té.les]</span>
+      </div>
+    </section>
+  </main>
+
+  <script>
+  (function(){
+    const body = document.body;
+    const btn = document.getElementById('mode-btn');
+    const saved = localStorage.getItem('prefers-dark');
+    if (saved === 'yes' || saved === null){ body.classList.add('dark'); }
+    btn.addEventListener('click', () => {
+      body.classList.toggle('dark');
+      localStorage.setItem('prefers-dark',
+        body.classList.contains('dark') ? 'yes' : 'no');
+    });
+  })();
+  </script>
+</body>
+</html>

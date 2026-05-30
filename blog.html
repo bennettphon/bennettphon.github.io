@@ -81,7 +81,7 @@
 
     .han-name{font-family:"DFKai-SB","KaiTi","楷体",serif}
     .han-name.is-ipa{
-      font-family:'Segoe UI','Arial','Helvetica','Charis SIL','Doulos SIL',sans-serif;
+      font-family:"Charis","Charis SIL","Doulos SIL","Times New Roman",serif;
       font-size:0.9em;
     }
 
@@ -236,6 +236,13 @@
       font-size:1.08rem;line-height:39px;letter-spacing:0;color:#1e160b;
     }
     .hanwen-post p{margin:0 0 0 15px;max-height:100%}
+    .hanwen-name-link{
+      color:#8d163b;text-decoration:none;font-weight:700;
+      text-underline-offset:4px;
+    }
+    .hanwen-name-link:hover,
+    .hanwen-name-link:focus{text-decoration:underline;color:#5f0d27}
+    .hanwen-name-link:focus-visible{outline:2px solid #5f0d27;outline-offset:2px}
 
     @keyframes fadeInPost{
       from{opacity:0;transform:translateY(-4px)}
@@ -335,7 +342,7 @@
         <button type="button" class="book-back" data-hanwen-target="titles" aria-label="Return to titles">↪</button>
         <div class="hanwen-post-panel">
           <article class="hanwen-post" lang="zh-Hant">
-            <p>昔孟子之時，西極希預之地有大賢三世相承：須賈帝傳不予端，不予端傳於利朱紙遞，肇格物致知之緒，今丘子猶亟稱之。</p>
+            <p>昔孟子之時，西極<a class="hanwen-name-link" href="translations.html#xiyu">希預</a>之地有大賢三世相承：<a class="hanwen-name-link" href="translations.html#socrates">須賈帝</a>傳<a class="hanwen-name-link" href="translations.html#platon">不予端</a>，<a class="hanwen-name-link" href="translations.html#platon">不予端</a>傳<a class="hanwen-name-link" href="translations.html#aristoteles">於利朱紙遞</a>，肇格物致知之緒，今丘子猶亟稱之。</p>
           </article>
         </div>
       </div>
@@ -381,6 +388,13 @@
       });
     }
 
+    function showPostFromHash(){
+      if (window.location.hash !== '#post') return;
+      document.body.classList.add('show-zh');
+      localStorage.setItem('blog-language-mode', 'zh');
+      showScreen('post');
+    }
+
     buttons.forEach((button) => {
       button.addEventListener('click', () => showScreen(button.dataset.hanwenTarget));
     });
@@ -397,6 +411,9 @@
         showScreen('post');
       });
     });
+
+    showPostFromHash();
+    window.addEventListener('hashchange', showPostFromHash);
   })();
   </script>
 
