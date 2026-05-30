@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -315,7 +315,7 @@
       </details>
     </section>
 
-    <section class="hanwen-library" aria-label="漢文書冊">
+    <section class="hanwen-library" lang="zh-Hant" aria-label="漢文書冊">
       <div class="hanwen-screen is-active" data-hanwen-screen="book">
         <button type="button" class="book-cover" data-hanwen-target="titles">
           <span class="book-title-label">
@@ -388,7 +388,6 @@
     englishPostLinks.forEach((button) => {
       button.addEventListener('click', () => {
         document.body.classList.add('show-zh');
-        document.documentElement.lang = 'zh-Hant';
         localStorage.setItem('blog-language-mode', 'zh');
         const languageToggle = document.getElementById('language-toggle');
         if (languageToggle) {
@@ -410,7 +409,6 @@
     function applyLanguage(language){
       const useChinese = language !== 'en';
       body.classList.toggle('show-zh', useChinese);
-      document.documentElement.lang = useChinese ? 'zh-Hant' : 'en';
       btn.textContent = useChinese ? 'A' : '文';
       btn.setAttribute('aria-label', useChinese ? 'Switch to English' : 'Switch to Hanwen');
       localStorage.setItem(LS_KEY, useChinese ? 'zh' : 'en');
