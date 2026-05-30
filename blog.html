@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blog - Bennett Hon</title>
+  <link rel="icon" href="puonx.png" type="image/png">
+
+  <style>
+    :root{--bg:#fff;--fg:#000}
+    body.dark{--bg:#121212;--fg:#f0f0f0}
+
+    body{margin:0;display:flex;font-family:sans-serif;background:var(--bg);color:var(--fg)}
+    .top-bar{
+      position:fixed;top:0;left:0;right:0;height:50px;
+      background:var(--bg);border-bottom:1px solid #ccc;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 20px;z-index:1000;box-sizing:border-box;
+    }
+    .top-left,.top-right{display:flex;align-items:center}
+    .top-bar button{
+      height:32px;padding:0 12px;border:1px solid var(--fg);
+      background:none;color:var(--fg);border-radius:4px;cursor:pointer;
+    }
+    #mode-btn{font-size:1.3rem}
+    #language-toggle{min-width:36px;font-size:1rem;font-weight:600}
+
+    .top-link{
+      padding:6px 12px;border:1px solid var(--fg);border-radius:4px;
+      color:var(--fg);text-decoration:none;font-size:0.9rem;margin-right:10px;
+    }
+    .top-link:hover{background:rgba(0,0,0,0.06);text-decoration:none}
+    body.dark .top-link:hover{background:rgba(255,255,255,0.08)}
+    .top-link.active{font-weight:600}
+    .top-link.is-hidden{opacity:0;border-color:transparent;cursor:default}
+    .top-link.is-hidden:hover{background:none}
+
+    .left-panel{
+      position:fixed;top:50px;left:0;width:24%;
+      height:calc(100% - 50px);
+      padding:20px;box-sizing:border-box;
+      border-right:1px solid #ccc;background:var(--bg);
+      display:flex;flex-direction:column;justify-content:space-between;
+      text-align:center;
+    }
+
+    .main-content{
+      margin:50px 0 0 24%;
+      width:76%;
+      height:calc(100vh - 50px);
+      padding:20px;box-sizing:border-box;overflow-y:auto;
+    }
+
+    @media(max-width:768px){
+      body{flex-direction:column}
+      .top-bar{position:sticky;top:0;padding:0 12px}
+      .top-link{margin-right:6px;padding-inline:9px}
+      .top-link.is-hidden{display:none}
+      .top-bar button{padding-inline:9px}
+      .left-panel{
+        position:static;width:100%;height:auto;
+        border-right:none;border-bottom:1px solid #ccc;
+      }
+      .main-content{margin:0;width:100%;height:auto;padding:20px}
+    }
+
+    .globe-wrapper iframe,
+    .globe-wrapper canvas{
+      width:120px !important;height:120px !important;
+      display:block;margin:0 auto;
+    }
+    .globe-wrapper{width:120px;margin-inline:auto}
+
+    .mobile-sep{
+      border:none;border-top:1px solid #ccc;margin:30px auto;width:80%;display:none;
+    }
+    @media(max-width:768px){.mobile-sep{display:block}}
+
+    .github-icon{filter:invert(1) brightness(1.8)}
+    body.dark .github-icon{filter:none}
+
+    .han-name{font-family:"DFKai-SB","KaiTi","楷体",serif}
+    .han-name.is-ipa{
+      font-family:'Segoe UI','Arial','Helvetica','Charis SIL','Doulos SIL',sans-serif;
+      font-size:0.9em;
+    }
+
+    .social-icon{width:20px;height:20px;margin:0 6px;vertical-align:middle}
+    .left-panel h2{font-size:1.15rem}
+    .left-panel p{font-size:0.95rem}
+
+    a{color:#3fb5ff;text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .ipa-toggle{
+      cursor:pointer;font-size:0.65rem;color:var(--fg);margin-left:6px;
+      padding:2px 6px;border:1px solid #888;border-radius:4px;
+      background:none;vertical-align:middle;
+    }
+    .ipa-toggle[aria-pressed="true"]{border-color:#3fb5ff;color:#3fb5ff}
+
+    .visually-hidden{
+      position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+      overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;
+    }
+    .hanwen-library{display:none}
+    body.show-zh .english-archive{display:none}
+    body.show-zh .hanwen-library{display:block}
+
+    .english-archive{
+      max-width:360px;
+      padding-top:2px;
+      font-size:1rem;
+      line-height:1.55;
+    }
+    .english-month{margin:0}
+    .english-month > summary{
+      cursor:pointer;list-style:none;color:#0a6f9f;
+      width:max-content;max-width:100%;
+    }
+    .english-month > summary::-webkit-details-marker{display:none}
+    .english-month > summary:hover{text-decoration:underline}
+    body.dark .english-month > summary{color:#3fb5ff}
+    .english-link{
+      display:block;width:max-content;max-width:100%;
+      margin:3px 0 8px 18px;padding:0;border:none;background:none;
+      color:var(--fg);font:inherit;font-size:0.95rem;text-align:left;
+      cursor:pointer;
+    }
+    .english-link:hover{text-decoration:underline}
+
+    body.show-zh .main-content{
+      display:flex;justify-content:flex-end;align-items:flex-start;
+      overflow:hidden;
+    }
+    .hanwen-library{
+      width:100%;height:100%;
+      overflow-x:auto;overflow-y:hidden;padding-bottom:18px;
+      font-family:"DFKai-SB","KaiTi","PMingLiU","MingLiU",serif;
+    }
+    .hanwen-screen{display:none;justify-content:flex-end;align-items:flex-start;gap:18px}
+    .hanwen-screen.is-active{display:flex;animation:fadeInPost 180ms ease-out}
+    .book-cover{
+      position:relative;
+      width:230px;height:310px;border:1px solid #131c26;border-radius:3px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,0.08),rgba(255,255,255,0) 18%,rgba(0,0,0,0.18) 100%),
+        radial-gradient(circle at 16% 20%,rgba(255,255,255,0.08) 0 1px,transparent 2px),
+        radial-gradient(circle at 62% 74%,rgba(255,255,255,0.06) 0 1px,transparent 2px),
+        #263444;
+      color:#1c1208;
+      box-shadow:0 16px 32px rgba(0,0,0,0.3);
+      padding:0;cursor:pointer;overflow:hidden;
+    }
+    .book-cover:hover{border-color:#3fb5ff}
+    .book-cover::before{
+      content:"";
+      z-index:1;
+      position:absolute;top:0;bottom:0;left:22px;width:22px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,0.12),rgba(0,0,0,0.2)),
+        #1d2a38;
+      border-left:1px solid rgba(255,255,255,0.28);
+      border-right:1px solid rgba(0,0,0,0.4);
+      pointer-events:none;
+    }
+    .book-cover::after{
+      content:"";
+      z-index:2;
+      position:absolute;left:8px;top:0;bottom:0;width:28px;
+      background:
+        linear-gradient(#d7d2c8 0 0) 7px 28px/14px 2px no-repeat,
+        linear-gradient(#d7d2c8 0 0) 7px 82px/14px 2px no-repeat,
+        linear-gradient(#d7d2c8 0 0) 7px 136px/14px 2px no-repeat,
+        linear-gradient(#d7d2c8 0 0) 7px 190px/14px 2px no-repeat,
+        linear-gradient(#d7d2c8 0 0) 7px 244px/14px 2px no-repeat,
+        linear-gradient(#efe8d9 0 0) 13px 0/2px 100% no-repeat;
+      pointer-events:none;
+    }
+    .book-title-label{
+      position:absolute;z-index:3;right:30px;top:20px;width:76px;height:270px;
+      background:#f6f0df;border:1px solid #b9ad97;
+      box-shadow:inset 0 0 0 4px #fffaf0,0 3px 8px rgba(0,0,0,0.24);
+      display:flex;align-items:center;justify-content:center;
+      padding:12px 8px;box-sizing:border-box;
+      font-family:"DFKai-SB","KaiTi","PMingLiU","MingLiU",serif;
+      color:#111;
+    }
+    .book-label-text{
+      writing-mode:vertical-rl;text-orientation:upright;
+      font-size:1.32rem;line-height:1;font-weight:500;letter-spacing:0;
+      white-space:nowrap;
+    }
+    .book-back{
+      width:34px;min-width:34px;height:34px;border:1px solid #7d4822;border-radius:5px;
+      background:#d7a256;color:#1c1208;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      font-family:"DFKai-SB","KaiTi","PMingLiU","MingLiU",serif;
+      font-size:1.15rem;line-height:1;
+      box-shadow:0 6px 14px rgba(0,0,0,0.18);
+    }
+    .book-back:hover{border-color:#3fb5ff}
+    .title-slips{
+      display:flex;flex-direction:row-reverse;align-items:flex-start;gap:10px;
+      min-height:360px;
+    }
+    .title-slip{
+      width:44px;min-width:44px;min-height:330px;border:1px solid #8f6232;border-radius:5px;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,0.22),rgba(255,255,255,0) 45%,rgba(74,38,10,0.15)),
+        repeating-linear-gradient(90deg,#c89349 0,#c89349 4px,#e5bd74 5px,#e5bd74 36px,#a86726 37px,#e5bd74 39px);
+      color:#1e160b;cursor:pointer;
+      writing-mode:vertical-rl;text-orientation:mixed;
+      display:flex;align-items:center;justify-content:flex-start;
+      padding:18px 8px;box-sizing:border-box;
+      font-family:"DFKai-SB","KaiTi","PMingLiU","MingLiU",serif;
+      font-size:1.08rem;line-height:1.4;
+      box-shadow:0 8px 18px rgba(0,0,0,0.2);
+    }
+    .title-slip:hover{border-color:#3fb5ff}
+    .hanwen-post-panel{
+      height:calc(100vh - 112px);min-height:360px;max-height:680px;
+      padding:20px 40px 20px 28px;border:1px solid #8f6232;border-radius:8px;
+      box-sizing:border-box;
+      background:
+        linear-gradient(90deg,rgba(255,255,255,0.25),rgba(255,255,255,0) 34%,rgba(58,30,8,0.16)),
+        repeating-linear-gradient(90deg,#9e6a2f 0,#9e6a2f 4px,#edc879 5px,#edc879 36px,#c88f42 37px,#edc879 39px);
+      box-shadow:0 12px 28px rgba(0,0,0,0.24);
+      animation:unrollBamboo 520ms cubic-bezier(.2,.75,.2,1);
+      transform-origin:right center;
+    }
+    .hanwen-post{
+      writing-mode:vertical-rl;text-orientation:mixed;
+      max-width:none;height:100%;margin-left:auto;
+      font-family:"DFKai-SB","KaiTi","PMingLiU","MingLiU",serif;
+      font-size:1.08rem;line-height:39px;letter-spacing:0;color:#1e160b;
+    }
+    .hanwen-post p{margin:0 0 0 15px;max-height:100%}
+
+    @keyframes fadeInPost{
+      from{opacity:0;transform:translateY(-4px)}
+      to{opacity:1;transform:none}
+    }
+    @keyframes unrollBamboo{
+      from{opacity:0;clip-path:inset(0 0 0 100%);transform:translateX(28px) scaleX(.72)}
+      70%{opacity:1;clip-path:inset(0 0 0 0);transform:translateX(0) scaleX(1.02)}
+      to{opacity:1;clip-path:inset(0 0 0 0);transform:none}
+    }
+
+    @media(max-width:768px){
+      .book-cover{width:210px;height:290px}
+      .book-title-label{right:24px;top:20px;width:70px;height:250px}
+      .book-label-text{font-size:1.18rem}
+      .title-slips{gap:8px}
+      .title-slip{width:38px;min-width:38px;min-height:300px;padding:16px 7px}
+      .hanwen-post-panel{height:calc(100vh - 90px);min-height:340px;padding:18px;overflow-x:auto}
+      .hanwen-post{height:100%;font-size:1rem}
+    }
+  </style>
+</head>
+
+<body class="show-zh">
+  <div class="top-bar">
+    <div class="top-left">
+      <button id="language-toggle" aria-label="Switch to English">A</button>
+    </div>
+    <div class="top-right">
+      <a href="resources.html" class="top-link is-hidden" aria-hidden="true" tabindex="-1">Resources</a>
+      <a href="index.html" class="top-link">Home</a>
+      <a href="blog.html" class="top-link active">Blog</a>
+      <button id="mode-btn" aria-label="Toggle dark mode">☯</button>
+    </div>
+  </div>
+
+  <div class="left-panel">
+    <div>
+      <img src="profilepic.jpg" alt="Bennett Hon"
+           style="width:140px;height:140px;object-fit:cover;border-radius:50%;
+                  border:4px solid #fff;box-shadow:0 0 6px rgba(0,0,0,.2);margin-bottom:15px;">
+
+      <h2 style="margin:0;">
+        Bennett Hon |
+        <span id="han-name" class="han-name">韓本一</span>
+        <button type="button" id="ipa-toggle" class="ipa-toggle" aria-pressed="false" onclick="toggleIPA()">IPA</button>
+      </h2>
+
+      <p style="font-size:1.05em;color:gray;">University of Ottawa</p>
+      <p style="margin-top:15px;">STM636, STEM Complex<br>✉ bhon{at}uottawa{dot}ca</p>
+
+      <div style="margin-top:15px;">
+        <a href="https://github.com/bennettphon" target="_blank">
+          <img src="github-light.png" class="github-icon social-icon" alt="GitHub">
+        </a>
+        <a href="https://www.linkedin.com/in/bennett-hon/" target="_blank">
+          <img src="linkedin-icon.png" class="social-icon" alt="LinkedIn">
+        </a>
+      </div>
+    </div>
+
+    <div id="globe-wrapper" class="globe-wrapper">
+      <script id="clstr_globe" type="text/javascript"
+        src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0"></script>
+    </div>
+  </div>
+
+  <main class="main-content">
+    <h1 class="visually-hidden">Blog</h1>
+
+    <section class="english-archive" aria-label="Blog archive">
+      <details class="english-month">
+        <summary>2026-05 (1)</summary>
+        <button type="button" class="english-link" data-open-hanwen-post>
+          <time datetime="2026-05-30">2026-05-30</time> Aristotle
+        </button>
+      </details>
+    </section>
+
+    <section class="hanwen-library" aria-label="漢文書冊">
+      <div class="hanwen-screen is-active" data-hanwen-screen="book">
+        <button type="button" class="book-cover" data-hanwen-target="titles">
+          <span class="book-title-label">
+            <span class="book-label-text">仁壽一四二六年（丙午）</span>
+          </span>
+        </button>
+      </div>
+
+      <div class="hanwen-screen" data-hanwen-screen="titles">
+        <button type="button" class="book-back" data-hanwen-target="book" aria-label="Return to book">↪</button>
+        <div class="title-slips">
+          <button type="button" class="title-slip" data-hanwen-target="post">四月十四日　於利朱紙遞</button>
+        </div>
+      </div>
+
+      <div class="hanwen-screen" data-hanwen-screen="post">
+        <button type="button" class="book-back" data-hanwen-target="titles" aria-label="Return to titles">↪</button>
+        <div class="hanwen-post-panel">
+          <article class="hanwen-post" lang="zh-Hant">
+            <p>昔孟子之時，西極希預之地有大賢三世相承：須賈帝傳不予端，不予端傳於利朱紙遞，肇格物致知之緒，今丘子猶亟稱之。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <hr class="mobile-sep">
+  <div id="globe-mobile-placeholder"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.innerWidth <= 768) {
+        const globe = document.getElementById('globe-wrapper');
+        const target = document.getElementById('globe-mobile-placeholder');
+        if (globe && target) target.appendChild(globe);
+      }
+    });
+  </script>
+
+  <script>
+  (function(){
+    const body = document.body;
+    const btn = document.getElementById('mode-btn');
+    const saved = localStorage.getItem('prefers-dark');
+    if (saved === 'yes' || saved === null){ body.classList.add('dark'); }
+    btn.addEventListener('click', () => {
+      body.classList.toggle('dark');
+      localStorage.setItem('prefers-dark',
+        body.classList.contains('dark') ? 'yes' : 'no');
+    });
+  })();
+  </script>
+
+  <script>
+  (function(){
+    const screens = document.querySelectorAll('[data-hanwen-screen]');
+    const buttons = document.querySelectorAll('[data-hanwen-target]');
+    const englishPostLinks = document.querySelectorAll('[data-open-hanwen-post]');
+
+    function showScreen(name){
+      screens.forEach((screen) => {
+        screen.classList.toggle('is-active', screen.dataset.hanwenScreen === name);
+      });
+    }
+
+    buttons.forEach((button) => {
+      button.addEventListener('click', () => showScreen(button.dataset.hanwenTarget));
+    });
+
+    englishPostLinks.forEach((button) => {
+      button.addEventListener('click', () => {
+        document.body.classList.add('show-zh');
+        document.documentElement.lang = 'zh-Hant';
+        localStorage.setItem('blog-language-mode', 'zh');
+        const languageToggle = document.getElementById('language-toggle');
+        if (languageToggle) {
+          languageToggle.textContent = 'A';
+          languageToggle.setAttribute('aria-label', 'Switch to English');
+        }
+        showScreen('post');
+      });
+    });
+  })();
+  </script>
+
+  <script>
+  (function(){
+    const body = document.body;
+    const btn = document.getElementById('language-toggle');
+    const LS_KEY = 'blog-language-mode';
+
+    function applyLanguage(language){
+      const useChinese = language !== 'en';
+      body.classList.toggle('show-zh', useChinese);
+      document.documentElement.lang = useChinese ? 'zh-Hant' : 'en';
+      btn.textContent = useChinese ? 'A' : '文';
+      btn.setAttribute('aria-label', useChinese ? 'Switch to English' : 'Switch to Hanwen');
+      localStorage.setItem(LS_KEY, useChinese ? 'zh' : 'en');
+    }
+
+    applyLanguage(localStorage.getItem(LS_KEY) === 'en' ? 'en' : 'zh');
+
+    btn.addEventListener('click', () => {
+      applyLanguage(body.classList.contains('show-zh') ? 'en' : 'zh');
+    });
+  })();
+  </script>
+
+  <script>
+    function toggleIPA(){
+      const name = document.getElementById('han-name');
+      const btn = document.getElementById('ipa-toggle');
+      const showingIPA = btn.getAttribute('aria-pressed') === 'true';
+
+      name.textContent = showingIPA ? '韓本一' : '[ɦɑn pʷənʔiɪt̚]';
+      name.classList.toggle('is-ipa', !showingIPA);
+      btn.setAttribute('aria-pressed', String(!showingIPA));
+    }
+  </script>
+</body>
+</html>

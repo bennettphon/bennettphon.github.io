@@ -40,6 +40,7 @@
     @media(max-width:768px){
       body{flex-direction:column}
       .top-bar{position:sticky;top:0}
+      .top-link.is-hidden{display:none}
       .left-panel{position:static;width:100%;height:auto;border-right:none;border-bottom:1px solid #ccc}
       .main-content{margin:0;width:100%;height:auto;padding:20px;box-sizing:border-box}
     }
@@ -133,6 +134,12 @@
     .top-link:hover {
       background: rgba(0,0,0,0.06);
     }
+    body.dark .top-link:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    .top-link.active {
+      font-weight: 600;
+    }
     .top-link.is-hidden {
       opacity: 0;
       border-color: transparent;
@@ -141,7 +148,6 @@
     .top-link.is-hidden:hover {
       background: none;
     }
-
     .games-grid{display:flex;gap:14px;margin-top:16px;flex-wrap:wrap}
     .game-card{
       flex:1 1 0;min-width:160px;
@@ -267,6 +273,7 @@
   <div class="top-bar">
     <a href="resources.html" class="top-link is-hidden" aria-hidden="true" tabindex="-1">Resources</a>
     <a href="index.html" class="top-link active">Home</a>
+    <a href="blog.html" class="top-link">Blog</a>
     <button id="mode-btn" aria-label="Toggle dark mode" style="font-size:1.3rem">☯</button>
   </div>
 
@@ -449,7 +456,7 @@
     });
   })();
   </script>
-  
+
   <script>
     function toggleIPA() {
       const name = document.getElementById('han-name');

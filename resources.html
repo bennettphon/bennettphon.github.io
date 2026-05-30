@@ -32,7 +32,6 @@
     .top-link.active{font-weight:600;}
     .top-link.is-hidden{opacity:0;border-color:transparent;cursor:default}
     .top-link.is-hidden:hover{background:none}
-
     .left-panel{
       position:fixed;top:50px;left:0;width:24%;
       height:calc(100% - 50px);
@@ -52,6 +51,7 @@
     @media(max-width:768px){
       body{flex-direction:column}
       .top-bar{position:sticky;top:0}
+      .top-link.is-hidden{display:none}
       .left-panel{
         position:static;width:100%;height:auto;
         border-right:none;border-bottom:1px solid #ccc;
@@ -122,6 +122,7 @@
   <div class="top-bar">
     <a href="resources.html" class="top-link active is-hidden" aria-hidden="true" tabindex="-1">Resources</a>
     <a href="index.html" class="top-link">Home</a>
+    <a href="blog.html" class="top-link">Blog</a>
     <button id="mode-btn" aria-label="Toggle dark mode">☯</button>
   </div>
 
