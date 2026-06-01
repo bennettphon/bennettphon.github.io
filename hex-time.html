@@ -2178,6 +2178,7 @@ function updateTimerUI(){
 var _favCanvas=document.createElement("canvas");_favCanvas.width=32;_favCanvas.height=32;
 var _favCtx=_favCanvas.getContext("2d");
 var _favLastUpdate=0;
+var HEX_SECOND_MS=86400000/65536;
 
 function updateTabInfo(){
   if(!activeTimer){updateIdleTab();return;}
@@ -2209,6 +2210,18 @@ function updateIdleTab(){
   _favLastUpdate=now;
   // Idle favicon uses time-of-day
   drawClockFavicon("idle",st.fs||0);
+}
+
+function refreshIdleStamp(){
+  var s=gS();
+  if(!s.a)return HEX_SECOND_MS;
+  var now=new Date(),c=gCT(now,s.o),rawHD=computeHD(c.y,c.mo,c.d,s.a.y,s.a.m,s.a.d);
+  var r=aDS(rawHD,c.h,c.m,c.s,c.ms,s.dss);
+  st.hd=r.hd;st.fs=r.fs;st.fi=r.fi;st.stamp=fD(r.hd)+"."+fF(r.fi);
+  var nextFrac=(r.fi+1)/65536;
+  var delay=(nextFrac-r.fs)*86400000;
+  if(!isFinite(delay)||delay<0)delay=HEX_SECOND_MS;
+  return Math.max(20,Math.min(HEX_SECOND_MS+40,delay+12));
 }
 
 function drawClockFavicon(mode,frac){
@@ -2274,35 +2287,48 @@ function drawClockFavicon(mode,frac){
 }
 // =================== END TAB TITLE + FAVICON ===================
 
-// Background tab updater — Web Worker bypasses browser throttling
+// Background tab updater. Use hex-boundary scheduling so the inactive tab
+// title does not beat against a fixed one-second timer.
 (function(){
+  function hiddenUpdate(){
+    if(activeTimer){
+      updateTabInfo();
+      return 250;
+    }
+    var delay=refreshIdleStamp();
+    updateIdleTab();
+    return delay;
+  }
   try{
-    var blob=new Blob(['setInterval(function(){postMessage(1);},1000);'],{type:'application/javascript'});
+    var blob=new Blob(['var t=null;function s(ms){clearTimeout(t);t=setTimeout(function(){postMessage(1);},Math.max(20,ms||250));}onmessage=function(e){s(e.data||250);};s(250);'],{type:'application/javascript'});
     var worker=new Worker(URL.createObjectURL(blob));
     worker.onmessage=function(){
+      var delay=1000;
       if(document.hidden){
-        // Recalculate time for idle mode since rAF tick() is paused
-        if(!activeTimer){
-          var s=gS();
-          if(s.a){
-            var now=new Date(),c=gCT(now,s.o),rawHD=computeHD(c.y,c.mo,c.d,s.a.y,s.a.m,s.a.d);
-            var r=aDS(rawHD,c.h,c.m,c.s,c.ms,s.dss);
-            st.hd=r.hd;st.fs=r.fs;st.fi=r.fi;st.stamp=fD(r.hd)+"."+fF(r.fi);
-          }
-          updateIdleTab();
-        }else{
-          updateTabInfo();
-        }
+        delay=hiddenUpdate();
       }
+      worker.postMessage(delay);
     };
+    document.addEventListener("visibilitychange",function(){
+      if(document.hidden){_favLastUpdate=0;worker.postMessage(hiddenUpdate());}
+    });
   }catch(e){
-    // Fallback: plain setInterval (throttled in background but better than nothing)
-    setInterval(function(){
+    // Fallback: regular timer, still scheduled to the next hex boundary.
+    var fallbackTimer=null;
+    function scheduleFallback(ms){
+      clearTimeout(fallbackTimer);
+      fallbackTimer=setTimeout(function(){
+        var delay=document.hidden?hiddenUpdate():1000;
+        scheduleFallback(delay);
+      },Math.max(20,ms||250));
+    }
+    scheduleFallback(250);
+    document.addEventListener("visibilitychange",function(){
       if(document.hidden){
-        if(activeTimer)updateTabInfo();
-        else updateIdleTab();
+        _favLastUpdate=0;
+        scheduleFallback(hiddenUpdate());
       }
-    },1000);
+    });
   }
 })();
 
