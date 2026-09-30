@@ -1,0 +1,17 @@
+# Temporary site pause started 2026-09-29.
+# Revert the maintenance commit to restore the original site.
+exclude:
+  - "README.md"
+  - "backend"
+  - "blog.html"
+  - "chsh.html"
+  - "frlg_living_dex_tracker.html"
+  - "github-light.png"
+  - "hex-time.html"
+  - "isomorphism.html"
+  - "lattice.html"
+  - "linkedin-icon.png"
+  - "profilepic.jpg"
+  - "puonx.png"
+  - "resources.html"
+  - "translations.html"
