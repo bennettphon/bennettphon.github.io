@@ -15,3 +15,6 @@ exclude:
   - "puonx.png"
   - "resources.html"
   - "translations.html"
+
+include:
+  - ".well-known"
