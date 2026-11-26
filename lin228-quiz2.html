@@ -41,6 +41,31 @@
     a{color:var(--blue);text-decoration:none}
     a:hover{text-decoration:underline}
     .wrap{width:min(100%,880px);margin:0 auto}
+
+    /* ---------- left panel (jump to a part of the page) ---------- */
+    html{scroll-behavior:smooth}
+    @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+    .side{position:sticky;top:8px;z-index:30;margin:0 0 16px;padding:5px;background:#fff;border-radius:12px;box-shadow:0 8px 22px rgba(0,12,40,.3)}
+    .side-head{display:none}
+    .side-list{list-style:none;margin:0;padding:0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+    .side-list::-webkit-scrollbar{display:none}
+    .side-link{display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:9px;color:var(--ink);font:600 .86rem/1.2 Inter,sans-serif;white-space:nowrap;transition:background .15s,color .15s}
+    .side-link:hover{background:var(--tile-hover);text-decoration:none}
+    .side-link:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+    .side-link .ico{flex:none;min-width:1.5em;text-align:center;font:700 1.05rem/1 var(--ipa);color:var(--blue)}
+    .side-link.on{background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff}
+    .side-link.on .ico{color:#fff}
+    /* where a jump lands: clear of the sticky bar */
+    #generator,#consonants,#vowels,#recent{scroll-margin-top:76px}
+    @media (min-width:1100px){
+      .wrap.layout{width:min(100%,1084px);display:grid;grid-template-columns:180px minmax(0,880px);grid-template-areas:". head" "side main";column-gap:24px;align-items:start}
+      .head{grid-area:head}
+      .main{grid-area:main;min-width:0}
+      .side{grid-area:side;top:24px;margin:0;padding:12px 8px 8px;border-radius:14px}
+      .side-head{display:block;padding:0 10px 8px;font:600 .64rem/1 Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
+      .side-list{flex-direction:column;gap:2px;overflow:visible}
+      #generator,#consonants,#vowels,#recent{scroll-margin-top:24px}
+    }
     .back{display:inline-block;margin:0 0 14px;color:#4fb3f0;font-size:.9rem}
     h1{margin:0 0 4px;font:600 1.9rem/1.2 Lora,Georgia,serif;color:#fff}
     h1 .note{display:inline-block;vertical-align:middle;margin-left:6px;padding:4px 11px;background:#e5383b;border-radius:999px;
@@ -185,8 +210,7 @@
     .legend .k-dim{color:#c6ced9}
     body.sec-razak .leg-dim{visibility:hidden}
     .chart-hint{margin:0 0 14px;font-size:.82rem;color:var(--muted)}
-    .chart-title{margin:18px 0 8px;font:600 .95rem/1.4 Lora,Georgia,serif}
-    .chart-title:first-of-type{margin-top:6px}
+    #vowels .chart-top{margin-bottom:14px}
 
     .ph{
       border:0;background:none;cursor:pointer;padding:1px 3px;border-radius:6px;
@@ -249,12 +273,26 @@
   </style>
 </head>
 <body class="sec-razak">
-  <div class="wrap">
-    <a class="back" href="index.html#games">← Back to Linguistics Games</a>
-    <h1>LIN228 · Phonetics Quiz 2 <span class="note">No audio yet! Hopefully it will be added by Nov 27.</span></h1>
-    <p class="lede">CVCVCV words: 2 English + 4 non-English sounds, random stress.</p>
+  <div class="wrap layout">
+    <header class="head">
+      <a class="back" href="index.html#games">← Back to Linguistics Games</a>
+      <h1>LIN228 · Phonetics Quiz 2 <span class="note">No audio yet! Hopefully it will be added by Nov 27.</span></h1>
+      <p class="lede">CVCVCV words: 2 English + 4 non-English sounds, random stress.</p>
+    </header>
 
-    <section class="card" aria-labelledby="gen-title">
+    <!-- left panel on wide screens, a sticky bar on narrow ones -->
+    <nav class="side" aria-label="On this page">
+      <span class="side-head">On this page</span>
+      <ul class="side-list" id="side-list">
+        <li><a class="side-link" href="#generator"><span class="ico" aria-hidden="true">[ ]</span>Word generator</a></li>
+        <li><a class="side-link" href="#consonants"><span class="ico" aria-hidden="true">p</span>Consonants</a></li>
+        <li><a class="side-link" href="#vowels"><span class="ico" aria-hidden="true">ə</span>Vowels</a></li>
+        <li><a class="side-link" href="#recent"><span class="ico" aria-hidden="true">↺</span>Recent words</a></li>
+      </ul>
+    </nav>
+
+    <main class="main">
+    <section class="card" id="generator" aria-labelledby="gen-title">
       <div class="panel-title" id="gen-title">Word generator</div>
       <div class="card-body">
         <div class="settings">
@@ -308,27 +346,40 @@
       </div>
     </section>
 
-    <section class="card" id="charts" aria-labelledby="chart-title">
-      <div class="panel-title" id="chart-title">Sounds in play</div>
+    <section class="card chart-card" id="consonants" aria-labelledby="cons-title">
+      <div class="panel-title" id="cons-title">Consonants</div>
       <div class="card-body">
         <div class="chart-top">
           <button type="button" class="toggle sec-toggle" data-sec-toggle>
             <span class="t-lab">Section</span><span class="stack"><span class="opt on" data-opt="razak"><b>Razak</b> <small>full</small></span><span class="opt" data-opt="nicole"><b>Nicole</b> <small>subset</small></span></span><span class="swap" aria-hidden="true">⇄</span>
           </button>
           <!-- fixed contents (only visibility changes), so switching sections never reflows the layout -->
-          <div class="legend" id="legend">
+          <div class="legend">
             <span><i class="k-eng">a</i>English (both sections)</span>
             <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="razak">Razak&rsquo;s section</span><span class="opt" data-opt="nicole">Nicole&rsquo;s section</span></span></span>
             <span class="leg-dim"><i class="k-dim">a</i>Only in Razak&rsquo;s list</span>
           </div>
         </div>
         <p class="chart-hint">Tap sounds to practise them (as many as you like); tap again to drop one.</p>
-
-        <h2 class="chart-title">Consonants</h2>
         <div class="table-scroll"><table class="cons" id="cons-table"></table></div>
         <div class="other" id="cons-other"></div>
+      </div>
+    </section>
 
-        <h2 class="chart-title">Vowels</h2>
+    <section class="card chart-card" id="vowels" aria-labelledby="vow-title">
+      <div class="panel-title" id="vow-title">Vowels</div>
+      <div class="card-body">
+        <div class="chart-top">
+          <button type="button" class="toggle sec-toggle" data-sec-toggle>
+            <span class="t-lab">Section</span><span class="stack"><span class="opt on" data-opt="razak"><b>Razak</b> <small>full</small></span><span class="opt" data-opt="nicole"><b>Nicole</b> <small>subset</small></span></span><span class="swap" aria-hidden="true">⇄</span>
+          </button>
+          <!-- fixed contents (only visibility changes), so switching sections never reflows the layout -->
+          <div class="legend">
+            <span><i class="k-eng">a</i>English (both sections)</span>
+            <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="razak">Razak&rsquo;s section</span><span class="opt" data-opt="nicole">Nicole&rsquo;s section</span></span></span>
+            <span class="leg-dim"><i class="k-dim">a</i>Only in Razak&rsquo;s list</span>
+          </div>
+        </div>
         <div class="vowel-wrap">
           <div class="vchart" id="vchart">
             <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -345,13 +396,14 @@
       </div>
     </section>
 
-    <section class="card" aria-labelledby="hist-title">
+    <section class="card" id="recent" aria-labelledby="hist-title">
       <div class="panel-title" id="hist-title">Recent words</div>
       <div class="card-body">
         <ul class="history" id="history"></ul>
         <p class="empty" id="history-empty">Words you generate will collect here.</p>
       </div>
     </section>
+    </main>
   </div>
 
   <script>
@@ -566,7 +618,7 @@
     var bubble = null, bubbleTimer = null;
     function showSound(sym){
       $('sym-info').innerHTML = '<b>' + sym + '</b> ' + nameOf(sym);
-      var target = $('charts').querySelector('.ph[data-ph="' + CSS.escape(sym) + '"]');
+      var target = document.querySelector('.chart-card .ph[data-ph="' + CSS.escape(sym) + '"]');
       if (!target) return;
       target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
       Array.prototype.forEach.call(document.querySelectorAll('.ph.flash'), function(b){ b.classList.remove('flash'); });
@@ -703,7 +755,7 @@
       var sec = SECTIONS[state.section];
       document.body.classList.toggle('sec-razak', state.section === 'razak');
       document.body.classList.toggle('sec-nicole', state.section === 'nicole');
-      showOption($('legend'), state.section);
+      Array.prototype.forEach.call(document.querySelectorAll('.legend'), function(l){ showOption(l, state.section); });
       drawPhones();
     }
 
@@ -833,6 +885,44 @@
     drawSection();
     drawPractice();
     newWord();
+
+    /* ===================== left panel: highlight the part of the page you're looking at ===================== */
+    (function(){
+      var list = $('side-list'), links = Array.prototype.slice.call(list.querySelectorAll('.side-link'));
+      var targets = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); });
+      var current = -1, ticking = false, held = false;
+      function mark(i){
+        if (i === current) return;
+        current = i;
+        links.forEach(function(a, j){
+          a.classList.toggle('on', j === i);
+          if (j === i) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current');
+        });
+        /* on the narrow bar, keep the highlighted link in view (sideways only, never moves the page) */
+        var a = links[i], left = a.offsetLeft - list.offsetLeft, right = left + a.offsetWidth;
+        if (left < list.scrollLeft) list.scrollLeft = left - 6;
+        else if (right > list.scrollLeft + list.clientWidth) list.scrollLeft = right - list.clientWidth + 6;
+      }
+      function spy(){
+        ticking = false;
+        if (held) return;
+        /* the card taking up the most of the screen */
+        var cur = 0, best = -1;
+        targets.forEach(function(t, i){
+          var r = t.getBoundingClientRect(), seen = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
+          if (seen > best + 1) { best = seen; cur = i; }
+        });
+        mark(cur);
+      }
+      addEventListener('scroll', function(){ if (!ticking) { ticking = true; requestAnimationFrame(spy); } }, {passive: true});
+      /* a clicked link stays highlighted (even when the page can't scroll that far) until you scroll yourself */
+      links.forEach(function(a, i){ a.addEventListener('click', function(){ mark(i); held = true; }); });
+      ['wheel', 'touchstart', 'keydown', 'mousedown'].forEach(function(type){
+        addEventListener(type, function(){ held = false; }, {passive: true, capture: true});
+      });
+      addEventListener('resize', spy);
+      spy();
+    })();
   </script>
 </body>
 </html>
