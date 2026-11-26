@@ -511,6 +511,43 @@
     var state = { section: 'razak', mode: 'cv', word: null, showEng: false, showStress: false, practice: [], parked: [], boost: 8, history: [] };
     /* parked: Razak-only practice sounds set aside while on Nicole's list, restored on switching back */
 
+    /* ===================== remember your settings across refreshes (this browser only) ===================== */
+    var SAVE_KEY = 'lin228-quiz2';
+    function save(){
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify({
+          section: state.section, mode: state.mode, showEng: state.showEng, showStress: state.showStress,
+          practice: state.practice, parked: state.parked, boost: state.boost, history: state.history
+        }));
+      } catch (e) {}
+    }
+    function load(){
+      var d;
+      try { d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { return; }
+      if (!d || typeof d !== 'object') return;
+      if (SECTIONS.hasOwnProperty(d.section)) state.section = d.section;   /* first: the checks below depend on it */
+      if (d.mode === 'cv' || d.mode === 'any') state.mode = d.mode;
+      state.showEng = d.showEng === true;
+      state.showStress = d.showStress === true;
+      var b = Math.round(+d.boost);
+      if (b >= 1 && b <= 30) state.boost = b;
+      function onRazakList(sym){
+        var r = SECTIONS.razak;
+        return ENGLISH.C.indexOf(sym) > -1 || ENGLISH.V.indexOf(sym) > -1 || r.C.indexOf(sym) > -1 || nonEnglishPool(r, 'V').indexOf(sym) > -1;
+      }
+      if (Array.isArray(d.practice)) state.practice = d.practice.filter(function(sym, i, all){
+        return typeof sym === 'string' && classify(sym) && all.indexOf(sym) === i;
+      });
+      if (Array.isArray(d.parked)) state.parked = d.parked.filter(function(sym, i, all){
+        return typeof sym === 'string' && !classify(sym) && onRazakList(sym) && all.indexOf(sym) === i && state.practice.indexOf(sym) < 0;
+      });
+      if (Array.isArray(d.history)) state.history = d.history.filter(function(w){
+        return Array.isArray(w) && w.length === SHAPE.length && w.every(function(x){
+          return x && typeof x.sym === 'string' && (x.type === 'C' || x.type === 'V');
+        });
+      }).slice(0, 12);
+    }
+
     function rand(n){ return Math.floor(Math.random() * n); }
     function slotsOf(type){ return type === 'C' ? [0, 2, 4] : [1, 3, 5]; }
     function nonEnglishPool(sec, type){ return type === 'V' ? sec.V.concat(sec.syllabic || []) : sec.C; }
@@ -612,6 +649,7 @@
       $('stage').classList.toggle('show-stress', state.showStress);
       $('opt-eng').checked = state.showEng;
       $('opt-stress').checked = state.showStress;
+      save();
     }
 
     /* clicking a sound in the word: name it, then take you to it in the chart */
@@ -787,6 +825,7 @@
       state.history = state.history.slice(0, 12);
       drawWord();
       drawHistory();
+      save();
     }
 
     function togglePractice(sym){
@@ -880,11 +919,15 @@
       else if (e.key === 's' || e.key === 'S') { state.showStress = !state.showStress; drawHighlights(); }
     });
 
+    load();
+    $('boost').value = state.boost;
     buildCharts();
     drawToggles();
     drawSection();
     drawPractice();
+    drawBoostNote();
     newWord();
+    drawHighlights();
 
     /* ===================== left panel: highlight the part of the page you're looking at ===================== */
     (function(){
