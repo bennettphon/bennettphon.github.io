@@ -14,7 +14,8 @@
     :root{
       --ink:#182234; --muted:#5c6b84; --faint:#9aa6b8; --rule:#e6ebf2;
       --tile:#f3f7fc; --tile-hover:#e6f2fc;
-      --blue:#1c8fd6; --blue-2:#4fb3f0;
+      /* theme colours (headers, main button, tiles); Nicole's section swaps them for reds below */
+      --blue:#1c8fd6; --blue-2:#4fb3f0; --glow:rgba(79,179,240,.35); --current-bg:#e3f1fc; --flash:28,143,214;
       /* colour code: English green; non-English takes the section's colour */
       --eng:#12936a;
       --razak:#1c78d6; --razak-2:#4fa6f0;
@@ -24,7 +25,9 @@
       --ipa:"Gentium Plus","Charis SIL","Doulos SIL","Noto Serif","Times New Roman",serif;
     }
     body.sec-razak{--sec:var(--razak);--sec-2:var(--razak-2)}
-    body.sec-nicole{--sec:var(--nicole);--sec-2:var(--nicole-2)}
+    body.sec-nicole{--sec:var(--nicole);--sec-2:var(--nicole-2);
+      --blue:#d23b34;--blue-2:#ef6b5f;--glow:rgba(239,107,95,.35);--current-bg:#fde9e6;--flash:210,59,52;
+      --tile:#fcf4f3;--tile-hover:#fbe3e0}
     *{box-sizing:border-box}
     body{
       margin:0;min-height:100vh;padding:28px 16px 48px;
@@ -40,8 +43,8 @@
     .wrap{width:min(100%,880px);margin:0 auto}
     .back{display:inline-block;margin:0 0 14px;color:#4fb3f0;font-size:.9rem}
     h1{margin:0 0 4px;font:600 1.9rem/1.2 Lora,Georgia,serif;color:#fff}
-    h1 .beta{display:inline-block;vertical-align:middle;margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.45);border-radius:999px;
-      font:600 .62rem/1.3 Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.85);white-space:nowrap}
+    h1 .note{display:inline-block;vertical-align:middle;margin-left:6px;padding:4px 11px;background:#e5383b;border-radius:999px;
+      font:600 .74rem/1.3 Inter,sans-serif;color:#fff;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.25)}
     .lede{margin:0 0 22px;color:rgba(255,255,255,.82);font-size:.95rem;line-height:1.6}
 
     .card{background:#fff;border-radius:14px;box-shadow:0 12px 28px rgba(0,12,40,.28)}
@@ -168,7 +171,7 @@
     .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
     .btn{border:0;cursor:pointer;border-radius:10px;padding:11px 18px;font:600 .9rem/1 Inter,sans-serif;background:var(--tile);color:var(--ink)}
     .btn:hover{background:var(--tile-hover)}
-    .btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;box-shadow:0 6px 16px rgba(79,179,240,.35)}
+    .btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;box-shadow:0 6px 16px var(--glow)}
     .btn.primary:hover{filter:brightness(1.05)}
     .hint{margin:10px 0 0;text-align:center;font-size:.78rem;color:var(--faint)}
 
@@ -197,7 +200,7 @@
     .ph.picked{background:var(--practice-bg);color:var(--practice);box-shadow:inset 0 0 0 2px var(--practice)}
     /* jumped to from the word: a short pulse, plus a name label above it */
     .ph.flash{animation:ph-flash 1.6s ease-out 2}
-    @keyframes ph-flash{0%{box-shadow:0 0 0 0 rgba(28,143,214,.7);background:#fff3c4}100%{box-shadow:0 0 0 14px rgba(28,143,214,0);background:transparent}}
+    @keyframes ph-flash{0%{box-shadow:0 0 0 0 rgba(var(--flash),.7);background:#fff3c4}100%{box-shadow:0 0 0 14px rgba(var(--flash),0);background:transparent}}
     .bubble{
       position:absolute;z-index:40;transform:translate(-50%,-100%);pointer-events:none;
       padding:5px 9px;border-radius:7px;background:#182234;color:#fff;font:500 .78rem/1.3 Inter,sans-serif;white-space:nowrap;
@@ -232,12 +235,13 @@
     .history{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
     .hist-word{border:0;cursor:pointer;padding:6px 10px;border-radius:8px;background:var(--tile);color:var(--ink);font:400 1.2rem/1.3 var(--ipa);transition:background .15s}
     .hist-word:hover{background:var(--tile-hover)}
-    .hist-word[aria-current="true"]{box-shadow:inset 0 0 0 2px var(--blue);background:#e3f1fc}
+    .hist-word[aria-current="true"]{box-shadow:inset 0 0 0 2px var(--blue);background:var(--current-bg)}
     .hist-word:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
     .empty{color:var(--muted);font-size:.9rem;margin:0}
 
     @media (max-width:560px){
       h1{font-size:1.5rem}
+      h1 .note{margin:6px 0 0;white-space:normal;border-radius:10px}
       .card-body{padding:16px}
       .other-row .lab{flex-basis:100%}
       .boost input[type=range]{width:140px}
@@ -247,7 +251,7 @@
 <body class="sec-razak">
   <div class="wrap">
     <a class="back" href="index.html#games">← Back to Linguistics Games</a>
-    <h1>LIN228 · Phonetics Quiz 2 <span class="beta">Beta · no audio yet</span></h1>
+    <h1>LIN228 · Phonetics Quiz 2 <span class="note">No audio yet! Hopefully it will be added by Nov 27.</span></h1>
     <p class="lede">CVCVCV words: 2 English + 4 non-English sounds, random stress.</p>
 
     <section class="card" aria-labelledby="gen-title">
@@ -402,7 +406,7 @@
       ['Co-articulated stops', ['k͡p','ɡ͡b','p͡t']],
       ['Syllabic consonants', ['l̩']]
     ];
-    /* vowel chart: [symbol, height 0 (close) … 1 (open), backness 0 (front) … 1 (back), side: -1 unrounded, +1 rounded, 0 centred] */
+    /* vowel chart: [symbol, height 0 (high) … 1 (low), backness 0 (front) … 1 (back), side: -1 unrounded, +1 rounded, 0 centred] */
     var VOWEL_POINTS = [
       ['i',0,0,-1], ['y',0,0,1], ['ɨ',0,.5,-1], ['ʉ',0,.5,1], ['ɯ',0,1,-1], ['u',0,1,1],
       ['ɪ',.16,.2,0], ['ʊ',.16,.82,0],
@@ -434,17 +438,17 @@
       'k͡p':'voiceless co-articulated labial–velar plosive', 'ɡ͡b':'voiced co-articulated labial–velar plosive', 'p͡t':'voiceless co-articulated labial–alveolar plosive',
       'w':'voiced labial–velar approximant', 'ɥ':'voiced labial–palatal approximant',
       'l̩':'syllabic voiced alveolar lateral approximant',
-      'i':'close front unrounded vowel', 'y':'close front rounded vowel',
-      'ɨ':'close central unrounded vowel', 'ʉ':'close central rounded vowel',
-      'ɯ':'close back unrounded vowel', 'u':'close back rounded vowel',
-      'ɪ':'near-close near-front unrounded vowel', 'ʊ':'near-close near-back rounded vowel',
-      'e':'close-mid front unrounded vowel', 'o':'close-mid back rounded vowel',
+      'i':'high front unrounded vowel', 'y':'high front rounded vowel',
+      'ɨ':'high central unrounded vowel', 'ʉ':'high central rounded vowel',
+      'ɯ':'high back unrounded vowel', 'u':'high back rounded vowel',
+      'ɪ':'near-high near-front unrounded vowel', 'ʊ':'near-high near-back rounded vowel',
+      'e':'high-mid front unrounded vowel', 'o':'high-mid back rounded vowel',
       'ə':'mid central vowel',
-      'ɛ':'open-mid front unrounded vowel', 'œ':'open-mid front rounded vowel',
-      'ʌ':'open-mid back unrounded vowel', 'ɔ':'open-mid back rounded vowel',
-      'a':'open front unrounded vowel', 'ɑ':'open back unrounded vowel',
-      'ɛ̃':'open-mid front unrounded nasal vowel', 'ɑ̃':'open back unrounded nasal vowel',
-      'ɔ̃':'open-mid back rounded nasal vowel',
+      'ɛ':'low-mid front unrounded vowel', 'œ':'low-mid front rounded vowel',
+      'ʌ':'low-mid back unrounded vowel', 'ɔ':'low-mid back rounded vowel',
+      'a':'low front unrounded vowel', 'ɑ':'low back unrounded vowel',
+      'ɛ̃':'low-mid front unrounded nasal vowel', 'ɑ̃':'low back unrounded nasal vowel',
+      'ɔ̃':'low-mid back rounded nasal vowel',
       'ɚ':'mid central rhotic vowel'
     };
     for (var k in MORE_NAMES) NAMES[k] = MORE_NAMES[k];
@@ -648,8 +652,8 @@
       [['Front', 22, 1], ['Central', 55, 1], ['Back', 90, 1]].forEach(function(l){
         var s = el('span', 'vlabel', l[0]); s.style.left = l[1] + '%'; s.style.top = l[2] + '%'; chart.appendChild(s);
       });
-      /* heights, as on the IPA chart */
-      [['Close', 0], ['Close-mid', 1/3], ['Open-mid', 2/3], ['Open', 1]].forEach(function(l){
+      /* heights, as in the course: high, high-mid, low-mid, low */
+      [['High', 0], ['High-mid', 1/3], ['Low-mid', 2/3], ['Low', 1]].forEach(function(l){
         var s = el('span', 'vlabel vheight', l[0]);
         s.style.left = (leftEdge(l[1]) - 9.5) + '%';
         s.style.top = (8 + 84 * l[1]) + '%';
