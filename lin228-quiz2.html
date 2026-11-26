@@ -71,6 +71,15 @@
     }
     .back{display:inline-block;margin:0 0 14px;color:#4fb3f0;font-size:.9rem}
     h1{margin:0 0 4px;font:600 1.9rem/1.2 Lora,Georgia,serif;color:#fff}
+    /* the TA's name in the title: the set's colour, and clicking it switches the set (like the R/N wheel) */
+    .ta-wrap{white-space:nowrap}
+    .ta-name{
+      display:inline-flex;align-items:baseline;gap:4px;padding:0 2px;margin:0;border:0;background:none;cursor:pointer;
+      font:inherit;color:var(--sec-2);border-bottom:2px dotted currentColor;transition:color .2s,filter .15s;
+    }
+    .ta-name:hover{filter:brightness(1.15)}
+    .ta-name:focus-visible{outline:2px solid #fff;outline-offset:3px;border-radius:4px}
+    .ta-swap{font:600 .55em/1 Inter,sans-serif;opacity:.85}
     .lede{margin:0 0 22px;color:rgba(255,255,255,.82);font-size:.95rem;line-height:1.6}
 
     .card{background:#fff;border-radius:14px;box-shadow:0 12px 28px rgba(0,12,40,.28)}
@@ -328,7 +337,7 @@
   <div class="wrap layout">
     <header class="head">
       <a class="back" href="index.html#games">← Back to Linguistics Games</a>
-      <h1>LIN228 · Phonetics Quiz 2</h1>
+      <h1>LIN228 · Phonetics Quiz 2 <span class="ta-wrap">(<button type="button" class="ta-name" data-sec-toggle><span class="stack"><span class="opt on" data-opt="razak">Razak</span><span class="opt" data-opt="nicole">Nicole</span></span><span class="ta-swap" aria-hidden="true">⇄</span></button>)</span></h1>
       <p class="lede">CVCVCV words: 2 English + 4 non-English sounds, random stress.</p>
     </header>
 
