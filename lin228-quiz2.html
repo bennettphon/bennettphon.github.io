@@ -14,9 +14,9 @@
     :root{
       --ink:#182234; --muted:#5c6b84; --faint:#9aa6b8; --rule:#e6ebf2;
       --tile:#f3f7fc; --tile-hover:#e6f2fc;
-      /* theme colours (headers, main button, tiles); Nicole's section swaps them for reds below */
+      /* theme colours (headers, main button, tiles); Nicole's set swaps them for reds below */
       --blue:#1c8fd6; --blue-2:#4fb3f0; --glow:rgba(79,179,240,.35); --current-bg:#e3f1fc; --flash:28,143,214;
-      /* colour code: English green; non-English takes the section's colour */
+      /* colour code: English green; non-English takes the set's colour */
       --eng:#12936a;
       --razak:#1c78d6; --razak-2:#4fa6f0;
       --nicole:#d23b34; --nicole-2:#ef6b5f;
@@ -68,8 +68,6 @@
     }
     .back{display:inline-block;margin:0 0 14px;color:#4fb3f0;font-size:.9rem}
     h1{margin:0 0 4px;font:600 1.9rem/1.2 Lora,Georgia,serif;color:#fff}
-    h1 .note{display:inline-block;vertical-align:middle;margin-left:6px;padding:4px 11px;background:#e5383b;border-radius:999px;
-      font:600 .74rem/1.3 Inter,sans-serif;color:#fff;white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.25)}
     .lede{margin:0 0 22px;color:rgba(255,255,255,.82);font-size:.95rem;line-height:1.6}
 
     .card{background:#fff;border-radius:14px;box-shadow:0 12px 28px rgba(0,12,40,.28)}
@@ -168,10 +166,11 @@
       display:flex;flex-direction:column;align-items:center;gap:10px;
       padding:22px 12px 18px;margin:0 0 16px;border-radius:12px;background:var(--tile);
     }
-    .word{display:flex;align-items:flex-end;justify-content:center;flex-wrap:wrap;gap:2px;font-family:var(--ipa)}
+    /* one line always: on narrow screens the word shrinks to fit (--fit is set by fitWord) */
+    .word{display:flex;align-items:flex-end;justify-content:center;flex-wrap:nowrap;gap:2px;font-family:var(--ipa);max-width:100%}
     /* tall line box: room for descenders and marks below (l̩, p̼, t̪) above the C/V label */
-    .bracket{font-size:clamp(2.2rem,8vw,3.6rem);line-height:1.55;color:var(--muted);padding:0 2px 1.1rem}
-    .slot{display:flex;flex-direction:column;align-items:center;font-size:clamp(2.2rem,8vw,3.6rem);min-width:.72em}
+    .bracket{font-size:calc(clamp(2.2rem,8vw,3.6rem) * var(--fit,1));line-height:1.55;color:var(--muted);padding:0 2px 1.1rem}
+    .slot{display:flex;flex-direction:column;align-items:center;font-size:calc(clamp(2.2rem,8vw,3.6rem) * var(--fit,1));min-width:.72em}
     button.slot{border:0;background:none;padding:0;margin:0;cursor:pointer;color:inherit;font-family:inherit;line-height:inherit}
     button.slot:hover .sym{background:rgba(0,0,0,.05)}
     button.slot:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:8px}
@@ -180,7 +179,7 @@
     .slot.stress{min-width:0}
     .slot.stress .sym{padding:0 .02em .2em}
     .slot.picked .sym{box-shadow:inset 0 0 0 2px var(--practice)}
-    /* colour code: English green, non-English in the section's colour */
+    /* colour code: English green, non-English in the set's colour */
     .show-eng .slot.eng .sym{color:var(--eng)}
     .show-eng .slot.eng .cv{color:var(--eng)}
     .show-eng .slot.non .sym{color:var(--sec)}
@@ -192,8 +191,29 @@
     .sym-info{margin:0;font-size:.88rem;color:var(--muted);text-align:center}
     .sym-info b{font-family:var(--ipa);font-size:1.15rem;margin-right:6px;color:var(--ink)}
     .sym-info:empty{display:none}
+    .sym-info .to-chart{border:0;background:none;cursor:pointer;margin-left:8px;padding:2px 4px;border-radius:6px;font:600 .82rem/1 Inter,sans-serif;color:var(--blue)}
+    .sym-info .to-chart:hover{background:var(--tile-hover)}
+    /* each sound in the word, with a small 'jump to the chart' button that shows on hover */
+    .slot-wrap{position:relative;display:flex}
+    .jump{
+      position:absolute;top:100%;left:50%;transform:translateX(-50%);z-index:2;
+      border:0;cursor:pointer;padding:4px 9px;border-radius:999px;white-space:nowrap;
+      background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;font:600 .68rem/1 Inter,sans-serif;
+      box-shadow:0 3px 10px rgba(0,30,80,.2);opacity:0;pointer-events:none;transition:opacity .15s;
+    }
+    @media (hover:hover){ .slot-wrap:hover .jump{opacity:1;pointer-events:auto} }
+    .slot-wrap:has(:focus-visible) .jump{opacity:1;pointer-events:auto}   /* keyboard users; not after a mouse click */
 
     .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    .btn.on{box-shadow:inset 0 0 0 2px var(--blue);background:var(--current-bg)}
+    /* audio credits, at the foot of the page */
+    .credits{margin-top:20px;color:rgba(255,255,255,.78);font-size:.8rem;line-height:1.55}
+    .credits summary{cursor:pointer;font-weight:600;color:#fff}
+    .credits ul{margin:8px 0 0;padding-left:18px;columns:2 300px;column-gap:28px}
+    .credits li{break-inside:avoid;margin-bottom:3px}
+    .credits li b{font:700 1rem/1 var(--ipa);color:#fff;margin-right:4px}
+    .credits a{color:#8fd0ff}
+    .credits p{margin:8px 0 0}
     .btn{border:0;cursor:pointer;border-radius:10px;padding:11px 18px;font:600 .9rem/1 Inter,sans-serif;background:var(--tile);color:var(--ink)}
     .btn:hover{background:var(--tile-hover)}
     .btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;box-shadow:0 6px 16px var(--glow)}
@@ -202,13 +222,13 @@
 
     /* ---------- sound charts ---------- */
     .chart-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin-bottom:8px}
+    .chart-tools{display:flex;flex-wrap:wrap;gap:8px}
     .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--muted)}
     .legend > span{display:inline-flex;align-items:center;gap:6px}
     .legend i{font:700 1.05rem/1 var(--ipa);font-style:normal}
     .legend .k-eng{color:var(--eng)}
     .legend .k-sec{color:var(--sec)}
     .legend .k-dim{color:#c6ced9}
-    body.sec-razak .leg-dim{visibility:hidden}
     .chart-hint{margin:0 0 14px;font-size:.82rem;color:var(--muted)}
     #vowels .chart-top{margin-bottom:14px}
 
@@ -222,6 +242,9 @@
     .ph.dim{color:#d3dae3;cursor:default}   /* same weight as the others, so the table never resizes */
     .ph.dim:hover{background:none}
     .ph.picked{background:var(--practice-bg);color:var(--practice);box-shadow:inset 0 0 0 2px var(--practice)}
+    /* a sound that's playing right now (chart button or a sound in the word) */
+    .ph.playing{background:var(--current-bg);box-shadow:inset 0 0 0 2px var(--blue)}
+    .slot.playing .sym{background:var(--current-bg);box-shadow:inset 0 0 0 2px var(--blue)}
     /* jumped to from the word: a short pulse, plus a name label above it */
     .ph.flash{animation:ph-flash 1.6s ease-out 2}
     @keyframes ph-flash{0%{box-shadow:0 0 0 0 rgba(var(--flash),.7);background:#fff3c4}100%{box-shadow:0 0 0 14px rgba(var(--flash),0);background:transparent}}
@@ -230,7 +253,7 @@
       padding:5px 9px;border-radius:7px;background:#182234;color:#fff;font:500 .78rem/1.3 Inter,sans-serif;white-space:nowrap;
       box-shadow:0 6px 16px rgba(0,0,0,.25);animation:bubble-in .2s ease-out;
     }
-    .bubble::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#182234}
+    .bubble::after{content:"";position:absolute;left:calc(50% + var(--arrow, 0px));bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#182234}
     @keyframes bubble-in{from{opacity:0;transform:translate(-50%,-80%)}to{opacity:1;transform:translate(-50%,-100%)}}
 
     .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule);border-radius:10px}
@@ -246,8 +269,9 @@
     .other-row .lab{flex:0 0 190px;font:600 .68rem/1.4 Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
 
     .vowel-wrap{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-start}
-    .vchart{position:relative;width:min(100%,520px);aspect-ratio:1.6}
+    .vchart{position:relative;width:min(100%,520px);aspect-ratio:1.6;margin-top:16px}
     .vlabel.vheight{transform:translate(-100%,-50%);white-space:nowrap;text-align:right}
+    .vlabel.vtop{top:-14px;transform:translateX(-50%);white-space:nowrap}
     .vchart svg{position:absolute;inset:0;width:100%;height:100%}
     /* chart vowels: the highlight hugs the glyph, so selecting one never looks like it moved */
     .vchart .ph{position:absolute;transform:translate(-50%,-50%);min-width:0;padding:1px 4px}
@@ -265,7 +289,6 @@
 
     @media (max-width:560px){
       h1{font-size:1.5rem}
-      h1 .note{margin:6px 0 0;white-space:normal;border-radius:10px}
       .card-body{padding:16px}
       .other-row .lab{flex-basis:100%}
       .boost input[type=range]{width:140px}
@@ -276,7 +299,7 @@
   <div class="wrap layout">
     <header class="head">
       <a class="back" href="index.html#games">← Back to Linguistics Games</a>
-      <h1>LIN228 · Phonetics Quiz 2 <span class="note">No audio yet! Hopefully it will be added by Nov 27.</span></h1>
+      <h1>LIN228 · Phonetics Quiz 2</h1>
       <p class="lede">CVCVCV words: 2 English + 4 non-English sounds, random stress.</p>
     </header>
 
@@ -298,12 +321,12 @@
         <div class="settings">
           <div class="settings-row">
             <button type="button" class="toggle sec-toggle" data-sec-toggle>
-              <span class="t-lab">Section</span><span class="stack"><span class="opt on" data-opt="razak"><b>Razak</b> <small>full</small></span><span class="opt" data-opt="nicole"><b>Nicole</b> <small>subset</small></span></span><span class="swap" aria-hidden="true">⇄</span>
+              <span class="t-lab">Set</span><span class="stack"><span class="opt on" data-opt="razak"><b>Razak&rsquo;s</b> <small>set</small></span><span class="opt" data-opt="nicole"><b>Nicole&rsquo;s</b> <small>set</small></span></span><span class="swap" aria-hidden="true">⇄</span>
             </button>
             <button type="button" class="toggle" id="mode-toggle">
               <span class="t-lab">English</span><span class="stack"><b class="opt on" data-opt="cv">1 C + 1 V</b><b class="opt" data-opt="any">Any 2</b></span><span class="swap" aria-hidden="true">⇄</span>
             </button>
-            <label class="switch" title="English green; non-English in the section's colour"><input type="checkbox" id="opt-eng"><span class="track" aria-hidden="true"></span>Colour-code</label>
+            <label class="switch" title="English green; non-English in the set's colour"><input type="checkbox" id="opt-eng"><span class="track" aria-hidden="true"></span>Colour-code</label>
             <label class="switch" title="Highlight the stressed syllable"><input type="checkbox" id="opt-stress" aria-label="Highlight stress"><span class="track" aria-hidden="true"></span>Stress</label>
           </div>
           <div class="settings-row">
@@ -341,8 +364,9 @@
 
         <div class="actions">
           <button type="button" class="btn primary" id="new-word">New word</button>
+          <button type="button" class="btn" id="play-each" title="Play the recording of each sound, one after another">▶ Sound by sound</button>
         </div>
-        <p class="hint">Space or Enter: new word · E: colour-code · S: highlight stress</p>
+        <p class="hint">Click a sound to hear it · Space or Enter: new word · P: sound by sound · E: colour-code · S: highlight stress</p>
       </div>
     </section>
 
@@ -350,17 +374,19 @@
       <div class="panel-title" id="cons-title">Consonants</div>
       <div class="card-body">
         <div class="chart-top">
+          <div class="chart-tools">
           <button type="button" class="toggle sec-toggle" data-sec-toggle>
-            <span class="t-lab">Section</span><span class="stack"><span class="opt on" data-opt="razak"><b>Razak</b> <small>full</small></span><span class="opt" data-opt="nicole"><b>Nicole</b> <small>subset</small></span></span><span class="swap" aria-hidden="true">⇄</span>
+            <span class="t-lab">Set</span><span class="stack"><span class="opt on" data-opt="razak"><b>Razak&rsquo;s</b> <small>set</small></span><span class="opt" data-opt="nicole"><b>Nicole&rsquo;s</b> <small>set</small></span></span><span class="swap" aria-hidden="true">⇄</span>
           </button>
-          <!-- fixed contents (only visibility changes), so switching sections never reflows the layout -->
+          </div>
+          <!-- fixed contents (only visibility changes), so switching sets never reflows the layout -->
           <div class="legend">
-            <span><i class="k-eng">a</i>English (both sections)</span>
-            <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="razak">Razak&rsquo;s section</span><span class="opt" data-opt="nicole">Nicole&rsquo;s section</span></span></span>
-            <span class="leg-dim"><i class="k-dim">a</i>Only in Razak&rsquo;s list</span>
+            <span><i class="k-eng">a</i>English (both sets)</span>
+            <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="razak">Razak&rsquo;s set</span><span class="opt" data-opt="nicole">Nicole&rsquo;s set</span></span></span>
+            <span class="leg-dim"><i class="k-dim">a</i><span class="stack"><span class="opt on" data-opt="razak">Not in Razak&rsquo;s set</span><span class="opt" data-opt="nicole">Not in Nicole&rsquo;s set</span></span></span>
           </div>
         </div>
-        <p class="chart-hint">Tap sounds to practise them (as many as you like); tap again to drop one.</p>
+        <p class="chart-hint">Tap a sound to hear it. To practise sounds, pick them under <b>Practising</b> in the word generator.</p>
         <div class="table-scroll"><table class="cons" id="cons-table"></table></div>
         <div class="other" id="cons-other"></div>
       </div>
@@ -370,14 +396,16 @@
       <div class="panel-title" id="vow-title">Vowels</div>
       <div class="card-body">
         <div class="chart-top">
+          <div class="chart-tools">
           <button type="button" class="toggle sec-toggle" data-sec-toggle>
-            <span class="t-lab">Section</span><span class="stack"><span class="opt on" data-opt="razak"><b>Razak</b> <small>full</small></span><span class="opt" data-opt="nicole"><b>Nicole</b> <small>subset</small></span></span><span class="swap" aria-hidden="true">⇄</span>
+            <span class="t-lab">Set</span><span class="stack"><span class="opt on" data-opt="razak"><b>Razak&rsquo;s</b> <small>set</small></span><span class="opt" data-opt="nicole"><b>Nicole&rsquo;s</b> <small>set</small></span></span><span class="swap" aria-hidden="true">⇄</span>
           </button>
-          <!-- fixed contents (only visibility changes), so switching sections never reflows the layout -->
+          </div>
+          <!-- fixed contents (only visibility changes), so switching sets never reflows the layout -->
           <div class="legend">
-            <span><i class="k-eng">a</i>English (both sections)</span>
-            <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="razak">Razak&rsquo;s section</span><span class="opt" data-opt="nicole">Nicole&rsquo;s section</span></span></span>
-            <span class="leg-dim"><i class="k-dim">a</i>Only in Razak&rsquo;s list</span>
+            <span><i class="k-eng">a</i>English (both sets)</span>
+            <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="razak">Razak&rsquo;s set</span><span class="opt" data-opt="nicole">Nicole&rsquo;s set</span></span></span>
+            <span class="leg-dim"><i class="k-dim">a</i><span class="stack"><span class="opt on" data-opt="razak">Not in Razak&rsquo;s set</span><span class="opt" data-opt="nicole">Not in Nicole&rsquo;s set</span></span></span>
           </div>
         </div>
         <div class="vowel-wrap">
@@ -403,12 +431,19 @@
         <p class="empty" id="history-empty">Words you generate will collect here.</p>
       </div>
     </section>
+
+    <details class="credits" id="credits">
+      <summary>Audio credits</summary>
+      <p>Recordings from <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener">Wikimedia Commons</a> (the ones used on Wikipedia&rsquo;s IPA pages), used under the licences shown. Click a file name for its page.</p>
+      <ul id="credits-list"></ul>
+      <p id="credits-missing"></p>
+    </details>
     </main>
   </div>
 
   <script>
     /* ===================== sound inventories =====================
-       English sounds are shared by both TA sections.
+       English sounds are shared by both sets.
        Edit these lists to change what the generator can pick.        */
     var ENGLISH = {
       C: ['p','b','m','f','v','θ','ð','t','d','s','z','n','ʃ','ʒ','k','ɡ','ŋ','h','tʃ','dʒ','ɹ','l','j','w'],
@@ -416,16 +451,15 @@
     };
     var SECTIONS = {
       razak: {
-        name: "Razak's section", short: 'Razak',
-        /* the full list, as given by Bennett (p̼ b̼ = linguolabials, t̪ d̪ n̪ = dentals) */
-        C: ['ɸ','β','ɱ','p̼','b̼','t̪','d̪','n̪','ʈ','ɖ','ʂ','ʑ','c','ɟ','x','ɣ','q','ɢ','ʁ','ħ','ʕ',
-            'ʔ','ts','k͡p','ɡ͡b','p͡t','kʷ','ɡʷ','pʲ','bʲ','ʙ','r','ɾ','ɭ','ɫ','ʋ','ɥ'],
-        V: ['e','a','ɔ','o','y','œ','ʌ','ɯ','ʉ','ɨ','ɔ̃','ɛ̃','ɑ̃'],
+        name: "Razak's set", short: 'Razak',
+        /* Razak's updated list, as given by Bennett (t̪ d̪ n̪ = dentals). The two sets overlap; neither contains the other. */
+        C: ['ɸ','β','ɱ','t̪','d̪','n̪','ʈ','ɖ','x','ɣ','q','ɢ','ʁ','ħ','ʕ','ʔ','k͡p','ɡ͡b','kʷ','ɡʷ','pʲ','bʲ','ʙ','ɭ','ʋ'],
+        V: ['e','a','ɔ','o','y','ɯ','ʉ','ɔ̃'],
         syllabic: ['l̩']   /* can fill a vowel slot */
       },
       nicole: {
-        name: "Nicole's section", short: 'Nicole',
-        /* a shorter list, all of it inside Razak's; as given by Bennett (p̼ b̼ = linguolabials) */
+        name: "Nicole's set", short: 'Nicole',
+        /* as given by Bennett (p̼ b̼ = linguolabials) */
         C: ['ɸ','β','p̼','b̼','n̪','ɖ','ʂ','ʑ','c','ɟ','x','q','ħ','ʕ','ʔ','ts','p͡t','ɡʷ','pʲ','r','ɾ','ɫ','ʋ','ɥ'],
         V: ['e','ɔ','a','y','œ','ʌ','ɯ','ɨ','ɛ̃','ɑ̃']
       }
@@ -509,7 +543,7 @@
     /* ===================== generator ===================== */
     var SHAPE = ['C','V','C','V','C','V'];
     var state = { section: 'razak', mode: 'cv', word: null, showEng: false, showStress: false, practice: [], parked: [], boost: 8, history: [] };
-    /* parked: Razak-only practice sounds set aside while on Nicole's list, restored on switching back */
+    /* parked: practice sounds that aren't in the current set, set aside and restored when you switch back */
 
     /* ===================== remember your settings across refreshes (this browser only) ===================== */
     var SAVE_KEY = 'lin228-quiz2';
@@ -531,16 +565,16 @@
       state.showStress = d.showStress === true;
       var b = Math.round(+d.boost);
       if (b >= 1 && b <= 30) state.boost = b;
-      function onRazakList(sym){
-        var r = SECTIONS.razak;
-        return ENGLISH.C.indexOf(sym) > -1 || ENGLISH.V.indexOf(sym) > -1 || r.C.indexOf(sym) > -1 || nonEnglishPool(r, 'V').indexOf(sym) > -1;
+      function inSomeSet(sym){
+        return ENGLISH.C.indexOf(sym) > -1 || ENGLISH.V.indexOf(sym) > -1 || Object.keys(SECTIONS).some(function(k){
+          return SECTIONS[k].C.indexOf(sym) > -1 || nonEnglishPool(SECTIONS[k], 'V').indexOf(sym) > -1;
+        });
       }
-      if (Array.isArray(d.practice)) state.practice = d.practice.filter(function(sym, i, all){
-        return typeof sym === 'string' && classify(sym) && all.indexOf(sym) === i;
-      });
-      if (Array.isArray(d.parked)) state.parked = d.parked.filter(function(sym, i, all){
-        return typeof sym === 'string' && !classify(sym) && onRazakList(sym) && all.indexOf(sym) === i && state.practice.indexOf(sym) < 0;
-      });
+      /* practice sounds in this set stay on; ones only in the other set wait (parked) until you switch back */
+      var picked = [].concat(Array.isArray(d.practice) ? d.practice : [], Array.isArray(d.parked) ? d.parked : [])
+        .filter(function(sym, i, all){ return typeof sym === 'string' && inSomeSet(sym) && all.indexOf(sym) === i; });
+      state.practice = picked.filter(function(sym){ return classify(sym); });
+      state.parked = picked.filter(function(sym){ return !classify(sym); });
       if (Array.isArray(d.history)) state.history = d.history.filter(function(w){
         return Array.isArray(w) && w.length === SHAPE.length && w.every(function(x){
           return x && typeof x.sym === 'string' && (x.type === 'C' || x.type === 'V');
@@ -562,7 +596,7 @@
       return options[options.length - 1];
     }
 
-    /* what a sound is in the current section: {type, eng}, or null if it isn't in play there */
+    /* what a sound is in the current set: {type, eng}, or null if it isn't in play there */
     function classify(sym){
       var sec = SECTIONS[state.section];
       if (ENGLISH.C.indexOf(sym) > -1) return { type: 'C', eng: true };
@@ -615,6 +649,7 @@
     }
 
     function drawWord(){
+      stopAudio();
       var w = state.word, box = $('word'), stressAt = -1;
       w.forEach(function(s, i){ if (s.stressed) stressAt = i; });
       box.innerHTML = '';
@@ -632,11 +667,19 @@
         var slot = el('button', 'slot ' + (s.eng ? 'eng' : 'non') + (inStressed ? ' syl-stress' : '') + (state.practice.indexOf(s.sym) > -1 ? ' picked' : ''));
         slot.type = 'button';
         slot.title = nameOf(s.sym) + (s.eng ? ' (English)' : '');
-        slot.setAttribute('aria-label', s.sym + ', ' + nameOf(s.sym) + '. Show it in the chart');
-        slot.addEventListener('click', function(){ showSound(s.sym); });
+        slot.setAttribute('aria-label', s.sym + ', ' + nameOf(s.sym) + '. Play it');
+        slot.addEventListener('click', function(){ playSound(s.sym, [slot]); nameSound(s.sym); });
         slot.appendChild(el('span', 'sym', s.sym));
         slot.appendChild(el('span', 'cv', s.type));
-        box.appendChild(slot);
+        var jump = el('button', 'jump', '↓ chart');
+        jump.type = 'button';
+        jump.title = 'Show ' + s.sym + ' in the chart';
+        jump.setAttribute('aria-label', 'Show ' + s.sym + ' in the chart');
+        jump.addEventListener('click', function(){ nameSound(s.sym); jumpToSound(s.sym); });
+        var wrap = el('span', 'slot-wrap');
+        wrap.appendChild(slot);
+        wrap.appendChild(jump);
+        box.appendChild(wrap);
       });
       box.appendChild(el('span', 'bracket', ']'));
       box.setAttribute('aria-label', 'Practice word ' + asText(w));
@@ -644,34 +687,62 @@
       drawHighlights();
     }
 
+    /* shrink the word just enough to fit its box (never wraps) */
+    function fitWord(){
+      var box = $('word'), room = $('stage').clientWidth - 24, need = 0;
+      box.style.setProperty('--fit', 1);
+      Array.prototype.forEach.call(box.children, function(c){ need += c.getBoundingClientRect().width; });
+      need += 2 * Math.max(0, box.children.length - 1);   /* the 2px gaps */
+      if (need > room) box.style.setProperty('--fit', Math.max(0.55, room / need).toFixed(3));
+    }
+    addEventListener('resize', function(){ if (state.word) fitWord(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ if (state.word) fitWord(); });
+
     function drawHighlights(){
       $('stage').classList.toggle('show-eng', state.showEng);
       $('stage').classList.toggle('show-stress', state.showStress);
       $('opt-eng').checked = state.showEng;
       $('opt-stress').checked = state.showStress;
+      if (state.word) fitWord();
       save();
     }
 
-    /* clicking a sound in the word: name it, then take you to it in the chart */
+    /* clicking a sound in the word names it (with a link to the chart); the link or the hover button takes you there */
     var bubble = null, bubbleTimer = null;
-    function showSound(sym){
-      $('sym-info').innerHTML = '<b>' + sym + '</b> ' + nameOf(sym);
+    function nameSound(sym){
+      var info = $('sym-info');
+      info.innerHTML = '';
+      info.appendChild(el('b', '', sym));
+      info.appendChild(document.createTextNode(nameOf(sym) + (hasAudio(sym) ? '' : ' · no recording yet')));
+      var go = el('button', 'to-chart', 'Show in chart ↓');
+      go.type = 'button';
+      go.addEventListener('click', function(){ jumpToSound(sym); });
+      info.appendChild(go);
+    }
+    function jumpToSound(sym){
       var target = document.querySelector('.chart-card .ph[data-ph="' + CSS.escape(sym) + '"]');
       if (!target) return;
       target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
       Array.prototype.forEach.call(document.querySelectorAll('.ph.flash'), function(b){ b.classList.remove('flash'); });
       void target.offsetWidth;   /* restart the flash animation */
       target.classList.add('flash');
+      showBubble(target, nameOf(sym), 550);
+    }
+    function showBubble(target, text, delay){
       if (bubble) bubble.remove();
       clearTimeout(bubbleTimer);
       bubbleTimer = setTimeout(function(){
         var r = target.getBoundingClientRect();
-        bubble = el('div', 'bubble', nameOf(sym));
-        bubble.style.left = (r.left + r.width / 2 + window.scrollX) + 'px';
+        bubble = el('div', 'bubble', text);
         bubble.style.top = (r.top + window.scrollY - 6) + 'px';
         document.body.appendChild(bubble);
+        /* keep the label on screen; the little arrow still points at the sound */
+        var mid = r.left + r.width / 2, half = bubble.offsetWidth / 2, edge = 8;
+        var x = Math.min(Math.max(mid, half + edge), document.documentElement.clientWidth - half - edge);
+        bubble.style.left = (x + window.scrollX) + 'px';
+        bubble.style.setProperty('--arrow', (mid - x) + 'px');
         bubbleTimer = setTimeout(function(){ if (bubble) { bubble.remove(); bubble = null; } }, 2600);
-      }, 550);
+      }, delay || 0);
     }
 
     /* recent words are kept whole (sounds, English slots, stress), so clicking one brings it back exactly */
@@ -690,7 +761,7 @@
       $('history-empty').hidden = state.history.length > 0;
     }
 
-    /* one button per sound; its look depends on the section and the practice choice */
+    /* one button per sound; its look depends on the set and the practice choice */
     function phone(sym){
       var b = el('button', 'ph', sym);
       b.type = 'button';
@@ -739,8 +810,9 @@
         b.style.top = y + '%';
         chart.appendChild(b);
       });
-      [['Front', 22, 1], ['Central', 55, 1], ['Back', 90, 1]].forEach(function(l){
-        var s = el('span', 'vlabel', l[0]); s.style.left = l[1] + '%'; s.style.top = l[2] + '%'; chart.appendChild(s);
+      /* Front / Central / Back sit just above the box, so they never cover the high vowels on small screens */
+      [['Front', 24], ['Central', 59], ['Back', 94]].forEach(function(l){
+        var s = el('span', 'vlabel vtop', l[0]); s.style.left = l[1] + '%'; chart.appendChild(s);
       });
       /* heights, as in the course: high, high-mid, low-mid, low */
       [['High', 0], ['High-mid', 1/3], ['Low-mid', 2/3], ['Low', 1]].forEach(function(l){
@@ -758,7 +830,7 @@
       });
     }
 
-    /* the picker lists what's in play for the current section */
+    /* the picker lists what's in play for the current set */
     function buildPicker(){
       var sec = SECTIONS[state.section], box = $('picker-groups');
       box.innerHTML = '';
@@ -785,7 +857,7 @@
         b.classList.toggle('picked', on);   /* not 'practice': that's the chip's class */
         b.setAttribute('aria-pressed', String(on));
         b.setAttribute('aria-disabled', String(!c));
-        b.title = nameOf(sym) + (!c ? ' (not in ' + sec.short + '’s list)' : (on ? ' (practising: tap to drop)' : ''));
+        b.title = nameOf(sym) + (!c ? ' (not in ' + sec.short + '’s set)' : (on ? ' (practising)' : '')) + (hasAudio(sym) ? '' : ' · no recording yet');
       });
     }
 
@@ -816,6 +888,74 @@
       }
       note.innerHTML = 'Each practised sound counts ' + state.boost + '× as much as the others. About <b>' + practiceShare(state.boost) +
         '%</b> of words will include at least one of them (' + practiceShare(1) + '% with no boost).';
+    }
+
+
+    /* ===================== audio: one Wikimedia Commons recording per sound (credits at the foot of the page) =====================
+       [file, Commons file name, Commons page, author, licence, note] — filled in from the download script */
+    var AUDIO = /*AUDIO-DATA*/{"p":["audio/voiceless-bilabial-plosive.mp3","Voiceless bilabial plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_bilabial_plosive.ogg","author on file page","CC BY-SA 3.0",""],"b":["audio/voiced-bilabial-plosive.mp3","Voiced bilabial plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiced_bilabial_plosive.ogg","author on file page","CC BY-SA 3.0",""],"m":["audio/bilabial-nasal.mp3","Bilabial nasal.ogg","https://commons.wikimedia.org/wiki/File:Bilabial_nasal.ogg","author on file page","CC BY-SA 3.0",""],"f":["audio/voiceless-labiodental-fricative.mp3","Voiceless labio-dental fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_labio-dental_fricative.ogg","Nixinova","CC0",""],"v":["audio/voiced-labiodental-fricative.mp3","Voiced labio-dental fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiced_labio-dental_fricative.ogg","Nixinova","CC0",""],"θ":["audio/voiceless-dental-fricative.mp3","Voiceless dental fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_dental_fricative.ogg","author on file page","CC BY-SA 3.0",""],"ð":["audio/voiced-dental-fricative.mp3","Voiced dental fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiced_dental_fricative.ogg","author on file page","CC BY-SA 3.0",""],"t":["audio/voiceless-alveolar-plosive.mp3","Voiceless alveolar plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_alveolar_plosive.ogg","author on file page","CC BY-SA 3.0",""],"d":["audio/voiced-alveolar-plosive.mp3","Voiced alveolar plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiced_alveolar_plosive.ogg","author on file page","CC BY-SA 3.0",""],"s":["audio/voiceless-alveolar-sibilant.mp3","Voiceless alveolar sibilant.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_alveolar_sibilant.ogg","Peter Isotalo","CC BY-SA 3.0",""],"z":["audio/voiced-alveolar-sibilant.mp3","Voiced alveolar sibilant.ogg","https://commons.wikimedia.org/wiki/File:Voiced_alveolar_sibilant.ogg","author on file page","CC BY-SA 3.0",""],"n":["audio/alveolar-nasal.mp3","Alveolar nasal.ogg","https://commons.wikimedia.org/wiki/File:Alveolar_nasal.ogg","author on file page","CC BY-SA 3.0",""],"ʃ":["audio/voiceless-postalveolar-fricative.mp3","Voiceless palato-alveolar sibilant.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_palato-alveolar_sibilant.ogg","Peter Isotalo","CC BY-SA 3.0",""],"ʒ":["audio/voiced-postalveolar-fricative.mp3","Voiced palato-alveolar sibilant.ogg","https://commons.wikimedia.org/wiki/File:Voiced_palato-alveolar_sibilant.ogg","Peter Isotalo","CC BY-SA 3.0",""],"k":["audio/voiceless-velar-plosive.mp3","Voiceless velar plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_velar_plosive.ogg","author on file page","CC BY-SA 3.0",""],"ɡ":["audio/voiced-velar-plosive.mp3","Voiced velar plosive 02.ogg","https://commons.wikimedia.org/wiki/File:Voiced_velar_plosive_02.ogg","author on file page","CC BY-SA 3.0",""],"ŋ":["audio/velar-nasal.mp3","Velar nasal.ogg","https://commons.wikimedia.org/wiki/File:Velar_nasal.ogg","author on file page","CC BY-SA 3.0",""],"h":["audio/voiceless-glottal-fricative.mp3","Voiceless glottal fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_glottal_fricative.ogg","author on file page","CC BY-SA 3.0",""],"tʃ":["audio/voiceless-postalveolar-affricate.mp3","Voiceless palato-alveolar affricate.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_palato-alveolar_affricate.ogg","Peter Isotalo","CC BY-SA 3.0",""],"dʒ":["audio/voiced-postalveolar-affricate.mp3","Voiced palato-alveolar affricate.ogg","https://commons.wikimedia.org/wiki/File:Voiced_palato-alveolar_affricate.ogg","Octane (English Wikipedia)","Public domain",""],"ɹ":["audio/alveolar-approximant.mp3","Alveolar approximant.ogg","https://commons.wikimedia.org/wiki/File:Alveolar_approximant.ogg","Erutuon","CC BY-SA 3.0",""],"l":["audio/alveolar-lateral-approximant.mp3","Alveolar lateral approximant.ogg","https://commons.wikimedia.org/wiki/File:Alveolar_lateral_approximant.ogg","author on file page","CC BY-SA 3.0",""],"j":["audio/palatal-approximant.mp3","Palatal approximant.ogg","https://commons.wikimedia.org/wiki/File:Palatal_approximant.ogg","author on file page","CC BY-SA 3.0",""],"w":["audio/labial-velar-approximant.mp3","Voiced labio-velar approximant.ogg","https://commons.wikimedia.org/wiki/File:Voiced_labio-velar_approximant.ogg","author on file page","CC BY-SA 3.0",""],"i":["audio/high-front-unrounded-vowel.mp3","Close front unrounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Close_front_unrounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"ɛ":["audio/low-mid-front-unrounded-vowel.mp3","Open-mid front unrounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Open-mid_front_unrounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"ɑ":["audio/low-back-unrounded-vowel.mp3","Open back unrounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Open_back_unrounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"u":["audio/high-back-rounded-vowel.mp3","Close back rounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Close_back_rounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"ə":["audio/mid-central-vowel.mp3","Mid-central vowel.ogg","https://commons.wikimedia.org/wiki/File:Mid-central_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"ɪ":["audio/near-high-near-front-unrounded-vowel.mp3","Near-close near-front unrounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Near-close_near-front_unrounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"ʊ":["audio/near-high-near-back-rounded-vowel.mp3","Near-close near-back rounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Near-close_near-back_rounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"ɚ":["audio/rhotic-mid-central-vowel.mp3","En-us-er.ogg","https://commons.wikimedia.org/wiki/File:En-us-er.ogg","Dvortygirl","CC BY-SA 3.0","the American English word \"er\""],"ɸ":["audio/voiceless-bilabial-fricative.mp3","Voiceless bilabial fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_bilabial_fricative.ogg","author on file page","CC BY-SA 3.0",""],"β":["audio/voiced-bilabial-fricative.mp3","Voiced bilabial fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiced_bilabial_fricative.ogg","author on file page","CC BY-SA 3.0",""],"ɱ":["audio/labiodental-nasal.mp3","Labiodental nasal.ogg","https://commons.wikimedia.org/wiki/File:Labiodental_nasal.ogg","author on file page","CC BY-SA 3.0",""],"p̼":["audio/voiceless-linguolabial-plosive.mp3","Voiceless linguolabial stop.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_linguolabial_stop.ogg","Kenny2wiki","CC BY-SA 4.0",""],"b̼":["audio/voiced-linguolabial-plosive.mp3","Voiced linguolabial stop.ogg","https://commons.wikimedia.org/wiki/File:Voiced_linguolabial_stop.ogg","Kenny2wiki","CC BY-SA 4.0",""],"t̪":["audio/voiceless-dental-plosive.mp3","Voiceless dental stop.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_dental_stop.ogg","Adamsa123","CC BY-SA 4.0",""],"d̪":["audio/voiced-dental-plosive.mp3","Voiced dental stop.ogg","https://commons.wikimedia.org/wiki/File:Voiced_dental_stop.ogg","Adamsa123","CC BY-SA 4.0",""],"n̪":["audio/dental-nasal.mp3","Voiced Dental Nasal.ogg","https://commons.wikimedia.org/wiki/File:Voiced_Dental_Nasal.ogg","Wikkiaccountt","CC0",""],"ʈ":["audio/voiceless-retroflex-plosive.mp3","Voiceless retroflex stop.oga","https://commons.wikimedia.org/wiki/File:Voiceless_retroflex_stop.oga","Peter Isotalo","CC BY-SA 3.0",""],"ɖ":["audio/voiced-retroflex-plosive.mp3","Voiced retroflex stop.oga","https://commons.wikimedia.org/wiki/File:Voiced_retroflex_stop.oga","author on file page","CC BY-SA 3.0",""],"ʂ":["audio/voiceless-retroflex-fricative.mp3","Voiceless retroflex sibilant.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_retroflex_sibilant.ogg","Peter Isotalo","CC BY-SA 3.0",""],"ʑ":["audio/voiced-alveolo-palatal-fricative.mp3","Voiced alveolo-palatal sibilant.ogg","https://commons.wikimedia.org/wiki/File:Voiced_alveolo-palatal_sibilant.ogg","Peter Isotalo","CC BY-SA 3.0",""],"c":["audio/voiceless-palatal-plosive.mp3","Voiceless palatal plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_palatal_plosive.ogg","Peter Isotalo","CC BY-SA 3.0",""],"ɟ":["audio/voiced-palatal-plosive.mp3","Voiced palatal plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiced_palatal_plosive.ogg","author on file page","CC BY-SA 3.0",""],"x":["audio/voiceless-velar-fricative.mp3","Voiceless velar fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_velar_fricative.ogg","author on file page","CC BY-SA 3.0",""],"ɣ":["audio/voiced-velar-fricative.mp3","Voiced velar fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiced_velar_fricative.ogg","author on file page","CC BY-SA 3.0",""],"q":["audio/voiceless-uvular-plosive.mp3","Voiceless uvular plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_uvular_plosive.ogg","author on file page","CC BY-SA 3.0",""],"ɢ":["audio/voiced-uvular-plosive.mp3","Voiced uvular stop.oga","https://commons.wikimedia.org/wiki/File:Voiced_uvular_stop.oga","author on file page","CC BY-SA 3.0",""],"ʁ":["audio/voiced-uvular-fricative.mp3","Voiced uvular fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiced_uvular_fricative.ogg","author on file page","CC BY-SA 3.0",""],"ħ":["audio/voiceless-pharyngeal-fricative.mp3","Voiceless pharyngeal fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_pharyngeal_fricative.ogg","author on file page","CC BY-SA 3.0",""],"ʕ":["audio/voiced-pharyngeal-fricative.mp3","Voiced pharyngeal fricative.ogg","https://commons.wikimedia.org/wiki/File:Voiced_pharyngeal_fricative.ogg","Peter Isotalo","CC BY-SA 3.0",""],"ʔ":["audio/glottal-plosive.mp3","Glottal stop.ogg","https://commons.wikimedia.org/wiki/File:Glottal_stop.ogg","Peter Isotalo","CC BY-SA 3.0",""],"ts":["audio/voiceless-alveolar-affricate.mp3","Voiceless alveolar sibilant affricate.oga","https://commons.wikimedia.org/wiki/File:Voiceless_alveolar_sibilant_affricate.oga","author on file page","CC BY-SA 3.0",""],"k͡p":["audio/voiceless-labial-velar-plosive.mp3","Voiceless labial-velar plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_labial-velar_plosive.ogg","Anak 1","Public domain",""],"ɡ͡b":["audio/voiced-labial-velar-plosive.mp3","Voiced labial-velar plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiced_labial-velar_plosive.ogg","Moyogo","CC BY 2.5",""],"p͡t":["audio/voiceless-labial-alveolar-plosive.mp3","Voiceless labial-alveolar plosive.ogg","https://commons.wikimedia.org/wiki/File:Voiceless_labial-alveolar_plosive.ogg","1tslmn2015","CC BY 3.0",""],"kʷ":["audio/voiceless-labialized-velar-plosive.mp3","Labialized voiceless velar plosive.ogg","https://commons.wikimedia.org/wiki/File:Labialized_voiceless_velar_plosive.ogg","Adamsa123","CC BY-SA 3.0",""],"ɡʷ":["audio/voiced-labialized-velar-plosive.mp3","Labialized voiced velar plosive.ogg","https://commons.wikimedia.org/wiki/File:Labialized_voiced_velar_plosive.ogg","Adamsa123","CC BY-SA 3.0",""],"ʙ":["audio/bilabial-trill.mp3","Bilabial trill.ogg","https://commons.wikimedia.org/wiki/File:Bilabial_trill.ogg","author on file page","CC BY-SA 3.0",""],"r":["audio/alveolar-trill.mp3","Alveolar trill.ogg","https://commons.wikimedia.org/wiki/File:Alveolar_trill.ogg","author on file page","CC BY-SA 3.0",""],"ɾ":["audio/alveolar-tap.mp3","Alveolar tap.ogg","https://commons.wikimedia.org/wiki/File:Alveolar_tap.ogg","author on file page","CC BY-SA 3.0",""],"ɭ":["audio/retroflex-lateral-approximant.mp3","Retroflex lateral approximant.ogg","https://commons.wikimedia.org/wiki/File:Retroflex_lateral_approximant.ogg","author on file page","CC BY-SA 3.0",""],"ɫ":["audio/velarized-alveolar-lateral-approximant.mp3","Velarized alveolar lateral approximant.ogg","https://commons.wikimedia.org/wiki/File:Velarized_alveolar_lateral_approximant.ogg","author on file page","CC BY-SA 3.0",""],"ʋ":["audio/labiodental-approximant.mp3","Labiodental approximant.ogg","https://commons.wikimedia.org/wiki/File:Labiodental_approximant.ogg","author on file page","CC BY-SA 3.0",""],"ɥ":["audio/labial-palatal-approximant.mp3","LL-Q150 (fra)-WikiLucas00-IPA ɥ.wav","https://commons.wikimedia.org/wiki/File:LL-Q150_(fra)-WikiLucas00-IPA_%C9%A5.wav","WikiLucas00","CC BY-SA 4.0",""],"e":["audio/high-mid-front-unrounded-vowel.mp3","Close-mid front unrounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Close-mid_front_unrounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"a":["audio/low-front-unrounded-vowel.mp3","Open front unrounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Open_front_unrounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"ɔ":["audio/low-mid-back-rounded-vowel.mp3","Open-mid back rounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Open-mid_back_rounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"o":["audio/high-mid-back-rounded-vowel.mp3","Close-mid back rounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Close-mid_back_rounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"y":["audio/high-front-rounded-vowel.mp3","Close front rounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Close_front_rounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"œ":["audio/low-mid-front-rounded-vowel.mp3","Open-mid front rounded vowel (2).ogg","https://commons.wikimedia.org/wiki/File:Open-mid_front_rounded_vowel_(2).ogg","Denelson83","CC BY-SA 3.0",""],"ʌ":["audio/low-mid-back-unrounded-vowel.mp3","PR-open-mid back unrounded vowel2.ogg","https://commons.wikimedia.org/wiki/File:PR-open-mid_back_unrounded_vowel2.ogg","RoachPeter","CC BY-SA 4.0",""],"ɯ":["audio/high-back-unrounded-vowel.mp3","Close back unrounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Close_back_unrounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"ʉ":["audio/high-central-rounded-vowel.mp3","Close central rounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Close_central_rounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"ɨ":["audio/high-central-unrounded-vowel.mp3","Close central unrounded vowel.ogg","https://commons.wikimedia.org/wiki/File:Close_central_unrounded_vowel.ogg","Denelson83","CC BY-SA 3.0",""],"ɛ̃":["audio/low-mid-front-unrounded-nasal-vowel.mp3","PR-open-mid front unrounded nasalized vowel.ogg","https://commons.wikimedia.org/wiki/File:PR-open-mid_front_unrounded_nasalized_vowel.ogg","RoachPeter","CC BY-SA 4.0",""],"ɔ̃":["audio/low-mid-back-rounded-nasal-vowel.mp3","PR-open-mid back rounded nasalized vowel.ogg","https://commons.wikimedia.org/wiki/File:PR-open-mid_back_rounded_nasalized_vowel.ogg","RoachPeter","CC BY-SA 4.0",""],"ɑ̃":["audio/low-back-unrounded-nasal-vowel.mp3","PR-open back unrounded nasalized vowel.ogg","https://commons.wikimedia.org/wiki/File:PR-open_back_unrounded_nasalized_vowel.ogg","RoachPeter","CC BY-SA 4.0",""]}/*END-AUDIO-DATA*/;
+    function hasAudio(sym){ return AUDIO.hasOwnProperty(sym); }
+    var player = null, playRun = 0;
+    function stopAudio(){
+      playRun++;
+      if (player) { player.pause(); player = null; }
+      Array.prototype.forEach.call(document.querySelectorAll('.playing'), function(x){ x.classList.remove('playing'); });
+      $('play-each').classList.remove('on');
+    }
+    /* play one sound, marking `els` while it plays; resolves when it ends (or straight away if there's no recording) */
+    function playOne(sym, els, run){
+      return new Promise(function(done){
+        if (!hasAudio(sym) || run !== playRun) return done(false);
+        var a = new Audio(AUDIO[sym][0]), finished = false;
+        player = a;
+        els.forEach(function(x){ x.classList.add('playing'); });
+        function finish(){
+          if (finished) return;
+          finished = true;
+          els.forEach(function(x){ x.classList.remove('playing'); });
+          done(true);
+        }
+        a.addEventListener('ended', finish);
+        a.addEventListener('error', finish);
+        var t = a.play();
+        if (t && t.catch) t.catch(finish);
+      });
+    }
+    function playSound(sym, els){
+      stopAudio();
+      return playOne(sym, els || [], playRun);
+    }
+    /* the word's six recordings one after another (separate sounds, not a spoken word) */
+    function playEach(){
+      stopAudio();
+      var run = playRun, slots = $('word').querySelectorAll('button.slot'), i = 0;
+      $('play-each').classList.add('on');
+      (function next(){
+        if (run !== playRun) return;
+        if (i >= state.word.length) { $('play-each').classList.remove('on'); return; }
+        var sym = state.word[i].sym, btn = slots[i];
+        i++;
+        playOne(sym, btn ? [btn] : [], run).then(function(){ setTimeout(next, 280); });
+      })();
+    }
+    function drawCredits(){
+      var list = $('credits-list');
+      list.innerHTML = '';
+      Object.keys(AUDIO).forEach(function(sym){
+        var c = AUDIO[sym], li = el('li');
+        li.appendChild(el('b', '', sym));
+        var a = el('a', '', c[1]);
+        a.href = c[2]; a.target = '_blank'; a.rel = 'noopener';
+        li.appendChild(a);
+        li.appendChild(document.createTextNode(' by ' + c[3] + ' (' + c[4] + ')' + (c[5] ? ', ' + c[5] : '')));
+        list.appendChild(li);
+      });
+      var none = [];   /* every charted sound without a recording */
+      Array.prototype.forEach.call(document.querySelectorAll('.chart-card .ph'), function(b){
+        var sym = b.getAttribute('data-ph');
+        if (!hasAudio(sym) && none.indexOf(sym) < 0) none.push(sym);
+      });
+      $('credits-missing').textContent = none.length ? 'No recording found yet for: ' + none.join(' ') + '.' : '';
     }
 
     /* ===================== actions ===================== */
@@ -849,7 +989,7 @@
       $('practice-open').setAttribute('aria-expanded', String(open));
     }
 
-    /* section: one button (top, and again in the charts card) switches Razak <-> Nicole */
+    /* set: one button (top, and again in each chart card) switches Razak's <-> Nicole's */
     function showOption(button, value){
       Array.prototype.forEach.call(button.querySelectorAll('.opt'), function(o){
         o.classList.toggle('on', o.getAttribute('data-opt') === value);
@@ -859,8 +999,8 @@
       var sec = SECTIONS[state.section], other = state.section === 'razak' ? 'Nicole' : 'Razak';
       Array.prototype.forEach.call(document.querySelectorAll('[data-sec-toggle]'), function(b){
         showOption(b, state.section);
-        b.setAttribute('aria-label', 'TA section: ' + sec.short + '. Switch to ' + other);
-        b.title = 'Switch to ' + other + '’s section';
+        b.setAttribute('aria-label', 'Sound set: ' + sec.short + '’s. Switch to ' + other + '’s');
+        b.title = 'Switch to ' + other + '’s set';
       });
       var any = state.mode === 'any';
       showOption($('mode-toggle'), state.mode);
@@ -870,7 +1010,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-sec-toggle]'), function(b){
       b.addEventListener('click', function(){
         state.section = state.section === 'razak' ? 'nicole' : 'razak';
-        /* sounds Nicole doesn't have are parked, and come back when you switch back to Razak */
+        /* sounds the new set doesn't have are parked, and come back when you switch back */
         var all = state.practice.concat(state.parked.filter(function(s){ return state.practice.indexOf(s) < 0; }));
         state.practice = all.filter(function(s){ return classify(s); });
         state.parked = all.filter(function(s){ return !classify(s); });
@@ -889,15 +1029,20 @@
       newWord();
     });
 
-    /* any sound button (chart or picker) adds or drops it from the practice list */
+    /* sound buttons: in the picker they add/drop practice sounds; in the charts they play */
     document.addEventListener('click', function(e){
       var b = e.target.closest && e.target.closest('.ph');
       if (b) {
         var sym = b.getAttribute('data-ph');
-        if (classify(sym)) togglePractice(sym);       /* faded sounds aren't in this section's list */
+        if (!b.closest('#picker')) {
+          playSound(sym, [b]);
+          showBubble(b, nameOf(sym) + (hasAudio(sym) ? '' : ' · no recording yet'));
+          return;
+        }
+        if (classify(sym)) togglePractice(sym);       /* faded sounds aren't in this set */
         return;
       }
-      /* clicking outside the picker closes it, except on the settings (Section, English, switches),
+      /* clicking outside the picker closes it, except on the settings (Set, English, switches),
          so you can change them with the picker still open */
       if (!$('picker').hidden && !e.target.closest('#picker, #practice-open, .settings-row, [data-sec-toggle]')) openPicker(false);
     });
@@ -909,6 +1054,7 @@
     $('boost').addEventListener('input', function(e){ state.boost = +e.target.value; $('boost-out').textContent = state.boost + '×'; });
     $('boost').addEventListener('change', function(){ drawBoostNote(); newWord(); });
     $('new-word').addEventListener('click', newWord);
+    $('play-each').addEventListener('click', function(){ if ($('play-each').classList.contains('on')) stopAudio(); else playEach(); });
     $('opt-eng').addEventListener('change', function(e){ state.showEng = e.target.checked; drawHighlights(); });
     $('opt-stress').addEventListener('change', function(e){ state.showStress = e.target.checked; drawHighlights(); });
     document.addEventListener('keydown', function(e){
@@ -917,6 +1063,7 @@
       if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); newWord(); }
       else if (e.key === 'e' || e.key === 'E') { state.showEng = !state.showEng; drawHighlights(); }
       else if (e.key === 's' || e.key === 'S') { state.showStress = !state.showStress; drawHighlights(); }
+      else if (e.key === 'p' || e.key === 'P') { playEach(); }
     });
 
     load();
@@ -928,6 +1075,7 @@
     drawBoostNote();
     newWord();
     drawHighlights();
+    drawCredits();
 
     /* ===================== left panel: highlight the part of the page you're looking at ===================== */
     (function(){
