@@ -143,11 +143,22 @@
     .lang-yy svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 6px rgba(0,0,0,.35))}
     /* idles slowly like the ☯; the letters counter-turn so they stay upright */
     .lang-yy .yy-idle{display:block;width:100%;height:100%;animation:yy-idle 40s linear infinite}
-    .lang-yy .glyph-idle{transform-box:fill-box;transform-origin:center;animation:yy-idle 40s linear infinite reverse}
-    .lang-yy .disk,
-    .lang-yy .glyph{transform-box:fill-box;transform-origin:center;transition:transform .6s cubic-bezier(.6,0,.4,1)}
-    .lang-zh .lang-yy .disk{transform:rotate(180deg)}
-    .lang-zh .lang-yy .glyph{transform:rotate(-180deg)}  /* letters stay upright while the disk turns */
+    /* the disk turns half a turn per toggle; each letter sits at a dot position and turns back by the same
+       amounts (idle spin + toggle) about its own centre, so it stays upright and in place */
+    .lang-yy .ly-disk{position:relative;display:block;width:100%;height:100%;transition:transform .6s cubic-bezier(.6,0,.4,1)}
+    .lang-zh .lang-yy .ly-disk{transform:rotate(180deg)}
+    .lang-yy .ly-dot{position:absolute;left:50%;width:0;height:0}
+    .lang-yy .ly-top{top:26.9%}      /* the dot centres of the drawing: y = -24 and +25 of 104 */
+    .lang-yy .ly-bottom{top:74%}
+    .lang-yy .ly-unspin{position:absolute;left:0;top:0;width:0;height:0;animation:yy-idle 40s linear infinite reverse}
+    .lang-yy .ly-unturn{
+      position:absolute;left:0;top:0;display:block;
+      transform:translate(-50%,-50%);transition:transform .6s cubic-bezier(.6,0,.4,1);
+      font-size:calc(var(--yy) * .29);line-height:1;white-space:nowrap;
+    }
+    .lang-zh .lang-yy .ly-unturn{transform:translate(-50%,-50%) rotate(-180deg)}
+    .lang-yy .ly-a{font-family:Inter,Arial,sans-serif;font-weight:800;color:#CD2E3A}
+    .lang-yy .ly-wen{font-family:var(--kai);font-weight:700;color:#0047A0}
 
     /* ---------- ☯ : idles slowly, spins half a turn on click, then the page flips ---------- */
     .yy{
@@ -392,7 +403,7 @@
     @media (prefers-reduced-motion:reduce){
       ::view-transition-old(root),::view-transition-new(root){animation:none}
       .yy svg{transition:none}
-      .yy .yy-idle,.lang-yy .yy-idle,.lang-yy .glyph-idle{animation:none}
+      .yy .yy-idle,.lang-yy .yy-idle,.lang-yy .ly-unspin{animation:none}
     }
 
     /* ---------- SMALLER SCREENS ---------- */
@@ -435,7 +446,11 @@
        a link to a math tab (#contact, #bio, #research, #teaching) opens Bennett Hon (Math) instead */
     (function(){
       var math = ['contact','bio','research','teaching'];
-      document.body.className = math.indexOf(location.hash.slice(1)) > -1 ? 'side-math' : 'side-ling';
+      var cls = math.indexOf(location.hash.slice(1)) > -1 ? 'side-math' : 'side-ling';
+      /* a refresh keeps 漢文 if this tab was in it (a new visit still starts in English) */
+      var englishOnly = ['ling-contact','games'];
+      try { if (sessionStorage.getItem('bh-lang') === 'zh' && englishOnly.indexOf(location.hash.slice(1)) === -1) cls += ' lang-zh'; } catch (e) {}
+      document.body.className = cls;
     })();
   </script>
 
@@ -643,17 +658,18 @@
       <div class="tabs-bar">
       <div class="banner-left">
         <button type="button" class="lang-yy" id="lang-btn" aria-pressed="false" aria-label="Switch to Classical Chinese" title="English / 漢文">
-          <span class="yy-idle">
-          <svg viewBox="-52 -52 104 104" aria-hidden="true">
-            <g class="disk">
-              <!-- Taegukgi red #CD2E3A and blue #0047A0, no rim -->
-              <circle r="50" fill="#0047A0"/>
-              <path d="M0,-50 A50,50 0 0 1 0,50 A25,25 0 0 1 0,0 A25,25 0 0 0 0,-50 Z" fill="#CD2E3A"/>
+          <!-- every turn happens on plain HTML boxes (not inside the SVG), so all browsers rotate it the same way -->
+          <span class="yy-idle" aria-hidden="true">
+            <span class="ly-disk">
+              <svg viewBox="-52 -52 104 104">
+                <!-- Taegukgi red #CD2E3A and blue #0047A0, no rim -->
+                <circle r="50" fill="#0047A0"/>
+                <path d="M0,-50 A50,50 0 0 1 0,50 A25,25 0 0 1 0,0 A25,25 0 0 0 0,-50 Z" fill="#CD2E3A"/>
+              </svg>
               <!-- like the dots of a taichi: each letter is the opposite colour of the half it sits in -->
-              <g transform="translate(0,-24)"><g class="glyph-idle"><text class="glyph" x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="#CD2E3A" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="30">A</text></g></g>
-              <g transform="translate(0,25)"><g class="glyph-idle"><text class="glyph" x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="#0047A0" font-family="DFKai-SB,BiauKai,Kaiti TC,STKaiti,KaiTi,serif" font-weight="700" font-size="30">文</text></g></g>
-            </g>
-          </svg>
+              <span class="ly-dot ly-top"><span class="ly-unspin"><span class="ly-unturn ly-a">A</span></span></span>
+              <span class="ly-dot ly-bottom"><span class="ly-unspin"><span class="ly-unturn ly-wen">文</span></span></span>
+            </span>
           </span>
         </button>
       </div>
@@ -842,22 +858,28 @@
       setInterval(updateDate, 60000);
 
       /* ---------- A·文 taichi: Classical Chinese (vertical, right to left, red) on the Linguistics side.
-         Every visit starts in English, so the main page is always the English Linguistics page. ---------- */
+         A new visit starts in English (the main page); the choice is kept for this tab, so a refresh stays put. ---------- */
       var langBtn  = document.getElementById('lang-btn');
-      function applyLang(l, animate){
+      function applyLang(l, userClick){
         var go = function(){
           body.classList.toggle('lang-zh', l === 'zh');
           langBtn.setAttribute('aria-pressed', l === 'zh' ? 'true' : 'false');
           langBtn.setAttribute('aria-label', l === 'zh' ? 'Switch to English' : 'Switch to Classical Chinese');
-          if (current() === 'ling') showTab('ling', last.ling);
+          if (current() === 'ling') {
+            showTab('ling', last.ling);
+            /* keep the address pointing at the tab actually shown, so a refresh reopens it */
+            var shownTab = tabs.ling.filter(function(t){ return t.classList.contains('active'); })[0];
+            if (userClick && shownTab) history.replaceState(null, '', '#' + shownTab.dataset.tab);
+          }
           updateDate();
         };
-        if (animate && canTransition()) quiet(document.startViewTransition(go)); else go();
+        if (userClick && canTransition()) quiet(document.startViewTransition(go)); else go();
+        try { sessionStorage.setItem('bh-lang', l); } catch (e) {}
       }
       langBtn.addEventListener('click', function(){
         applyLang(body.classList.contains('lang-zh') ? 'en' : 'zh', true);
       });
-      applyLang('en', false);
+      applyLang(body.classList.contains('lang-zh') ? 'zh' : 'en', false);
 
       /* ☯ — the big one spins half a turn, then the whole page turns over */
       function flip(){
@@ -871,7 +893,8 @@
         var swap = function(){
           setSide(to);
           Array.prototype.forEach.call(bigs, function(b){ b.classList.remove('spinning'); });
-          history.replaceState(null, '', '#' + last[to]);
+          var shownTab = tabs[to].filter(function(t){ return t.classList.contains('active'); })[0];
+          history.replaceState(null, '', '#' + (shownTab ? shownTab.dataset.tab : last[to]));
           window.scrollTo(0, 0);
         };
         var turnPage = function(){
