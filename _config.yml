@@ -1,20 +1,15 @@
-# Temporary site pause started 2026-09-29.
-# Revert the maintenance commit to restore the original site.
-exclude:
-  - "README.md"
-  - "backend"
-  - "blog.html"
-  - "chsh.html"
-  - "frlg_living_dex_tracker.html"
-  - "github-light.png"
-  - "hex-time.html"
-  - "isomorphism.html"
-  - "lattice.html"
-  - "linkedin-icon.png"
-  - "profilepic.jpg"
-  - "puonx.png"
-  - "resources.html"
-  - "translations.html"
-
 include:
   - ".well-known"
+
+# Kept in the repo but not published (GitHub Pages skips these when it builds the site).
+exclude:
+  - "index-previous.html"
+  # older pages in the previous design, hidden for now
+  - "blog.html"
+  - "translations.html"
+  - "resources.html"
+  - "hex-time.html"
+  - "chsh.html"
+  - "isomorphism.html"
+  - "lattice.html"
+  - "frlg_living_dex_tracker.html"

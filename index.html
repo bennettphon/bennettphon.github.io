@@ -1,22 +1,923 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Temporarily offline</title>
+  <title>Bennett Hon</title>
+  <link rel="icon" href="puonx.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
   <style>
-    :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
-    body { min-height: 100svh; margin: 0; display: grid; place-items: center; background: #f6f5f1; color: #242b28; }
-    main { box-sizing: border-box; width: min(100%, 38rem); padding: 2rem; }
-    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: 1.1; letter-spacing: -.04em; margin: 0 0 1rem; }
-    p { font-size: 1.05rem; line-height: 1.7; color: #5e6762; margin: 0; }
-    @media (prefers-color-scheme: dark) { body { background: #18211d; color: #edf1ee; } p { color: #aebbb2; } }
+    /* =====================================================================
+       Two Bennett Hons, one ☯.
+       side-math  = yang: stark black on white, the 本 seal in black ink
+       side-ling  = yin:  navy + blue cards, the 本 seal inverted
+       ===================================================================== */
+
+    body.side-math{
+      --page:#ffffff;
+      --glow-a:transparent; --glow-b:transparent;
+      --nav-bg:#0a0a0a;
+      --nav-ink:rgba(255,255,255,.66);
+      --nav-active-bg:#ffffff; --nav-active-ink:#0a0a0a; --nav-active-shadow:none;
+      --hero-ink:#0a0a0a; --hero-muted:#4a4a4a; --hero-link:#0a0a0a;
+      --card:#ffffff; --card-border:1.5px solid #0a0a0a; --card-shadow:6px 6px 0 #0a0a0a;
+      --title-bg:#0a0a0a; --title-ink:#ffffff;
+      --ink:#111111; --muted:#5a5a5a; --rule:#dcdcdc;
+      --tile:#f2f2f2; --tile-hover:#e4e4e4;
+      --link:#0a0a0a; --link-line:currentColor;
+      --display:"STIX Two Text",Georgia,serif;
+      --text:"STIX Two Text",Georgia,serif;
+      --text-size:1rem;
+      --seal-bg:#ffffff; --seal-border:1.5px solid #0a0a0a; --seal-shadow:6px 6px 0 #0a0a0a; --seal-filter:none;
+      --yy-glow:none;
+      --logo-filter:brightness(0); --logo-rule:#0a0a0a;
+      --yy-rot:0deg;
+      --ig:#111111; --orcid:#111111;
+    }
+    body.side-ling{
+      --page:#002255;
+      --glow-a:#0a3a80; --glow-b:#013a78;
+      --nav-bg:rgba(0,15,38,.86);
+      --nav-ink:rgba(255,255,255,.72);
+      --nav-active-bg:linear-gradient(135deg,#1c8fd6,#4fb3f0); --nav-active-ink:#ffffff; --nav-active-shadow:0 6px 18px rgba(79,179,240,.4);
+      --hero-ink:#ffffff; --hero-muted:rgba(255,255,255,.82); --hero-link:#4fb3f0;
+      --card:#ffffff; --card-border:0; --card-shadow:0 12px 28px rgba(0,12,40,.28);
+      --title-bg:linear-gradient(135deg,#1c8fd6,#4fb3f0); --title-ink:#ffffff;
+      --ink:#182234; --muted:#5c6b84; --rule:#e6ebf2;
+      --tile:#f3f7fc; --tile-hover:#e6f2fc;
+      --link:#1c8fd6; --link-line:transparent;
+      --display:Lora,Georgia,serif;
+      --text:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+      --text-size:.92rem;
+      --seal-bg:#0d0d0d; --seal-border:4px solid #ffffff; --seal-shadow:0 0 10px rgba(0,0,0,.35); --seal-filter:none;
+      --yy-glow:drop-shadow(0 0 6px rgba(79,179,240,.55));
+      --logo-filter:none; --logo-rule:#4fb3f0;
+      --yy-rot:180deg;
+      --ig:#d62976; --orcid:#a6ce39;
+    }
+
+    /* 漢文 turns the Linguistics side from blue to red */
+    body.side-ling.lang-zh{
+      --page:#3b0b0a;
+      --glow-a:#7d1d15; --glow-b:#5e1210;
+      --nav-bg:rgba(34,5,4,.9);
+      --nav-active-bg:linear-gradient(160deg,#b3261e,#e2583f); --nav-active-shadow:0 6px 18px rgba(226,88,63,.4);
+      --hero-link:#ff8f75;
+      --title-bg:linear-gradient(160deg,#b3261e,#e2583f);
+      --link:#b3261e;
+      --yy-glow:drop-shadow(0 0 6px rgba(226,88,63,.55));
+      --rail:calc(var(--yy) + 2 * var(--edge));   /* wide enough that the pinned ☯ sits centred on it */
+      --seal-bg:#ffffff; --seal-border:4px solid #1e160b; --seal-filter:invert(1) brightness(1.06);   /* 本 seal flips to black on pure white */
+    }
+
+    /* only one Bennett Hon at a time */
+    body.side-math [data-side="ling"],
+    body.side-ling [data-side="math"]{display:none}
+
+    :root{
+      --side:230px;--pic:200px;--yy:46px;--edge:18px;
+      --kai:"DFKai-SB","BiauKai","Kaiti TC","STKaiti","KaiTi","PMingLiU","MingLiU",serif;
+    }
+
+    /* ---------- GLOBAL ---------- */
+    *{box-sizing:border-box}
+    /* keep the scrollbar's space reserved so flipping between a long and a short page doesn't shift everything sideways */
+    html{background:#000;-webkit-text-size-adjust:100%;scrollbar-gutter:stable}
+    body{
+      margin:0;min-height:100vh;
+      font-family:var(--text);font-size:16px;line-height:1.5;color:var(--ink);
+      background-color:var(--page);
+      background-image:
+        radial-gradient(1100px 500px at 15% -10%, var(--glow-a) 0%, transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, var(--glow-b) 0%, transparent 55%);
+      background-attachment:fixed;
+    }
+    a{color:var(--link);text-decoration:underline;text-decoration-color:var(--link-line);text-underline-offset:2px}
+    a:hover{text-decoration-color:currentColor}
+    .wrap{max-width:1120px;margin:0 auto;padding-left:24px;padding-right:24px}
+
+    /* ---------- TAB BAR ---------- */
+    .tabs{
+      position:sticky;top:0;z-index:100;
+      box-shadow:0 8px 24px rgba(0,8,24,.3);
+    }
+    /* the frosted background lives on a separate layer, so the blur doesn't re-anchor the pinned taichis */
+    .tabs::before{
+      content:"";position:absolute;inset:0;z-index:-1;
+      background:var(--nav-bg);
+      -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    }
+    /* [A·文 taichi] [tabs, centred] [date ☯] */
+    .tabs-bar{
+      display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-areas:"left tabs right";
+      align-items:center;gap:10px;padding:6px var(--edge);
+    }
+    .tabs-inner{grid-area:tabs;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:4px 0}
+    .banner-left{grid-area:left;justify-self:start;display:flex;align-items:center;min-width:var(--yy);min-height:var(--yy)}
+    .banner-right{grid-area:right;justify-self:end;display:flex;align-items:center;gap:12px;min-width:0;min-height:var(--yy);padding-right:calc(var(--yy) + 12px)}
+
+    /* both taichis are pinned to the top corners, so switching language (or side) never moves them */
+    .yy,.lang-yy{position:fixed;top:6px;z-index:130}
+    .yy{right:var(--edge);view-transition-name:yy}
+    .lang-yy{left:var(--edge);view-transition-name:lang-yy}
+    .banner-date{
+      min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+      font:600 .82rem/1.3 Inter,sans-serif;letter-spacing:.04em;font-variant-numeric:tabular-nums;color:var(--nav-ink);
+    }
+    .banner-date.is-sui{font:400 1rem/1.3 var(--kai);letter-spacing:.06em;color:#fff}
+
+    /* A·文 taichi (Linguistics side): blue half = English, red half = 漢文; half a turn on each toggle */
+    .lang-yy{
+      width:var(--yy);height:var(--yy);padding:0;margin:0;
+      border:0;background:none;cursor:pointer;border-radius:50%;
+      transition:transform .2s ease;
+    }
+    .lang-yy:hover{transform:scale(1.08)}
+    .lang-yy:focus-visible{outline:2px solid #fff;outline-offset:4px}
+    .lang-yy svg{display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 6px rgba(0,0,0,.35))}
+    /* idles slowly like the ☯; the letters counter-turn so they stay upright */
+    .lang-yy .yy-idle{display:block;width:100%;height:100%;animation:yy-idle 40s linear infinite}
+    .lang-yy .glyph-idle{transform-box:fill-box;transform-origin:center;animation:yy-idle 40s linear infinite reverse}
+    .lang-yy .disk,
+    .lang-yy .glyph{transform-box:fill-box;transform-origin:center;transition:transform .6s cubic-bezier(.6,0,.4,1)}
+    .lang-zh .lang-yy .disk{transform:rotate(180deg)}
+    .lang-zh .lang-yy .glyph{transform:rotate(-180deg)}  /* letters stay upright while the disk turns */
+
+    /* ---------- ☯ : idles slowly, spins half a turn on click, then the page flips ---------- */
+    .yy{
+      width:var(--yy);height:var(--yy);padding:0;margin:0;
+      border:0;background:none;cursor:pointer;border-radius:50%;
+      transition:transform .2s ease;
+    }
+    .yy:hover{transform:scale(1.08)}
+    .yy:focus-visible{outline:2px solid #4fb3f0;outline-offset:4px}
+    .yy .yy-idle{display:block;width:100%;height:100%;animation:yy-idle 40s linear infinite}
+    .yy svg{
+      display:block;width:100%;height:100%;
+      filter:var(--yy-glow);
+      transform:rotate(var(--yy-rot));
+      transition:transform .55s cubic-bezier(.6,0,.4,1);
+    }
+    .yy.spinning svg{transform:rotate(calc(var(--yy-rot) + 180deg))}
+    @keyframes yy-idle{to{transform:rotate(360deg)}}
+    .tab-btn{
+      display:flex;align-items:center;gap:8px;
+      padding:10px 16px;border-radius:10px;border:1px solid transparent;
+      background:none;color:var(--nav-ink);
+      font:600 .86rem/1 Inter,sans-serif;letter-spacing:.01em;
+      cursor:pointer;transition:background .15s,color .15s;
+    }
+    .tab-btn:hover{color:#fff;background:rgba(255,255,255,.08)}
+    .tab-btn:focus-visible{outline:2px solid #4fb3f0;outline-offset:2px}
+    .tab-btn.active{color:var(--nav-active-ink);background:var(--nav-active-bg);box-shadow:var(--nav-active-shadow)}
+    .tab-icon{font-size:1rem;line-height:1}
+    .side-math .tab-icon{font-family:"STIX Two Text",Georgia,serif;font-size:1.05rem}
+
+    /* ---------- HEADER ---------- */
+    .header-inner{display:flex;align-items:center;justify-content:space-between;gap:24px;padding-top:34px;padding-bottom:30px}
+    .header-text{min-width:0}
+    /* affiliation logo in the corner, with a thin rule under it */
+    .affil-logo{flex:none;display:block;padding:0 6px 14px;border-bottom:1px solid transparent;transition:border-color .2s}
+    .affil-logo:hover,.affil-logo:focus-visible{border-bottom-color:var(--logo-rule)}  /* rule shows on hover only */
+    .affil-logo img{display:block;width:200px;height:auto;filter:var(--logo-filter)}
+    .site-header h1{
+      margin:0 0 8px;
+      font:600 2.5rem/1.2 var(--display);letter-spacing:-.01em;color:var(--hero-ink);
+      display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;
+    }
+    .subtitle{margin:0;font-size:.95rem;line-height:1.6;color:var(--hero-muted)}
+    .subtitle a{color:var(--hero-link)}
+
+    /* ---------- LAYOUT ---------- */
+    .layout{display:grid;grid-template-columns:var(--side) minmax(0,1fr);gap:28px;align-items:start;padding-bottom:40px}
+    .sidebar{display:flex;justify-content:center}
+    .seal{
+      margin:0;width:var(--pic);aspect-ratio:1/1;border-radius:50%;overflow:hidden;
+      background:var(--seal-bg);border:var(--seal-border);box-shadow:var(--seal-shadow);
+    }
+    .seal img{display:block;width:100%;height:100%;object-fit:contain;filter:var(--seal-filter)}
+    .seal:not(.portrait) img{padding:9%}
+    .seal.portrait img{object-fit:cover}
+
+    /* ---------- CARDS ---------- */
+    .card{background:var(--card);border:var(--card-border);border-radius:14px;overflow:hidden;box-shadow:var(--card-shadow)}
+    .card[hidden]{display:none}
+    .panel-title{
+      display:flex;align-items:center;gap:10px;padding:14px 22px;
+      background:var(--title-bg);color:var(--title-ink);
+      font:600 1.08rem/1.5 var(--display);letter-spacing:.01em;
+    }
+    .card-body{padding:18px 22px 22px;font-size:var(--text-size);line-height:1.65}
+    .card-body p{margin:0 0 12px}
+    .card-body p:last-child{margin-bottom:0}
+    .card-body h3{
+      margin:20px 0 12px;padding-top:18px;border-top:1px solid var(--rule);
+      font:600 1rem/1.4 var(--display);color:var(--ink);
+    }
+    .card-body h3:first-child{margin-top:0;padding-top:0;border-top:0}
+    .card-body h3 .h3-note{font:400 .85rem/1 var(--text);color:var(--muted);margin-left:6px}
+
+    .info-list{margin:0;display:flex;flex-direction:column;gap:12px}
+    .info-row{display:flex;gap:12px}
+    .info-row dt{
+      flex:0 0 130px;padding-top:2px;
+      font:600 .72rem/1.6 Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+    }
+    .info-row dd{margin:0;min-width:0}
+    .mono{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;font-size:.86rem}
+    .ipa{font-family:"Charis SIL","Doulos SIL","Gentium Plus","Times New Roman",serif;font-size:1.02em}
+    .han{font-family:"DFKai-SB","KaiTi","楷体",serif}
+    .muted{color:var(--muted)}
+
+    .tile-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .tile-stack{display:flex;flex-direction:column;gap:8px}
+    .tile{
+      display:flex;align-items:center;gap:8px;width:100%;
+      padding:8px 10px;border-radius:8px;border:0;
+      background:var(--tile);color:var(--ink);
+      font:500 .85rem/1.4 var(--text);text-align:left;text-decoration:none;
+      transition:background .15s;
+    }
+    a.tile:hover{background:var(--tile-hover);text-decoration:none}
+    .tile .tile-label{flex:1;min-width:0}
+    .tile .ext{color:var(--muted);font-size:.8rem}
+    .tile .tile-sub{display:block;font-size:.8rem;color:var(--muted);font-weight:400}
+    .tile img,.tile svg{width:14px;height:14px;display:block;flex:none}
+    .tile .ext-icon{width:.7em;height:.7em;color:var(--muted)}
+    .orcid-icon{color:var(--orcid)}
+
+    /* plain link list with a › marker, and fold-out sections (as on Sanders's page) */
+    .link-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+    .link-list li{position:relative;padding-left:20px}
+    .link-list li::before{content:"›";position:absolute;left:4px;top:0;color:var(--link);font-weight:700}
+    .fold > summary{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:18px 22px;cursor:pointer;list-style:none;
+      font:600 1.05rem/1.5 var(--display);color:var(--ink);
+    }
+    .fold > summary::-webkit-details-marker{display:none}
+    .fold > summary::after{content:"+";color:var(--link);font:400 1.3rem/1 var(--display)}
+    .fold[open] > summary::after{content:"\2212"}
+    .fold > .card-body{padding-top:0}
+    .fold + .fold{border-top:1px solid var(--rule)}
+    .gh-icon{filter:invert(1)}
+    .side-math .li-icon{filter:grayscale(1) contrast(1.4)}
+    .ig-icon{color:var(--ig)}
+
+    /* research projects */
+    .project{padding:10px 14px;border-radius:8px;background:var(--tile)}
+    .project + .project{margin-top:8px}
+    .project-name{font-weight:600}
+    .project-talk{font-style:italic}
+    .project-where{display:block;font-size:.85rem;color:var(--muted)}
+
+    /* dated lists (talks, updates) */
+    .dated{list-style:none;margin:0;padding:0}
+    .dated li{display:flex;gap:14px;padding:10px 0;border-top:1px solid var(--rule)}
+    .dated li:first-child{border-top:0;padding-top:0}
+    .dated .when{
+      flex:0 0 92px;padding-top:3px;
+      font:600 .72rem/1.6 Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);
+    }
+    .dated .what{min-width:0}
+    .dated .title{font-style:italic}
+    .dated .where{display:block;font-size:.88rem;color:var(--muted)}
+
+    /* courses */
+    .courses{list-style:none;margin:0;padding:0}
+    .courses li{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:6px 0;border-top:1px dashed var(--rule)}
+    .courses li:first-child{border-top:0}
+    .courses .code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.82rem;font-weight:600;min-width:64px}
+    .courses .name{flex:1;min-width:180px}
+    .courses .term{font-size:.85rem;color:var(--muted)}
+    .sub-label{margin:14px 0 4px;font:600 .72rem/1.6 Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+    .sub-label:first-of-type{margin-top:0}
+    ol.tight,ul.tight{margin:6px 0 0;padding-left:1.3em}
+    ul.tight li,ol.tight li{margin:2px 0}
+
+    /* ---------- FOOTER (globe) ---------- */
+    .site-foot{padding:8px 0 48px}
+    .globe-wrapper{width:120px;margin-inline:auto;opacity:.9}
+    .globe-wrapper iframe,
+    .globe-wrapper canvas{width:120px !important;height:120px !important;display:block;margin:0 auto}
+
+    /* ---------- 漢文 mode (Linguistics side): vertical, right to left ---------- */
+    body:not(.lang-zh) [data-lang="zh"],
+    body.lang-zh [data-lang="en"]{display:none}
+    .lang-zh [data-side="ling"] .tab-icon{display:none}
+    .lang-zh [data-side="ling"] .tab-btn{font:500 1.02rem/1 var(--kai);letter-spacing:.14em}
+    .lang-zh [data-side="ling"] .header-inner{justify-content:flex-end}   /* the vertical name stands on the right */
+    .header-zh{writing-mode:vertical-rl;height:200px;font-family:var(--kai);color:#fff}
+    .site-header .header-zh h1{display:block;margin:0;font:400 2.6rem/1.25 var(--kai);letter-spacing:.3em;color:#fff}
+    /* the banner becomes a side rail on the right (tabs, then the date, top to bottom);
+       the two taichis are pinned, so they stay exactly where they were */
+    body.side-ling.lang-zh{padding-right:var(--rail)}
+    .lang-zh [data-side="ling"] .tabs{
+      position:fixed;top:0;right:0;bottom:0;width:var(--rail);overflow-y:auto;
+      box-shadow:-8px 0 24px rgba(20,0,0,.35);
+    }
+    .lang-zh [data-side="ling"] .tabs-bar{
+      height:100%;min-height:max-content;gap:16px;
+      padding:calc(6px + var(--yy) + 18px) 0 16px;   /* clear the ☯ sitting at the top of the rail */
+      grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;grid-template-areas:"tabs" "right";
+      justify-items:center;
+    }
+    .lang-zh [data-side="ling"] .banner-left{display:contents}
+    .lang-zh [data-side="ling"] .tabs-inner{flex-direction:column;flex-wrap:nowrap;align-items:center;justify-content:flex-start;padding:4px 0}
+    .lang-zh [data-side="ling"] .tab-btn{writing-mode:vertical-rl;padding:14px 9px;letter-spacing:.35em}
+    .lang-zh [data-side="ling"] .banner-right{flex-direction:column;justify-self:center;align-self:end;padding-right:0;min-height:0}
+    .lang-zh [data-side="ling"] .banner-date{writing-mode:vertical-rl;overflow:visible}
+    .lang-zh [data-side="ling"] .layout{direction:rtl}
+    .lang-zh [data-side="ling"] .layout > *{direction:ltr}
+    .lang-zh [data-side="ling"] .card:not([hidden]){display:flex;flex-direction:row-reverse}
+    .lang-zh [data-side="ling"] .panel-title{writing-mode:vertical-rl;padding:22px 12px;font:400 1.2rem/1 var(--kai);letter-spacing:.4em}
+    .zh-body{
+      flex:1;min-width:0;
+      writing-mode:vertical-rl;text-orientation:mixed;
+      height:340px;overflow-x:auto;overflow-y:hidden;
+      padding:24px 22px;
+      font-family:var(--kai);font-size:18px;line-height:40px;letter-spacing:.06em;color:#1e160b;
+      background-color:#fbf7ee;
+      /* 朱絲欄: a faint vermilion rule between every column */
+      background-image:repeating-linear-gradient(to left,transparent 0 39px,rgba(176,58,46,.25) 39px 40px);
+      background-origin:content-box;background-position:right top;
+    }
+    .zh-body p{margin:0}
+    .zh-body .zh-gap{margin-block-start:40px}
+    .zh-k{color:#b03a2e;font-size:.85em;letter-spacing:.2em}
+    .zh-body a{color:#8d163b;font-weight:700;text-decoration:none}
+    .zh-body a:hover{text-decoration:underline}
+    .zh-latin{font-family:Lora,Georgia,serif;letter-spacing:.02em}
+
+    /* ---------- ☯ FLIP (View Transitions; instant swap where unsupported) ---------- */
+    /* (the 文/A language toggle uses the browser's plain cross-fade instead) */
+    html[data-flip]::view-transition-old(root),
+    html[data-flip]::view-transition-new(root){
+      mix-blend-mode:normal;backface-visibility:hidden;
+      animation-duration:.9s;animation-timing-function:cubic-bezier(.6,0,.4,1);animation-fill-mode:both;
+    }
+    html[data-flip="fwd"]::view-transition-old(root){animation-name:flip-out}
+    html[data-flip="fwd"]::view-transition-new(root){animation-name:flip-in}
+    html[data-flip="back"]::view-transition-old(root){animation-name:flip-out-back}
+    html[data-flip="back"]::view-transition-new(root){animation-name:flip-in-back}
+    @keyframes flip-out{
+      0%{transform:perspective(1800px) rotateY(0) scale(1);opacity:1}
+      49.9%{transform:perspective(1800px) rotateY(90deg) scale(.86);opacity:1}
+      50%,100%{transform:perspective(1800px) rotateY(90deg) scale(.86);opacity:0}
+    }
+    @keyframes flip-in{
+      0%,49.9%{transform:perspective(1800px) rotateY(-90deg) scale(.86);opacity:0}
+      50%{transform:perspective(1800px) rotateY(-90deg) scale(.86);opacity:1}
+      100%{transform:perspective(1800px) rotateY(0) scale(1);opacity:1}
+    }
+    @keyframes flip-out-back{
+      0%{transform:perspective(1800px) rotateY(0) scale(1);opacity:1}
+      49.9%{transform:perspective(1800px) rotateY(-90deg) scale(.86);opacity:1}
+      50%,100%{transform:perspective(1800px) rotateY(-90deg) scale(.86);opacity:0}
+    }
+    @keyframes flip-in-back{
+      0%,49.9%{transform:perspective(1800px) rotateY(90deg) scale(.86);opacity:0}
+      50%{transform:perspective(1800px) rotateY(90deg) scale(.86);opacity:1}
+      100%{transform:perspective(1800px) rotateY(0) scale(1);opacity:1}
+    }
+    @media (prefers-reduced-motion:reduce){
+      ::view-transition-old(root),::view-transition-new(root){animation:none}
+      .yy svg{transition:none}
+      .yy .yy-idle,.lang-yy .yy-idle,.lang-yy .glyph-idle{animation:none}
+    }
+
+    /* ---------- SMALLER SCREENS ---------- */
+    @media (max-width:980px){
+      :root{--side:200px;--pic:180px}
+    }
+    @media (max-width:1000px){
+      /* A·文 on the left, date + ☯ on the right, the tabs on the next row */
+      :root{--edge:14px}
+      .tabs-bar{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"left right" "tabs tabs";gap:2px 8px;padding:6px var(--edge) 4px}
+    }
+    @media (max-width:760px){
+      .header-inner{padding-top:22px;padding-bottom:20px}
+      .affil-logo img{width:140px}
+      .site-header h1{font-size:1.9rem}
+      .layout{grid-template-columns:1fr;gap:22px}
+      :root{--pic:140px}
+      .tile-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .header-zh{height:180px}
+    }
+    @media (max-width:560px){
+      :root{--yy:40px;--edge:10px}
+      .banner-date.is-sui{font-size:.84rem;letter-spacing:0}
+      .affil-logo{display:none}
+      .wrap{padding-left:16px;padding-right:16px}
+      .tab-btn{padding:8px 10px;font-size:.8rem;gap:6px}
+      .site-header h1{font-size:1.65rem}
+      .info-row,.dated li{flex-direction:column;gap:2px}
+      .info-row dt,.dated .when{flex-basis:auto}
+      .tile-grid{grid-template-columns:1fr}
+    }
   </style>
 </head>
-<body>
-  <main>
-    <h1>Temporarily offline.</h1>
-    <p>This site is taking a short break.<br>Please check back in a few days.</p>
-  </main>
+
+<body class="side-ling">
+  <script>
+    /* pick the side before first paint: the English Linguistics page is the main page;
+       a link to a math tab (#contact, #bio, #research, #teaching) opens Bennett Hon (Math) instead */
+    (function(){
+      var math = ['contact','bio','research','teaching'];
+      document.body.className = math.indexOf(location.hash.slice(1)) > -1 ? 'side-math' : 'side-ling';
+    })();
+  </script>
+
+  <!-- the ☯ artwork, drawn once and reused on both sides -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="yinyang" viewBox="-52 -52 104 104">
+      <!-- white rim so the dark half still reads against a dark banner -->
+      <circle r="50" fill="#fff" stroke="#fff" stroke-width="3"/>
+      <path d="M0,-50 A50,50 0 0 1 0,50 A25,25 0 0 1 0,0 A25,25 0 0 0 0,-50 Z" fill="#0a0a0a"/>
+      <circle cy="-25" r="7" fill="#0a0a0a"/>
+      <circle cy="25" r="7" fill="#fff"/>
+    </symbol>
+    <defs>
+      <linearGradient id="ig-grad" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#feda75"/><stop offset=".3" stop-color="#fa7e1e"/><stop offset=".55" stop-color="#d62976"/><stop offset=".8" stop-color="#962fbf"/><stop offset="1" stop-color="#4f5bd5"/>
+      </linearGradient>
+    </defs>
+    <symbol id="ext" viewBox="0 0 24 24">
+      <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="orcid" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="12" fill="currentColor"/>
+      <text x="12" y="12.6" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="Inter,Arial,sans-serif" font-weight="700" font-size="11.5" letter-spacing="-.3">iD</text>
+    </symbol>
+    <symbol id="ig-color" viewBox="0 0 24 24">
+      <rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="url(#ig-grad)"/>
+      <rect x="5.5" y="5.5" width="13" height="13" rx="4" fill="none" stroke="#fff" stroke-width="1.8"/>
+      <circle cx="12" cy="12" r="3.2" fill="none" stroke="#fff" stroke-width="1.8"/>
+      <circle cx="16.3" cy="7.7" r="1.1" fill="#fff"/>
+    </symbol>
+    <symbol id="ig" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="2"/>
+      <circle cx="17.4" cy="6.6" r="1.3" fill="currentColor"/>
+    </symbol>
+  </svg>
+
+  <!-- ================================================================
+       BENNETT HON (Math)
+       ================================================================ -->
+  <div class="side" data-side="math">
+    <nav class="tabs" aria-label="Sections">
+      <div class="tabs-bar">
+      <div class="tabs-inner" role="tablist">
+        <button type="button" class="tab-btn" role="tab" data-tab="contact" aria-controls="panel-contact"><span class="tab-icon" aria-hidden="true">✉&#xFE0E;</span>Contact</button>
+        <button type="button" class="tab-btn" role="tab" data-tab="bio" aria-controls="panel-bio"><span class="tab-icon" aria-hidden="true">§</span>Bio</button>
+        <button type="button" class="tab-btn" role="tab" data-tab="research" aria-controls="panel-research"><span class="tab-icon" aria-hidden="true">∂</span>Research</button>
+        <button type="button" class="tab-btn" role="tab" data-tab="teaching" aria-controls="panel-teaching"><span class="tab-icon" aria-hidden="true">∇</span>Teaching</button>
+      </div>
+      <div class="banner-right">
+        <time class="banner-date"></time>
+        <button type="button" class="yy" data-flip aria-label="Flip to Bennett Hon (Linguistics)" title="Flip">
+          <span class="yy-idle"><svg viewBox="0 0 104 104" aria-hidden="true"><use href="#yinyang" width="104" height="104"/></svg></span>
+        </button>
+      </div>
+      </div>
+    </nav>
+
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <div class="header-text">
+          <h1><span>Bennett Hon</span></h1>
+          <p class="subtitle">Quantum information &amp; post-quantum cryptography</p>
+          <p class="subtitle"><a href="https://www.utoronto.ca/" target="_blank" rel="noopener">University of Toronto</a></p>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap layout">
+      <aside class="sidebar">
+        <figure class="seal portrait"><img src="profilepic.jpg" alt="Bennett Hon"></figure>
+      </aside>
+
+      <main class="content">
+        <!-- CONTACT (same on both sides) -->
+        <section class="card tab-panel" id="panel-contact" role="tabpanel" aria-labelledby="contact-title">
+          <div class="panel-title" id="contact-title"><span class="tab-icon" aria-hidden="true">✉&#xFE0E;</span>Contact</div>
+          <div class="card-body">
+            <dl class="info-list">
+              <div class="info-row"><dt>Pronouns</dt><dd>he/him</dd></div>
+              <div class="info-row"><dt>Email</dt><dd class="mono">bennett.hon [at] mail.utoronto.ca</dd></div>
+              <div class="info-row"><dt>Location</dt><dd>Toronto, Ontario, Canada</dd></div>
+            </dl>
+            <h3>External Profiles</h3>
+            <ul class="tile-grid">
+              <li><a class="tile" href="https://www.linkedin.com/in/bennett-hon/" target="_blank" rel="noopener" aria-label="LinkedIn. Opens in a new tab."><img src="linkedin-icon.png" class="li-icon" alt=""><span class="tile-label">LinkedIn</span><svg class="ext-icon" aria-hidden="true"><use href="#ext"/></svg></a></li>
+              <li><a class="tile" href="https://orcid.org/0009-0002-1251-4204" target="_blank" rel="noopener" aria-label="ORCID. Opens in a new tab."><svg class="orcid-icon" aria-hidden="true"><use href="#orcid"/></svg><span class="tile-label">ORCID</span><svg class="ext-icon" aria-hidden="true"><use href="#ext"/></svg></a></li>
+              <li><a class="tile" href="https://github.com/bennettphon" target="_blank" rel="noopener" aria-label="GitHub. Opens in a new tab."><img src="github-light.png" class="gh-icon" alt=""><span class="tile-label">GitHub</span><svg class="ext-icon" aria-hidden="true"><use href="#ext"/></svg></a></li>
+              <li><a class="tile" href="https://www.instagram.com/benny._.python/" target="_blank" rel="noopener" aria-label="Instagram. Opens in a new tab."><svg class="ig-icon" aria-hidden="true"><use href="#ig"/></svg><span class="tile-label">Instagram</span><svg class="ext-icon" aria-hidden="true"><use href="#ext"/></svg></a></li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- BIO -->
+        <section class="card tab-panel" id="panel-bio" role="tabpanel" aria-labelledby="bio-title" hidden>
+          <div class="panel-title" id="bio-title"><span class="tab-icon" aria-hidden="true">§</span>Bio</div>
+          <div class="card-body">
+            <p>
+              My interests include algebraic and geometric aspects of quantum information and post-quantum cryptography,
+              particularly nonlocal games, quantum complexity, and lattice-based cryptography.
+              I recently completed an M.Sc. in Mathematics and Statistics at the University of Ottawa.
+              Previously, I did my undergrad in
+              <a href="https://wp.phy.cuhk.edu.hk/undergraduate-admissions/jupas/enrichment-stream-in-theoretical-physics" target="_blank" rel="noopener">Theoretical Physics</a>
+              at the Chinese University of Hong Kong (CUHK). I am very fortunate to have been advised and mentored by
+              Prof. A. Bogdanov,
+              Prof. P. M. Hui,
+              Prof. A. Mehta,
+              and Prof. M. Nevins.
+            </p>
+
+            <h3>Education</h3>
+            <dl class="info-list">
+              <div class="info-row"><dt>2026</dt><dd><strong>M.Sc. in Mathematics and Statistics</strong>, University of Ottawa<br><span class="muted">Concentration in Mathematics.</span></dd></div>
+              <div class="info-row"><dt>2021</dt><dd><strong>B.Sc. (Honours) in Physics</strong>, The Chinese University of Hong Kong<br><span class="muted">Enrichment Stream in Theoretical Physics.</span></dd></div>
+            </dl>
+
+            <h3>Service</h3>
+            <ul class="dated">
+              <li><span class="when">2025–2026</span><span class="what">Vice-President Academic, MSGSA<span class="where">Mathematics and Statistics Graduate Students' Association, University of Ottawa</span></span></li>
+              <li><span class="when">2025–2026</span><span class="what">Coordinator, Graduate Student Colloquium<span class="where">University of Ottawa</span></span></li>
+              <li><span class="when">2025–2026</span><span class="what">Guest Editor, <em>Crux Mathematicorum</em><span class="where">Canadian Mathematical Society</span></span></li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- RESEARCH -->
+        <section class="card tab-panel" id="panel-research" role="tabpanel" aria-labelledby="research-title" hidden>
+          <div class="panel-title" id="research-title"><span class="tab-icon" aria-hidden="true">∂</span>Talks &amp; Posters</div>
+          <div class="card-body">
+            <ul class="dated">
+              <li><span class="when">Jun 2026</span><span class="what"><span class="title">A Pseudotelepathic Group Isomorphism Game</span><span class="where">Poster · Queen's University, Kingston</span></span></li>
+              <li><span class="when">May 2026</span><span class="what"><span class="title">The Levene–Paulsen Group Commutator Game</span><span class="where">QUORUM, Ottawa</span></span></li>
+              <li><span class="when">Jan 2026</span><span class="what"><span class="title">Zauner's Conjecture: Do SIC-POVMs Exist in Every Dimension?</span><span class="where">Guest speaker · MMP end-of-semester seminar, University of Ottawa</span></span></li>
+              <li><span class="when">Dec 2025</span><span class="what"><span class="title">Compact quantum groups and nonlocal games</span><span class="where">QUASAR End-of-Year Seminar</span></span></li>
+              <li><span class="when">May 2025</span><span class="what"><span class="title">A bound for all CHSH<sub>n</sub> games and weighted variants</span><span class="where">QUORUM, Ottawa</span></span></li>
+              <li><span class="when">Mar 2025</span><span class="what"><span class="title">Applications of Dynkin diagrams and Young tableaux in quantum information</span><span class="where">QUASAR Student Seminar</span></span></li>
+              <li><span class="when">Feb 2025</span><span class="what"><span class="title">A bound for all CHSH<sub>n</sub> games and weighted variants</span><span class="where">Poster · Quantum Information Processing (QIP), Raleigh, North Carolina</span></span></li>
+              <li><span class="when">Dec 2024</span><span class="what"><span class="title">A bound for all CHSH<sub>n</sub> games and weighted variants</span><span class="where">QUASAR End-of-Year Seminar</span></span></li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- TALKS -->
+
+        <!-- TEACHING -->
+        <section class="card tab-panel" id="panel-teaching" role="tabpanel" aria-labelledby="teaching-title" hidden>
+          <div class="panel-title" id="teaching-title"><span class="tab-icon" aria-hidden="true">∇</span>Teaching</div>
+          <div class="card-body">
+            <h3>Teaching Assistant <span class="h3-note">University of Ottawa, 2024–2026</span></h3>
+
+            <p class="sub-label">Tutorials (DGD)</p>
+            <ul class="courses">
+              <li><span class="code">MAT1330</span><span class="name">Calculus for the Life Sciences I</span><span class="term">Fall 2024</span></li>
+              <li><span class="code">MAT1341</span><span class="name">Introduction to Linear Algebra</span><span class="term">Winter 2025, Fall 2025</span></li>
+              <li><span class="code">MAT1300</span><span class="name">Mathematical Methods I</span><span class="term">Fall 2025</span></li>
+            </ul>
+
+            <p class="sub-label">Math Help Centre</p>
+            <ul class="courses">
+              <li><span class="name">Tutor for all first-year mathematics courses</span><span class="term">Jan–Apr 2026</span></li>
+            </ul>
+
+            <p class="sub-label">Grading</p>
+            <ul class="courses">
+              <li><span class="code">MAT1320</span><span class="name">Calculus I</span><span class="term">Fall 2024</span></li>
+              <li><span class="code">MAT1341</span><span class="name">Introduction to Linear Algebra</span><span class="term">Fall 2024</span></li>
+              <li><span class="code">MAT1322</span><span class="name">Calculus II</span><span class="term">Winter 2025</span></li>
+              <li><span class="code">MAT2322</span><span class="name">Calculus III for Engineers</span><span class="term">Winter 2025</span></li>
+              <li><span class="code">MAT1720</span><span class="name">Calcul différentiel et intégral I</span><span class="term">Fall 2025</span></li>
+            </ul>
+
+            <h3>Mentorship <span class="h3-note">Math Mentorship Program, University of Ottawa, Winter 2025</span></h3>
+            <p>Graduate student tutor. Mentored two undergraduate projects and guided their final presentations:</p>
+            <ol class="tight">
+              <li>Geometry of <em>p</em>-adic numbers and the local–global principle</li>
+              <li>The Pauli braiding test in quantum cryptography</li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- UPDATES -->
+        <!-- UPDATES (hidden for now)
+        <section class="card tab-panel" id="panel-updates" role="tabpanel" aria-labelledby="updates-title" hidden>
+          <div class="panel-title" id="updates-title"><span class="tab-icon" aria-hidden="true">Δ</span>Updates</div>
+          <div class="card-body">
+            <ul class="dated">
+              <li><span class="when">Oct 2026</span><span class="what">M.Sc. in Mathematics and Statistics conferred<span class="where">University of Ottawa</span></span></li>
+              <li><span class="when">Aug 2026</span><span class="what">Volunteer staff at <a href="https://qcrypt.net/2026/" target="_blank" rel="noopener">QCrypt 2026</a><span class="where">Ottawa</span></span></li>
+              <li><span class="when">Jul 2026</span><span class="what">Attended the International Congress of Mathematicians (ICM)<span class="where">Philadelphia</span></span></li>
+              <li><span class="when">Jun 2026</span><span class="what">Poster: <span class="title">A Pseudotelepathic Group Isomorphism Game</span><span class="where">Queen's University, Kingston</span></span></li>
+              <li><span class="when">May 2026</span><span class="what">Talk: <span class="title">The Levene–Paulsen Group Commutator Game</span><span class="where"><a href="https://quorumuottawa.ca/" target="_blank" rel="noopener">QUORUM</a>, Ottawa</span></span></li>
+            </ul>
+          </div>
+        </section>
+        -->
+      </main>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       BENNETT HON (Linguistics). Same name, different person.
+       ================================================================ -->
+  <div class="side" data-side="ling">
+    <nav class="tabs" aria-label="Sections">
+      <div class="tabs-bar">
+      <div class="banner-left">
+        <button type="button" class="lang-yy" id="lang-btn" aria-pressed="false" aria-label="Switch to Classical Chinese" title="English / 漢文">
+          <span class="yy-idle">
+          <svg viewBox="-52 -52 104 104" aria-hidden="true">
+            <g class="disk">
+              <!-- Taegukgi red #CD2E3A and blue #0047A0, no rim -->
+              <circle r="50" fill="#0047A0"/>
+              <path d="M0,-50 A50,50 0 0 1 0,50 A25,25 0 0 1 0,0 A25,25 0 0 0 0,-50 Z" fill="#CD2E3A"/>
+              <!-- like the dots of a taichi: each letter is the opposite colour of the half it sits in -->
+              <g transform="translate(0,-24)"><g class="glyph-idle"><text class="glyph" x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="#CD2E3A" font-family="Inter,Arial,sans-serif" font-weight="800" font-size="30">A</text></g></g>
+              <g transform="translate(0,25)"><g class="glyph-idle"><text class="glyph" x="0" y="0" text-anchor="middle" dominant-baseline="central" fill="#0047A0" font-family="DFKai-SB,BiauKai,Kaiti TC,STKaiti,KaiTi,serif" font-weight="700" font-size="30">文</text></g></g>
+            </g>
+          </svg>
+          </span>
+        </button>
+      </div>
+      <div class="tabs-inner" role="tablist">
+        <!-- 名刺 (the Chinese contact card) is hidden for now: this tab shows on the English page only -->
+        <button type="button" class="tab-btn" role="tab" data-tab="ling-contact" data-lang="en" aria-controls="panel-ling-contact"><span class="tab-icon" aria-hidden="true">✉️</span><span data-lang="en">Contact</span><span data-lang="zh" lang="zh-Hant">名刺</span></button>
+        <button type="button" class="tab-btn" role="tab" data-tab="games" data-lang="en" aria-controls="panel-games"><span class="tab-icon" aria-hidden="true">🎲</span>Linguistics Games</button>
+        <button type="button" class="tab-btn" role="tab" data-tab="other-links" aria-controls="panel-other-links"><span class="tab-icon" aria-hidden="true">🔗</span><span data-lang="en">Other Links</span><span data-lang="zh" lang="zh-Hant">小學</span></button>
+      </div>
+      <div class="banner-right">
+        <time class="banner-date"></time>
+        <button type="button" class="yy" data-flip aria-label="Flip to Bennett Hon (Math)" title="Flip">
+          <span class="yy-idle"><svg viewBox="0 0 104 104" aria-hidden="true"><use href="#yinyang" width="104" height="104"/></svg></span>
+        </button>
+      </div>
+      </div>
+    </nav>
+
+    <header class="site-header">
+      <div class="wrap header-inner">
+        <div class="header-text" data-lang="en">
+          <h1><span>Bennett Hon</span></h1>
+        </div>
+        <a class="affil-logo" data-lang="en" href="https://www.utoronto.ca/" target="_blank" rel="noopener"><img src="uoft-logo.svg" alt="University of Toronto"></a>
+        <div class="header-zh" data-lang="zh" lang="zh-Hant">
+          <h1>韓本一</h1>
+        </div>
+      </div>
+    </header>
+
+    <div class="wrap layout">
+      <aside class="sidebar">
+        <figure class="seal"><img src="puonx-white.png" alt="The character 本 in ancient script"></figure>
+      </aside>
+
+      <main class="content">
+        <!-- CONTACT (same as the other side, plus pronunciation) -->
+        <section class="card tab-panel" id="panel-ling-contact" role="tabpanel" aria-labelledby="ling-contact-title">
+          <div class="panel-title" id="ling-contact-title"><span class="tab-icon" aria-hidden="true">✉️</span><span data-lang="en">Contact</span><span data-lang="zh" lang="zh-Hant">名刺</span></div>
+          <div class="zh-body" data-lang="zh" lang="zh-Hant">
+            <p><span class="zh-k">讀若</span>　<span class="ipa">[ɦɑn pʷənʔiɪt̚]</span></p>
+            <p class="zh-gap"><span class="zh-k">別館</span>　<a href="https://github.com/bennettphon" target="_blank" rel="noopener">吉特哈布</a>　<a href="https://www.linkedin.com/in/bennett-hon/" target="_blank" rel="noopener">領英</a>　<a href="https://www.instagram.com/benny._.python/" target="_blank" rel="noopener">照片牆</a></p>
+          </div>
+          <div class="card-body" data-lang="en">
+            <dl class="info-list">
+              <div class="info-row"><dt>Pronunciation</dt><dd class="ipa">[ˈbɛnɪt hɒn]</dd></div>
+              <div class="info-row"><dt>Pronouns</dt><dd>he/him</dd></div>
+              <div class="info-row"><dt>Email</dt><dd class="mono">bennett.hon [at] mail.utoronto.ca</dd></div>
+              <div class="info-row"><dt>Location</dt><dd>Sidney Smith Hall, #4065<br>100 St. George Street<br>Toronto, ON M5S 3G3<br>Canada</dd></div>
+            </dl>
+            <h3>External Profiles</h3>
+            <ul class="tile-grid">
+              <li><a class="tile" href="https://www.linkedin.com/in/bennett-hon/" target="_blank" rel="noopener" aria-label="LinkedIn. Opens in a new tab."><img src="linkedin-icon.png" class="li-icon" alt=""><span class="tile-label">LinkedIn</span><svg class="ext-icon" aria-hidden="true"><use href="#ext"/></svg></a></li>
+              <li><a class="tile" href="https://orcid.org/0009-0002-1251-4204" target="_blank" rel="noopener" aria-label="ORCID. Opens in a new tab."><svg class="orcid-icon" aria-hidden="true"><use href="#orcid"/></svg><span class="tile-label">ORCID</span><svg class="ext-icon" aria-hidden="true"><use href="#ext"/></svg></a></li>
+              <li><a class="tile" href="https://github.com/bennettphon" target="_blank" rel="noopener" aria-label="GitHub. Opens in a new tab."><img src="github-light.png" class="gh-icon" alt=""><span class="tile-label">GitHub</span><svg class="ext-icon" aria-hidden="true"><use href="#ext"/></svg></a></li>
+              <li><a class="tile" href="https://www.instagram.com/benny._.python/" target="_blank" rel="noopener" aria-label="Instagram. Opens in a new tab."><svg class="ig-icon" aria-hidden="true"><use href="#ig-color"/></svg><span class="tile-label">Instagram</span><svg class="ext-icon" aria-hidden="true"><use href="#ext"/></svg></a></li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card tab-panel" id="panel-games" role="tabpanel" aria-labelledby="games-title" hidden>
+          <div class="panel-title" id="games-title"><span class="tab-icon" aria-hidden="true">🎲</span>Linguistics Games</div>
+          <details class="fold" open>
+            <summary>Online educational games</summary>
+            <div class="card-body">
+              <ul class="link-list">
+                <li><a href="lin228-quiz2.html">LIN228 Phonetics Quiz 2 interactive game</a> <span class="muted">(in preparation)</span></li>
+              </ul>
+            </div>
+          </details>
+        </section>
+
+        <section class="card tab-panel" id="panel-other-links" role="tabpanel" aria-labelledby="other-links-title" hidden>
+          <div class="panel-title" id="other-links-title"><span class="tab-icon" aria-hidden="true">🔗</span><span data-lang="en">Other Links</span><span data-lang="zh" lang="zh-Hant">小學</span></div>
+          <div class="zh-body" data-lang="zh" lang="zh-Hant">
+            <p><span class="zh-k">閩東語</span></p>
+            <p>　<a href="https://seedict.com/" target="_blank" rel="noopener">米時典</a></p>
+            <p>　戚林八音</p>
+          </div>
+          <div class="card-body" data-lang="en">
+            <h3>Eastern Min · <span class="han">閩東語</span></h3>
+            <ul class="tile-grid">
+              <li><a class="tile" href="https://seedict.com/" target="_blank" rel="noopener" aria-label="SeeDict. Opens in a new tab."><span class="tile-label">SeeDict <span class="han">米時典</span></span><svg class="ext-icon" aria-hidden="true"><use href="#ext"/></svg></a></li>
+              <li><span class="tile"><span class="tile-label han">戚林八音</span></span></li>
+            </ul>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- shared: the visitor globe (**EXACT** ClustrMaps code — leave unchanged) -->
+  <footer class="site-foot">
+    <div id="globe-wrapper" class="globe-wrapper">
+      <script id="clstr_globe" type="text/javascript"
+        src="//clustrmaps.com/globe.js?d=uuM6ZySIEaA-YHTGq2OykJam2WPgA1bm7dXWA38s9s0"></script>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      var body  = document.body;
+      var sides = ['math', 'ling'];
+      var tabs  = {}, panels = {}, last = {};
+      var busy  = false;
+
+      sides.forEach(function(s){
+        var root = document.querySelector('.side[data-side="' + s + '"]');
+        tabs[s]   = Array.prototype.slice.call(root.querySelectorAll('.tab-btn[data-tab]'));
+        panels[s] = Array.prototype.slice.call(root.querySelectorAll('.tab-panel'));
+        last[s]   = tabs[s][0].dataset.tab;
+      });
+
+      function sideOf(tab){
+        for (var i = 0; i < sides.length; i++) {
+          if (tabs[sides[i]].some(function(t){ return t.dataset.tab === tab; })) return sides[i];
+        }
+        return null;
+      }
+      function current(){ return body.classList.contains('side-ling') ? 'ling' : 'math'; }
+
+      /* a tab marked data-lang="en" only exists on the English page (名刺 is hidden for now) */
+      function shown(t){ var l = t.getAttribute('data-lang'); return !l || l === (body.classList.contains('lang-zh') ? 'zh' : 'en'); }
+      function showTab(side, tab, focus){
+        var ok = tabs[side].filter(shown);
+        if (ok.some(function(t){ return t.dataset.tab === tab; })) last[side] = tab;
+        else tab = ok[0].dataset.tab;
+        tabs[side].forEach(function(t){
+          var on = t.dataset.tab === tab;
+          t.classList.toggle('active', on);
+          t.setAttribute('aria-selected', on ? 'true' : 'false');
+          t.tabIndex = on ? 0 : -1;
+          if (on && focus) t.focus();
+        });
+        panels[side].forEach(function(p){ p.hidden = p.id !== 'panel-' + tab; });
+      }
+
+      function setSide(side, tab){
+        body.classList.toggle('side-math', side === 'math');
+        body.classList.toggle('side-ling', side === 'ling');
+        showTab(side, tab || last[side]);
+        updateDate();
+      }
+
+      function reducedMotion(){
+        return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+      }
+      /* page transitions only when they can actually play (supported, visible tab, motion allowed) */
+      function canTransition(){ return !!document.startViewTransition && !document.hidden && !reducedMotion(); }
+      function quiet(t){ t.ready.catch(function(){}); t.finished.catch(function(){}); return t; }
+
+      /* ---------- banner date: Gregorian, or the 仁壽 era on the 漢文 side ---------- */
+      var DIG = '〇一二三四五六七八九', STEM = '甲乙丙丁戊己庚辛壬癸', BRANCH = '子丑寅卯辰巳午未申酉戌亥';
+      function monthName(n){ return n === 1 ? '正' : n <= 10 ? (n === 10 ? '十' : DIG[n]) : '十' + DIG[n - 10]; }
+      function dayName(d){
+        return d <= 10 ? '初' + (d === 10 ? '十' : DIG[d])
+             : d < 20  ? '十' + DIG[d - 10]
+             : d === 20 ? '二十'
+             : d < 30  ? '廿' + DIG[d - 20]
+             : '三十';
+      }
+      /* 仁壽元年 = 601, so 2026 = 仁壽一四二六年（丙午）; month and day from the Chinese lunisolar calendar */
+      function suiDate(now){
+        /* convert the visitor's own calendar day (noon in China), so it matches the Gregorian date shown */
+        var day = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 4));
+        var parts = new Intl.DateTimeFormat('en-u-ca-chinese', {year:'numeric', month:'numeric', day:'numeric', timeZone:'Asia/Shanghai'}).formatToParts(day);
+        var get = function(t){ for (var i = 0; i < parts.length; i++) { if (parts[i].type === t) return parts[i].value; } return null; };
+        var y = parseInt(get('relatedYear'), 10), m = get('month'), d = parseInt(get('day'), 10);
+        if (!y || !m || !d) return null;
+        var era = String(y - 600).split('').map(function(c){ return DIG[+c]; }).join('');
+        var gz  = STEM[((y - 4) % 10 + 10) % 10] + BRANCH[((y - 4) % 12 + 12) % 12];
+        return '仁壽' + era + '年（' + gz + '）' + (/bis/.test(m) ? '閏' : '') + monthName(parseInt(m, 10)) + '月' + dayName(d) + '日';
+      }
+      var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      function pad(n){ return (n < 10 ? '0' : '') + n; }
+      function gregorian(d){ return d.getFullYear() + '-' + MON[d.getMonth()] + '-' + pad(d.getDate()); }  /* 2026-Nov-25 */
+      function updateDate(){
+        var now = new Date(), sui = null;
+        if (current() === 'ling' && body.classList.contains('lang-zh')) { try { sui = suiDate(now); } catch (e) {} }
+        var iso = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+        Array.prototype.forEach.call(document.querySelectorAll('.banner-date'), function(el){
+          el.textContent = sui || gregorian(now);
+          el.setAttribute('datetime', iso);
+          el.classList.toggle('is-sui', !!sui);
+          if (sui) el.setAttribute('lang', 'zh-Hant'); else el.removeAttribute('lang');
+        });
+      }
+      setInterval(updateDate, 60000);
+
+      /* ---------- A·文 taichi: Classical Chinese (vertical, right to left, red) on the Linguistics side.
+         Every visit starts in English, so the main page is always the English Linguistics page. ---------- */
+      var langBtn  = document.getElementById('lang-btn');
+      function applyLang(l, animate){
+        var go = function(){
+          body.classList.toggle('lang-zh', l === 'zh');
+          langBtn.setAttribute('aria-pressed', l === 'zh' ? 'true' : 'false');
+          langBtn.setAttribute('aria-label', l === 'zh' ? 'Switch to English' : 'Switch to Classical Chinese');
+          if (current() === 'ling') showTab('ling', last.ling);
+          updateDate();
+        };
+        if (animate && canTransition()) quiet(document.startViewTransition(go)); else go();
+      }
+      langBtn.addEventListener('click', function(){
+        applyLang(body.classList.contains('lang-zh') ? 'en' : 'zh', true);
+      });
+      applyLang('en', false);
+
+      /* ☯ — the big one spins half a turn, then the whole page turns over */
+      function flip(){
+        if (busy) return;
+        busy = true;
+        var from = current();
+        var to   = from === 'math' ? 'ling' : 'math';
+        var bigs = document.querySelectorAll('.side[data-side="' + from + '"] .yy');
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        var swap = function(){
+          setSide(to);
+          Array.prototype.forEach.call(bigs, function(b){ b.classList.remove('spinning'); });
+          history.replaceState(null, '', '#' + last[to]);
+          window.scrollTo(0, 0);
+        };
+        var turnPage = function(){
+          if (canTransition()) {
+            document.documentElement.dataset.flip = to === 'ling' ? 'fwd' : 'back';
+            var t = quiet(document.startViewTransition(swap));
+            t.finished.then(function(){ delete document.documentElement.dataset.flip; busy = false; },
+                            function(){ delete document.documentElement.dataset.flip; busy = false; });
+          } else {
+            swap();
+            busy = false;
+          }
+        };
+
+        if (reduce) { turnPage(); return; }
+        Array.prototype.forEach.call(bigs, function(b){ b.classList.add('spinning'); });
+        setTimeout(turnPage, 500);
+      }
+      Array.prototype.forEach.call(document.querySelectorAll('[data-flip]'), function(b){
+        b.addEventListener('click', flip);
+      });
+
+      /* tabs */
+      sides.forEach(function(s){
+        tabs[s].forEach(function(t, i){
+          t.addEventListener('click', function(){
+            history.replaceState(null, '', '#' + t.dataset.tab);
+            showTab(s, t.dataset.tab);
+          });
+          t.addEventListener('keydown', function(e){
+            var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+            if (!d) return;
+            e.preventDefault();
+            var next = tabs[s][(i + d + tabs[s].length) % tabs[s].length].dataset.tab;
+            history.replaceState(null, '', '#' + next);
+            showTab(s, next, true);
+          });
+        });
+      });
+
+      /* #hash → side + tab (panels are id="panel-…", so no page jump) */
+      function fromHash(){
+        var tab  = location.hash.slice(1);
+        var side = sideOf(tab);
+        /* a link to an English-only tab (Contact, Linguistics Games) switches the Linguistics side to English */
+        var btn = side && tabs[side].filter(function(t){ return t.dataset.tab === tab; })[0];
+        if (btn && btn.getAttribute('data-lang') === 'en' && body.classList.contains('lang-zh')) applyLang('en', false);
+        setSide(side || 'ling', side ? tab : null);
+      }
+      window.addEventListener('hashchange', fromHash);
+      fromHash();
+    })();
+  </script>
 </body>
 </html>
