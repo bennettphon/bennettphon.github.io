@@ -14,18 +14,18 @@
     :root{
       --ink:#182234; --muted:#5c6b84; --faint:#9aa6b8; --rule:#e6ebf2;
       --tile:#f3f7fc; --tile-hover:#e6f2fc;
-      /* theme colours (headers, main button, tiles); Nicole's set swaps them for reds below */
+      /* theme colours (headers, main button, tiles); set N swaps them for reds below */
       --blue:#1c8fd6; --blue-2:#4fb3f0; --glow:rgba(79,179,240,.35); --current-bg:#e3f1fc; --flash:28,143,214;
       /* colour code: English green; non-English takes the set's colour */
       --eng:#12936a;
-      --razak:#1c78d6; --razak-2:#4fa6f0;
-      --nicole:#d23b34; --nicole-2:#ef6b5f;
+      --set-r:#1c78d6; --set-r-2:#4fa6f0;
+      --set-n:#d23b34; --set-n-2:#ef6b5f;
       --stress:#d9822b; --stress-bg:#fde7cc;
       --practice:#7c3aed; --practice-bg:#f1eafe;
       --ipa:"Gentium Plus","Charis SIL","Doulos SIL","Noto Serif","Times New Roman",serif;
     }
-    body.sec-razak{--sec:var(--razak);--sec-2:var(--razak-2)}
-    body.sec-nicole{--sec:var(--nicole);--sec-2:var(--nicole-2);
+    body.sec-r{--sec:var(--set-r);--sec-2:var(--set-r-2)}
+    body.sec-n{--sec:var(--set-n);--sec-2:var(--set-n-2);
       --blue:#d23b34;--blue-2:#ef6b5f;--glow:rgba(239,107,95,.35);--current-bg:#fde9e6;--flash:210,59,52;
       --tile:#fcf4f3;--tile-hover:#fbe3e0}
     *{box-sizing:border-box}
@@ -90,18 +90,7 @@
     /* ---------- settings: two compact rows ---------- */
     .settings{position:relative;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
     .settings-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
-    .seg{display:inline-flex;align-items:center;background:var(--tile);border-radius:10px;padding:3px;gap:3px}
-    .seg-label{padding:0 6px 0 8px;font:600 .68rem/1 Inter,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-    .seg button{
-      border:0;background:none;cursor:pointer;padding:7px 12px;border-radius:8px;
-      font:600 .84rem/1 Inter,sans-serif;color:var(--muted);white-space:nowrap;
-    }
-    .seg button small{font-weight:500;opacity:.8}
-    .seg button:hover{color:var(--ink)}
-    .seg button[aria-pressed="true"]{background:#2a3a55;color:#fff}
-    .seg button[data-section="razak"][aria-pressed="true"]{background:linear-gradient(135deg,var(--razak),var(--razak-2));box-shadow:0 4px 12px rgba(28,120,214,.3)}
-    .seg button[data-section="nicole"][aria-pressed="true"]{background:linear-gradient(135deg,var(--nicole),var(--nicole-2));box-shadow:0 4px 12px rgba(210,59,52,.3)}
-    .seg button:focus-visible,.btn:focus-visible,.ph:focus-visible,.practice:focus-visible,.toggle:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+    .btn:focus-visible,.ph:focus-visible,.practice:focus-visible,.toggle:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
 
     /* one-button toggles: click to switch */
     .toggle{
@@ -245,7 +234,7 @@
     /* no idle spin here, so the letter on top is always the current set */
     .ss-yy .yy-idle{display:block;width:100%;height:100%}
     .ss-yy .ly-disk{position:relative;display:block;width:100%;height:100%;transition:transform .6s cubic-bezier(.6,0,.4,1)}
-    body.sec-nicole .ss-yy .ly-disk{transform:rotate(180deg)}
+    body.sec-n .ss-yy .ly-disk{transform:rotate(180deg)}
     .ss-yy .ly-dot{position:absolute;left:50%;width:0;height:0}
     .ss-yy .ly-top{top:26.9%}      /* the dot centres of the drawing: y = -24 and +25 of 104 */
     .ss-yy .ly-bottom{top:74%}
@@ -255,11 +244,11 @@
       transition:transform .6s cubic-bezier(.6,0,.4,1);
       font:800 calc(var(--ss) * .3)/1 Inter,Arial,sans-serif;white-space:nowrap;
     }
-    body.sec-nicole .ss-yy .ly-unturn{transform:translate(-50%,-50%) rotate(-180deg)}
+    body.sec-n .ss-yy .ly-unturn{transform:translate(-50%,-50%) rotate(-180deg)}
     /* both letters white so they read on either half; the current set's letter is bigger and brighter */
     .ss-yy .ly-r,.ss-yy .ly-n{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.45);transition:transform .6s cubic-bezier(.6,0,.4,1),font-size .3s,opacity .3s}
-    body.sec-razak .ss-yy .ly-r,body.sec-nicole .ss-yy .ly-n{font-size:calc(var(--ss) * .34)}
-    body.sec-razak .ss-yy .ly-n,body.sec-nicole .ss-yy .ly-r{font-size:calc(var(--ss) * .25);opacity:.8}
+    body.sec-r .ss-yy .ly-r,body.sec-n .ss-yy .ly-n{font-size:calc(var(--ss) * .34)}
+    body.sec-r .ss-yy .ly-n,body.sec-n .ss-yy .ly-r{font-size:calc(var(--ss) * .25);opacity:.8}
     .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--muted)}
     .legend > span{display:inline-flex;align-items:center;gap:6px}
     .legend i{font:700 1.05rem/1 var(--ipa);font-style:normal}
@@ -333,11 +322,11 @@
     }
   </style>
 </head>
-<body class="sec-razak">
+<body class="sec-r">
   <div class="wrap layout">
     <header class="head">
       <a class="back" href="index.html#games">← Back to Linguistics Games</a>
-      <h1>LIN228 · Phonetics Quiz 2 <span class="ta-wrap">(<button type="button" class="ta-name" data-sec-toggle><span class="stack"><span class="opt on" data-opt="razak">Razak</span><span class="opt" data-opt="nicole">Nicole</span></span><span class="ta-swap" aria-hidden="true">⇄</span></button>)</span></h1>
+      <h1>LIN228 · Phonetics Quiz 2 <span class="ta-wrap">(<button type="button" class="ta-name" data-sec-toggle><span class="stack"><span class="opt on" data-opt="r">R</span><span class="opt" data-opt="n">N</span></span><span class="ta-swap" aria-hidden="true">⇄</span></button>)</span></h1>
       <p class="lede">CVCVCV words: 2 English + 4 non-English sounds, random stress.</p>
     </header>
 
@@ -412,8 +401,8 @@
           <!-- fixed contents (only visibility changes), so switching sets never reflows the layout -->
           <div class="legend">
             <span><i class="k-eng">a</i>English (both sets)</span>
-            <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="razak">Razak&rsquo;s set</span><span class="opt" data-opt="nicole">Nicole&rsquo;s set</span></span></span>
-            <span class="leg-dim"><i class="k-dim">a</i><span class="stack"><span class="opt on" data-opt="razak">Not in Razak&rsquo;s set</span><span class="opt" data-opt="nicole">Not in Nicole&rsquo;s set</span></span></span>
+            <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="r">Set R</span><span class="opt" data-opt="n">Set N</span></span></span>
+            <span class="leg-dim"><i class="k-dim">a</i><span class="stack"><span class="opt on" data-opt="r">Not in set R</span><span class="opt" data-opt="n">Not in set N</span></span></span>
           </div>
         </div>
         <p class="chart-hint">Tap a sound to hear it. To practise sounds, pick them under <b>Practising</b> in the word generator.</p>
@@ -429,8 +418,8 @@
           <!-- fixed contents (only visibility changes), so switching sets never reflows the layout -->
           <div class="legend">
             <span><i class="k-eng">a</i>English (both sets)</span>
-            <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="razak">Razak&rsquo;s set</span><span class="opt" data-opt="nicole">Nicole&rsquo;s set</span></span></span>
-            <span class="leg-dim"><i class="k-dim">a</i><span class="stack"><span class="opt on" data-opt="razak">Not in Razak&rsquo;s set</span><span class="opt" data-opt="nicole">Not in Nicole&rsquo;s set</span></span></span>
+            <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="r">Set R</span><span class="opt" data-opt="n">Set N</span></span></span>
+            <span class="leg-dim"><i class="k-dim">a</i><span class="stack"><span class="opt on" data-opt="r">Not in set R</span><span class="opt" data-opt="n">Not in set N</span></span></span>
           </div>
         </div>
         <div class="vowel-wrap">
@@ -466,7 +455,7 @@
     </main>
   </div>
 
-  <!-- one switch for the whole page, always on screen: blue half = Razak's set, red half = Nicole's set.
+  <!-- one switch for the whole page, always on screen: blue half = set R, red half = set N.
        The current set's letter sits on top, bigger (half a turn per switch). Pinned top-right. -->
   <button type="button" class="set-switch" data-sec-toggle>
     <span class="ss-yy" aria-hidden="true">
@@ -492,15 +481,15 @@
       V: ['i','ɛ','ɑ','u','ə','ɪ','ʊ','ɚ']
     };
     var SECTIONS = {
-      razak: {
-        name: "Razak's set", short: 'Razak',
-        /* Razak's updated list, as given by Bennett (t̪ d̪ n̪ = dentals). The two sets overlap; neither contains the other. */
+      r: {
+        name: 'Set R', short: 'R',
+        /* updated list, as given by Bennett (t̪ d̪ n̪ = dentals). The two sets overlap; neither contains the other. */
         C: ['ɸ','β','ɱ','t̪','d̪','n̪','ʈ','ɖ','x','ɣ','q','ɢ','ʁ','ħ','ʕ','ʔ','k͡p','ɡ͡b','kʷ','ɡʷ','pʲ','bʲ','ʙ','ɭ','ʋ'],
         V: ['e','a','ɔ','o','y','ɯ','ʉ','ɔ̃'],
         syllabic: ['l̩']   /* can fill a vowel slot */
       },
-      nicole: {
-        name: "Nicole's set", short: 'Nicole',
+      n: {
+        name: 'Set N', short: 'N',
         /* as given by Bennett (p̼ b̼ = linguolabials) */
         C: ['ɸ','β','p̼','b̼','n̪','ɖ','ʂ','ʑ','c','ɟ','x','q','ħ','ʕ','ʔ','ts','p͡t','ɡʷ','pʲ','r','ɾ','ɫ','ʋ','ɥ'],
         V: ['e','ɔ','a','y','œ','ʌ','ɯ','ɨ','ɛ̃','ɑ̃']
@@ -584,7 +573,7 @@
 
     /* ===================== generator ===================== */
     var SHAPE = ['C','V','C','V','C','V'];
-    var state = { section: 'razak', mode: 'cv', word: null, showEng: false, showStress: false, practice: [], parked: [], boost: 8, history: [] };
+    var state = { section: 'r', mode: 'cv', word: null, showEng: false, showStress: false, practice: [], parked: [], boost: 8, history: [] };
     /* parked: practice sounds that aren't in the current set, set aside and restored when you switch back */
 
     /* ===================== remember your settings across refreshes (this browser only) ===================== */
@@ -601,7 +590,8 @@
       var d;
       try { d = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); } catch (e) { return; }
       if (!d || typeof d !== 'object') return;
-      if (SECTIONS.hasOwnProperty(d.section)) state.section = d.section;   /* first: the checks below depend on it */
+      var savedSet = typeof d.section === 'string' ? d.section.charAt(0) : '';   /* older saves used longer keys */
+      if (SECTIONS.hasOwnProperty(savedSet)) state.section = savedSet;   /* first: the checks below depend on it */
       if (d.mode === 'cv' || d.mode === 'any') state.mode = d.mode;
       state.showEng = d.showEng === true;
       state.showStress = d.showStress === true;
@@ -878,7 +868,7 @@
       var sec = SECTIONS[state.section], box = $('picker-groups');
       box.innerHTML = '';
       /* non-English first: they're what people usually practise */
-      [[sec.short + '’s consonants', sec.C], [sec.short + '’s vowels', nonEnglishPool(sec, 'V')],
+      [['Set ' + sec.short + ' consonants', sec.C], ['Set ' + sec.short + ' vowels', nonEnglishPool(sec, 'V')],
        ['English consonants', ENGLISH.C], ['English vowels', ENGLISH.V]]
         .forEach(function(g){
           var wrap = el('div', 'picker-group'), list = el('div', 'phs');
@@ -900,14 +890,14 @@
         b.classList.toggle('picked', on);   /* not 'practice': that's the chip's class */
         b.setAttribute('aria-pressed', String(on));
         b.setAttribute('aria-disabled', String(!c));
-        b.title = nameOf(sym) + (!c ? ' (not in ' + sec.short + '’s set)' : (on ? ' (practising)' : '')) + audioNote(sym);
+        b.title = nameOf(sym) + (!c ? ' (not in set ' + sec.short + ')' : (on ? ' (practising)' : '')) + audioNote(sym);
       });
     }
 
     function drawSection(){
       var sec = SECTIONS[state.section];
-      document.body.classList.toggle('sec-razak', state.section === 'razak');
-      document.body.classList.toggle('sec-nicole', state.section === 'nicole');
+      document.body.classList.toggle('sec-r', state.section === 'r');
+      document.body.classList.toggle('sec-n', state.section === 'n');
       Array.prototype.forEach.call(document.querySelectorAll('.legend'), function(l){ showOption(l, state.section); });
       drawPhones();
     }
@@ -1045,18 +1035,18 @@
       $('practice-open').setAttribute('aria-expanded', String(open));
     }
 
-    /* set: the floating R/N taichi switches Razak's <-> Nicole's */
+    /* set: the floating R/N taichi (or the letter in the title) switches set R <-> set N */
     function showOption(button, value){
       Array.prototype.forEach.call(button.querySelectorAll('.opt'), function(o){
         o.classList.toggle('on', o.getAttribute('data-opt') === value);
       });
     }
     function drawToggles(){
-      var sec = SECTIONS[state.section], other = state.section === 'razak' ? 'Nicole' : 'Razak';
+      var sec = SECTIONS[state.section], other = state.section === 'r' ? 'N' : 'R';
       Array.prototype.forEach.call(document.querySelectorAll('[data-sec-toggle]'), function(b){
         showOption(b, state.section);
-        b.setAttribute('aria-label', 'Sound set: ' + sec.short + '’s. Switch to ' + other + '’s');
-        b.title = 'Switch to ' + other + '’s set';
+        b.setAttribute('aria-label', 'Sound set ' + sec.short + '. Switch to set ' + other);
+        b.title = 'Switch to set ' + other;
       });
       var any = state.mode === 'any';
       showOption($('mode-toggle'), state.mode);
@@ -1065,7 +1055,7 @@
     }
     Array.prototype.forEach.call(document.querySelectorAll('[data-sec-toggle]'), function(b){
       b.addEventListener('click', function(){
-        state.section = state.section === 'razak' ? 'nicole' : 'razak';
+        state.section = state.section === 'r' ? 'n' : 'r';
         /* sounds the new set doesn't have are parked, and come back when you switch back */
         var all = state.practice.concat(state.parked.filter(function(s){ return state.practice.indexOf(s) < 0; }));
         state.practice = all.filter(function(s){ return classify(s); });
