@@ -7,35 +7,828 @@
   <link rel="icon" href="puonx.png" type="image/png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:wght@600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Lora:wght@600&display=swap" rel="stylesheet">
+  <!-- IPA font (kept in its own request so a font hiccup can't take the others down) -->
+  <link href="https://fonts.googleapis.com/css2?family=Gentium+Plus:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    :root{
+      --ink:#182234; --muted:#5c6b84; --faint:#9aa6b8; --rule:#e6ebf2;
+      --tile:#f3f7fc; --tile-hover:#e6f2fc;
+      --blue:#1c8fd6; --blue-2:#4fb3f0;
+      /* colour code: English green; non-English takes the section's colour */
+      --eng:#12936a;
+      --razak:#1c78d6; --razak-2:#4fa6f0;
+      --nicole:#d23b34; --nicole-2:#ef6b5f;
+      --stress:#d9822b; --stress-bg:#fde7cc;
+      --practice:#7c3aed; --practice-bg:#f1eafe;
+      --ipa:"Gentium Plus","Charis SIL","Doulos SIL","Noto Serif","Times New Roman",serif;
+    }
+    body.sec-razak{--sec:var(--razak);--sec-2:var(--razak-2)}
+    body.sec-nicole{--sec:var(--nicole);--sec-2:var(--nicole-2)}
     *{box-sizing:border-box}
     body{
-      margin:0;min-height:100vh;display:grid;place-items:center;padding:24px 16px;
-      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:#182234;
+      margin:0;min-height:100vh;padding:28px 16px 48px;
+      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);
       background-color:#002255;
       background-image:
         radial-gradient(1100px 500px at 15% -10%, #0a3a80 0%, transparent 60%),
         radial-gradient(900px 500px at 100% 0%, #013a78 0%, transparent 55%);
       background-attachment:fixed;
     }
-    .card{width:min(100%,560px);background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 12px 28px rgba(0,12,40,.28)}
-    .panel-title{padding:14px 22px;background:linear-gradient(135deg,#1c8fd6,#4fb3f0);color:#fff;font:600 1.08rem/1.5 Lora,Georgia,serif}
-    .card-body{padding:22px;font-size:.95rem;line-height:1.65}
-    .card-body p{margin:0 0 12px}
-    .status{display:inline-block;padding:3px 10px;border-radius:999px;background:#e6f2fc;color:#1c6fa8;font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
-    a{color:#1c8fd6;text-decoration:none}
+    a{color:var(--blue);text-decoration:none}
     a:hover{text-decoration:underline}
+    .wrap{width:min(100%,880px);margin:0 auto}
+    .back{display:inline-block;margin:0 0 14px;color:#4fb3f0;font-size:.9rem}
+    h1{margin:0 0 4px;font:600 1.9rem/1.2 Lora,Georgia,serif;color:#fff}
+    h1 .beta{display:inline-block;vertical-align:middle;margin-left:6px;padding:3px 9px;border:1px solid rgba(255,255,255,.45);border-radius:999px;
+      font:600 .62rem/1.3 Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.85);white-space:nowrap}
+    .lede{margin:0 0 22px;color:rgba(255,255,255,.82);font-size:.95rem;line-height:1.6}
+
+    .card{background:#fff;border-radius:14px;box-shadow:0 12px 28px rgba(0,12,40,.28)}
+    .card + .card{margin-top:20px}
+    .panel-title{padding:14px 22px;border-radius:14px 14px 0 0;background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;font:600 1.08rem/1.5 Lora,Georgia,serif}
+    .card-body{padding:18px 22px 22px}
+
+    /* ---------- settings: two compact rows ---------- */
+    .settings{position:relative;display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+    .settings-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+    .seg{display:inline-flex;align-items:center;background:var(--tile);border-radius:10px;padding:3px;gap:3px}
+    .seg-label{padding:0 6px 0 8px;font:600 .68rem/1 Inter,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+    .seg button{
+      border:0;background:none;cursor:pointer;padding:7px 12px;border-radius:8px;
+      font:600 .84rem/1 Inter,sans-serif;color:var(--muted);white-space:nowrap;
+    }
+    .seg button small{font-weight:500;opacity:.8}
+    .seg button:hover{color:var(--ink)}
+    .seg button[aria-pressed="true"]{background:#2a3a55;color:#fff}
+    .seg button[data-section="razak"][aria-pressed="true"]{background:linear-gradient(135deg,var(--razak),var(--razak-2));box-shadow:0 4px 12px rgba(28,120,214,.3)}
+    .seg button[data-section="nicole"][aria-pressed="true"]{background:linear-gradient(135deg,var(--nicole),var(--nicole-2));box-shadow:0 4px 12px rgba(210,59,52,.3)}
+    .seg button:focus-visible,.btn:focus-visible,.ph:focus-visible,.practice:focus-visible,.toggle:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+    /* one-button toggles: click to switch */
+    .toggle{
+      display:inline-flex;align-items:center;gap:7px;border:0;cursor:pointer;white-space:nowrap;
+      padding:7px 10px 7px 11px;border-radius:10px;background:var(--tile);color:var(--ink);
+      font:600 .86rem/1 Inter,sans-serif;transition:background .15s,filter .15s;
+    }
+    .toggle:hover{background:var(--tile-hover)}
+    .toggle .t-lab{font:600 .64rem/1 Inter,sans-serif;letter-spacing:.06em;text-transform:uppercase;opacity:.75}
+    .toggle small{font-weight:500;opacity:.8}
+    .toggle .swap{font-size:.8rem;opacity:.65}
+    /* both labels share one cell, so the button is always as wide as its longest option and never jumps */
+    .stack{display:inline-grid;justify-items:start}
+    .stack > .opt{grid-area:1/1;visibility:hidden;white-space:nowrap}
+    .stack > .opt.on{visibility:visible}
+    .sec-toggle{background:linear-gradient(135deg,var(--sec),var(--sec-2));color:#fff;box-shadow:0 4px 12px rgba(0,30,80,.18)}
+    .sec-toggle:hover{background:linear-gradient(135deg,var(--sec),var(--sec-2));filter:brightness(1.07)}
+
+    .switch{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:.86rem;font-weight:500;color:var(--ink);user-select:none;white-space:nowrap}
+    .switch input{position:absolute;opacity:0;width:1px;height:1px}
+    .switch .track{position:relative;flex:none;width:34px;height:19px;border-radius:999px;background:#cfd8e3;transition:background .2s}
+    .switch .track::after{
+      content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#fff;
+      box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s;
+    }
+    #opt-eng:checked + .track{background:linear-gradient(90deg,var(--eng) 0 50%,var(--sec) 50% 100%)}
+    #opt-stress:checked + .track{background:linear-gradient(135deg,#d9822b,#f0a64f)}
+    .switch input:checked + .track::after{transform:translateX(15px)}
+    .switch input:focus-visible + .track{outline:2px solid var(--blue);outline-offset:2px}
+
+    .practice-wrap{display:inline-flex;align-items:center;gap:2px;border-radius:999px;background:var(--tile);max-width:100%}
+    .practice-wrap.on{background:var(--practice-bg)}
+    .practice{
+      display:inline-flex;align-items:center;gap:8px;border:0;background:none;cursor:pointer;min-width:0;
+      padding:6px 10px 6px 12px;border-radius:999px;font:500 .84rem/1 Inter,sans-serif;color:var(--muted);
+    }
+    .practice:hover{color:var(--ink)}
+    .practice b{font-family:var(--ipa);font-size:1.15rem;font-weight:700;color:var(--practice);word-spacing:.2em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:220px}
+    .practice b.none{font-family:Inter,sans-serif;font-size:.84rem;font-weight:600;color:var(--muted)}
+    .practice .caret{font-size:.7rem;opacity:.7}
+    .practice-clear{border:0;background:none;cursor:pointer;width:24px;height:24px;margin-right:4px;border-radius:50%;color:var(--muted);font-size:.95rem;line-height:1}
+    .practice-clear:hover{background:rgba(0,0,0,.06);color:var(--ink)}
+    .practice-clear[hidden]{display:none}
+
+    /* sound picker (opens from the Practising chip; pick as many as you like) */
+    .picker{
+      position:absolute;top:100%;left:0;z-index:20;margin-top:8px;
+      width:min(100%,560px);max-height:min(70vh,540px);overflow:auto;
+      background:#fff;border-radius:12px;padding:14px 16px 16px;
+      box-shadow:0 18px 40px rgba(0,12,40,.28),0 0 0 1px rgba(0,0,0,.05);
+    }
+    .picker[hidden]{display:none}
+    .picker-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px}
+    .picker-head strong{font:600 .95rem/1.4 Lora,Georgia,serif}
+    .picker-head .tools{display:flex;gap:6px}
+    .mini{border:0;cursor:pointer;border-radius:8px;padding:6px 10px;background:var(--tile);font:600 .78rem/1 Inter,sans-serif;color:var(--ink)}
+    .mini:hover{background:var(--tile-hover)}
+    .mini.primary{background:#2a3a55;color:#fff}
+    .picker-sub{margin:0 0 4px;font-size:.78rem;color:var(--muted)}
+    .picker-group{margin-top:10px}
+    .picker-group .lab{display:block;margin-bottom:2px;font:600 .66rem/1.4 Inter,sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+    .picker-group .phs{display:flex;flex-wrap:wrap;gap:2px}
+
+    /* boost slider, at the foot of the picker */
+    .picker-boost{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin-top:14px;padding-top:12px;border-top:1px solid var(--rule)}
+    .boost{display:inline-flex;align-items:center;gap:10px;font-size:.86rem;font-weight:500}
+    .boost input[type=range]{width:180px;accent-color:var(--practice)}
+    .boost output{min-width:3.2em;font-weight:700;color:var(--practice)}
+    .adv-note{flex-basis:100%;margin:0;font-size:.82rem;color:var(--muted)}
+    .adv-note b{color:var(--practice)}
+
+    /* ---------- the word ---------- */
+    .stage{
+      display:flex;flex-direction:column;align-items:center;gap:10px;
+      padding:22px 12px 18px;margin:0 0 16px;border-radius:12px;background:var(--tile);
+    }
+    .word{display:flex;align-items:flex-end;justify-content:center;flex-wrap:wrap;gap:2px;font-family:var(--ipa)}
+    /* tall line box: room for descenders and marks below (l̩, p̼, t̪) above the C/V label */
+    .bracket{font-size:clamp(2.2rem,8vw,3.6rem);line-height:1.55;color:var(--muted);padding:0 2px 1.1rem}
+    .slot{display:flex;flex-direction:column;align-items:center;font-size:clamp(2.2rem,8vw,3.6rem);min-width:.72em}
+    button.slot{border:0;background:none;padding:0;margin:0;cursor:pointer;color:inherit;font-family:inherit;line-height:inherit}
+    button.slot:hover .sym{background:rgba(0,0,0,.05)}
+    button.slot:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:8px}
+    .sym{font-size:1em;line-height:1.55;padding:0 .08em .2em;border-radius:8px;transition:background .2s,color .2s,font-size .2s}
+    .cv{font:600 .7rem/1 Inter,sans-serif;letter-spacing:.06em;color:var(--faint);margin-top:2px}
+    .slot.stress{min-width:0}
+    .slot.stress .sym{padding:0 .02em .2em}
+    .slot.picked .sym{box-shadow:inset 0 0 0 2px var(--practice)}
+    /* colour code: English green, non-English in the section's colour */
+    .show-eng .slot.eng .sym{color:var(--eng)}
+    .show-eng .slot.eng .cv{color:var(--eng)}
+    .show-eng .slot.non .sym{color:var(--sec)}
+    .show-eng .slot.non .cv{color:var(--sec)}
+    /* stress: the stressed syllable bold and larger on an orange shade */
+    .show-stress .slot.stress .sym{color:var(--stress);font-weight:700;font-size:1.16em}
+    .show-stress .slot.syl-stress .sym{font-weight:700;font-size:1.16em;background:var(--stress-bg)}
+    .show-stress .slot.syl-stress .cv{color:var(--stress)}
+    .sym-info{margin:0;font-size:.88rem;color:var(--muted);text-align:center}
+    .sym-info b{font-family:var(--ipa);font-size:1.15rem;margin-right:6px;color:var(--ink)}
+    .sym-info:empty{display:none}
+
+    .actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+    .btn{border:0;cursor:pointer;border-radius:10px;padding:11px 18px;font:600 .9rem/1 Inter,sans-serif;background:var(--tile);color:var(--ink)}
+    .btn:hover{background:var(--tile-hover)}
+    .btn.primary{background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;box-shadow:0 6px 16px rgba(79,179,240,.35)}
+    .btn.primary:hover{filter:brightness(1.05)}
+    .hint{margin:10px 0 0;text-align:center;font-size:.78rem;color:var(--faint)}
+
+    /* ---------- sound charts ---------- */
+    .chart-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin-bottom:8px}
+    .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--muted)}
+    .legend > span{display:inline-flex;align-items:center;gap:6px}
+    .legend i{font:700 1.05rem/1 var(--ipa);font-style:normal}
+    .legend .k-eng{color:var(--eng)}
+    .legend .k-sec{color:var(--sec)}
+    .legend .k-dim{color:#c6ced9}
+    body.sec-razak .leg-dim{visibility:hidden}
+    .chart-hint{margin:0 0 14px;font-size:.82rem;color:var(--muted)}
+    .chart-title{margin:18px 0 8px;font:600 .95rem/1.4 Lora,Georgia,serif}
+    .chart-title:first-of-type{margin-top:6px}
+
+    .ph{
+      border:0;background:none;cursor:pointer;padding:1px 3px;border-radius:6px;
+      font:700 1.22rem/1.25 var(--ipa);color:var(--sec);min-width:1.4em;
+      transition:background .15s,color .15s,box-shadow .15s;
+    }
+    .ph:hover{background:var(--tile-hover)}
+    .ph.eng{color:var(--eng)}
+    .ph.dim{color:#d3dae3;cursor:default}   /* same weight as the others, so the table never resizes */
+    .ph.dim:hover{background:none}
+    .ph.picked{background:var(--practice-bg);color:var(--practice);box-shadow:inset 0 0 0 2px var(--practice)}
+    /* jumped to from the word: a short pulse, plus a name label above it */
+    .ph.flash{animation:ph-flash 1.6s ease-out 2}
+    @keyframes ph-flash{0%{box-shadow:0 0 0 0 rgba(28,143,214,.7);background:#fff3c4}100%{box-shadow:0 0 0 14px rgba(28,143,214,0);background:transparent}}
+    .bubble{
+      position:absolute;z-index:40;transform:translate(-50%,-100%);pointer-events:none;
+      padding:5px 9px;border-radius:7px;background:#182234;color:#fff;font:500 .78rem/1.3 Inter,sans-serif;white-space:nowrap;
+      box-shadow:0 6px 16px rgba(0,0,0,.25);animation:bubble-in .2s ease-out;
+    }
+    .bubble::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#182234}
+    @keyframes bubble-in{from{opacity:0;transform:translate(-50%,-80%)}to{opacity:1;transform:translate(-50%,-100%)}}
+
+    .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--rule);border-radius:10px}
+    table.cons{border-collapse:collapse;min-width:880px;width:100%;font-size:.72rem}
+    table.cons th{font:600 .64rem/1.25 Inter,sans-serif;color:var(--muted);padding:6px 3px;background:#fafcfe;text-align:center;border-bottom:1px solid var(--rule)}
+    table.cons th.manner{text-align:left;padding-left:10px;white-space:nowrap;position:sticky;left:0;z-index:1;border-right:1px solid var(--rule)}
+    table.cons td{text-align:center;padding:3px 2px;border-bottom:1px solid var(--rule);height:34px;white-space:nowrap}   /* several sounds in a cell sit side by side */
+    table.cons td.vl{border-left:1px solid var(--rule)}
+    table.cons tr:last-child td,table.cons tr:last-child th{border-bottom:0}
+
+    .other{display:grid;gap:6px;margin-top:10px}
+    .other-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px}
+    .other-row .lab{flex:0 0 190px;font:600 .68rem/1.4 Inter,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+
+    .vowel-wrap{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:flex-start}
+    .vchart{position:relative;width:min(100%,520px);aspect-ratio:1.6}
+    .vlabel.vheight{transform:translate(-100%,-50%);white-space:nowrap;text-align:right}
+    .vchart svg{position:absolute;inset:0;width:100%;height:100%}
+    /* chart vowels: the highlight hugs the glyph, so selecting one never looks like it moved */
+    .vchart .ph{position:absolute;transform:translate(-50%,-50%);min-width:0;padding:1px 4px}
+    .vlabel{position:absolute;font:600 .62rem/1 Inter,sans-serif;color:var(--faint);letter-spacing:.04em;text-transform:uppercase}
+    .vextra{display:grid;gap:8px;min-width:180px}
+    .vextra .other-row .lab{flex-basis:auto;min-width:110px}
+
+    /* ---------- history ---------- */
+    .history{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+    .hist-word{border:0;cursor:pointer;padding:6px 10px;border-radius:8px;background:var(--tile);color:var(--ink);font:400 1.2rem/1.3 var(--ipa);transition:background .15s}
+    .hist-word:hover{background:var(--tile-hover)}
+    .hist-word[aria-current="true"]{box-shadow:inset 0 0 0 2px var(--blue);background:#e3f1fc}
+    .hist-word:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+    .empty{color:var(--muted);font-size:.9rem;margin:0}
+
+    @media (max-width:560px){
+      h1{font-size:1.5rem}
+      .card-body{padding:16px}
+      .other-row .lab{flex-basis:100%}
+      .boost input[type=range]{width:140px}
+    }
   </style>
 </head>
-<body>
-  <main class="card">
-    <div class="panel-title">LIN228 · Phonetics Quiz 2 Interactive Game</div>
-    <div class="card-body">
-      <p><span class="status">In preparation</span></p>
-      <p>An interactive game for LIN228 Phonetics Quiz 2 is on its way. It should be ready by <strong>November 27, 2026</strong>.</p>
-      <p><a href="index.html#games">← Back to Linguistics Games</a></p>
-    </div>
-  </main>
+<body class="sec-razak">
+  <div class="wrap">
+    <a class="back" href="index.html#games">← Back to Linguistics Games</a>
+    <h1>LIN228 · Phonetics Quiz 2 <span class="beta">Beta · no audio yet</span></h1>
+    <p class="lede">CVCVCV words: 2 English + 4 non-English sounds, random stress.</p>
+
+    <section class="card" aria-labelledby="gen-title">
+      <div class="panel-title" id="gen-title">Word generator</div>
+      <div class="card-body">
+        <div class="settings">
+          <div class="settings-row">
+            <button type="button" class="toggle sec-toggle" data-sec-toggle>
+              <span class="t-lab">Section</span><span class="stack"><span class="opt on" data-opt="razak"><b>Razak</b> <small>full</small></span><span class="opt" data-opt="nicole"><b>Nicole</b> <small>subset</small></span></span><span class="swap" aria-hidden="true">⇄</span>
+            </button>
+            <button type="button" class="toggle" id="mode-toggle">
+              <span class="t-lab">English</span><span class="stack"><b class="opt on" data-opt="cv">1 C + 1 V</b><b class="opt" data-opt="any">Any 2</b></span><span class="swap" aria-hidden="true">⇄</span>
+            </button>
+            <label class="switch" title="English green; non-English in the section's colour"><input type="checkbox" id="opt-eng"><span class="track" aria-hidden="true"></span>Colour-code</label>
+            <label class="switch" title="Highlight the stressed syllable"><input type="checkbox" id="opt-stress" aria-label="Highlight stress"><span class="track" aria-hidden="true"></span>Stress</label>
+          </div>
+          <div class="settings-row">
+            <span class="practice-wrap" id="practice-wrap">
+              <button type="button" class="practice" id="practice-open" aria-haspopup="dialog" aria-expanded="false" aria-controls="picker">
+                Practising: <b id="practice-list" class="none">none</b><span class="caret" aria-hidden="true">▾</span>
+              </button>
+              <button type="button" class="practice-clear" id="practice-clear" aria-label="Stop practising all sounds" title="Clear all" hidden>✕</button>
+            </span>
+          </div>
+          <div class="picker" id="picker" role="dialog" aria-label="Choose sounds to practise" hidden>
+            <div class="picker-head">
+              <strong>Sounds to practise</strong>
+              <span class="tools">
+                <button type="button" class="mini" id="picker-clear">Clear</button>
+                <button type="button" class="mini primary" id="picker-done">Done</button>
+              </span>
+            </div>
+            <p class="picker-sub">Pick as many as you like: they turn up more often, without being forced.</p>
+            <div id="picker-groups"></div>
+            <div class="picker-boost">
+              <label class="boost">Boost
+                <input type="range" id="boost" min="1" max="30" step="1" value="8" aria-describedby="boost-note">
+                <output id="boost-out" for="boost">8×</output>
+              </label>
+              <p class="adv-note" id="boost-note"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stage" id="stage">
+          <div class="word" id="word" aria-live="polite"></div>
+          <p class="sym-info" id="sym-info" aria-live="polite"></p>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn primary" id="new-word">New word</button>
+        </div>
+        <p class="hint">Space or Enter: new word · E: colour-code · S: highlight stress</p>
+      </div>
+    </section>
+
+    <section class="card" id="charts" aria-labelledby="chart-title">
+      <div class="panel-title" id="chart-title">Sounds in play</div>
+      <div class="card-body">
+        <div class="chart-top">
+          <button type="button" class="toggle sec-toggle" data-sec-toggle>
+            <span class="t-lab">Section</span><span class="stack"><span class="opt on" data-opt="razak"><b>Razak</b> <small>full</small></span><span class="opt" data-opt="nicole"><b>Nicole</b> <small>subset</small></span></span><span class="swap" aria-hidden="true">⇄</span>
+          </button>
+          <!-- fixed contents (only visibility changes), so switching sections never reflows the layout -->
+          <div class="legend" id="legend">
+            <span><i class="k-eng">a</i>English (both sections)</span>
+            <span><i class="k-sec">a</i><span class="stack"><span class="opt on" data-opt="razak">Razak&rsquo;s section</span><span class="opt" data-opt="nicole">Nicole&rsquo;s section</span></span></span>
+            <span class="leg-dim"><i class="k-dim">a</i>Only in Razak&rsquo;s list</span>
+          </div>
+        </div>
+        <p class="chart-hint">Tap sounds to practise them (as many as you like); tap again to drop one.</p>
+
+        <h2 class="chart-title">Consonants</h2>
+        <div class="table-scroll"><table class="cons" id="cons-table"></table></div>
+        <div class="other" id="cons-other"></div>
+
+        <h2 class="chart-title">Vowels</h2>
+        <div class="vowel-wrap">
+          <div class="vchart" id="vchart">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <g fill="none" stroke="#cfd8e3" stroke-width="1.2" vector-effect="non-scaling-stroke">
+                <polygon points="24,8 94,8 94,92 50,92" vector-effect="non-scaling-stroke"/>
+                <line x1="59" y1="8" x2="72" y2="92" vector-effect="non-scaling-stroke"/>
+                <line x1="32.7" y1="36" x2="94" y2="36" vector-effect="non-scaling-stroke"/>
+                <line x1="41.3" y1="64" x2="94" y2="64" vector-effect="non-scaling-stroke"/>
+              </g>
+            </svg>
+          </div>
+          <div class="vextra" id="vextra"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="hist-title">
+      <div class="panel-title" id="hist-title">Recent words</div>
+      <div class="card-body">
+        <ul class="history" id="history"></ul>
+        <p class="empty" id="history-empty">Words you generate will collect here.</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /* ===================== sound inventories =====================
+       English sounds are shared by both TA sections.
+       Edit these lists to change what the generator can pick.        */
+    var ENGLISH = {
+      C: ['p','b','m','f','v','θ','ð','t','d','s','z','n','ʃ','ʒ','k','ɡ','ŋ','h','tʃ','dʒ','ɹ','l','j','w'],
+      V: ['i','ɛ','ɑ','u','ə','ɪ','ʊ','ɚ']
+    };
+    var SECTIONS = {
+      razak: {
+        name: "Razak's section", short: 'Razak',
+        /* the full list, as given by Bennett (p̼ b̼ = linguolabials, t̪ d̪ n̪ = dentals) */
+        C: ['ɸ','β','ɱ','p̼','b̼','t̪','d̪','n̪','ʈ','ɖ','ʂ','ʑ','c','ɟ','x','ɣ','q','ɢ','ʁ','ħ','ʕ',
+            'ʔ','ts','k͡p','ɡ͡b','p͡t','kʷ','ɡʷ','pʲ','bʲ','ʙ','r','ɾ','ɭ','ɫ','ʋ','ɥ'],
+        V: ['e','a','ɔ','o','y','œ','ʌ','ɯ','ʉ','ɨ','ɔ̃','ɛ̃','ɑ̃'],
+        syllabic: ['l̩']   /* can fill a vowel slot */
+      },
+      nicole: {
+        name: "Nicole's section", short: 'Nicole',
+        /* a shorter list, all of it inside Razak's; as given by Bennett (p̼ b̼ = linguolabials) */
+        C: ['ɸ','β','p̼','b̼','n̪','ɖ','ʂ','ʑ','c','ɟ','x','q','ħ','ʕ','ʔ','ts','p͡t','ɡʷ','pʲ','r','ɾ','ɫ','ʋ','ɥ'],
+        V: ['e','ɔ','a','y','œ','ʌ','ɯ','ɨ','ɛ̃','ɑ̃']
+      }
+    };
+
+    /* ===================== charts (where each sound sits) ===================== */
+    /* Labels and names follow the official IPA chart (the chart students get in the quiz),
+       with columns for the extra places in the quiz lists (linguolabial, alveolo-palatal).
+       Columns: [heading, word used in names] */
+    var PLACES = [
+      ['Bilabial','bilabial'], ['Labiodental','labiodental'], ['Linguolabial','linguolabial'], ['Dental','dental'],
+      ['Alveolar','alveolar'], ['Postalveolar','postalveolar'], ['Retroflex','retroflex'], ['Alveolo-palatal','alveolo-palatal'],
+      ['Palatal','palatal'], ['Velar','velar'], ['Uvular','uvular'], ['Pharyngeal','pharyngeal'], ['Glottal','glottal']
+    ];
+    /* Rows: [manner, word used in names (null = named by hand below), {place: [voiceless, voiced]}]
+       A cell can hold several sounds, separated by spaces. */
+    var MANNERS = [
+      ['Plosive',              'plosive',             {Bilabial:['p','b'], Linguolabial:['p̼','b̼'], Dental:['t̪','d̪'], Alveolar:['t','d'], Retroflex:['ʈ','ɖ'], Palatal:['c','ɟ'], Velar:['k','ɡ'], Uvular:['q','ɢ'], Glottal:['ʔ','']}],
+      ['Labialized plosive',   null,                  {Velar:['kʷ','ɡʷ']}],
+      ['Palatalized plosive',  null,                  {Bilabial:['pʲ','bʲ']}],
+      ['Nasal',                'nasal',               {Bilabial:['','m'], Labiodental:['','ɱ'], Dental:['','n̪'], Alveolar:['','n'], Velar:['','ŋ']}],
+      ['Trill',                'trill',               {Bilabial:['','ʙ'], Alveolar:['','r']}],
+      ['Tap or Flap',          'tap',                 {Alveolar:['','ɾ']}],
+      ['Fricative',            'fricative',           {Bilabial:['ɸ','β'], Labiodental:['f','v'], Dental:['θ','ð'], Alveolar:['s','z'], Postalveolar:['ʃ','ʒ'], Retroflex:['ʂ',''], 'Alveolo-palatal':['','ʑ'], Velar:['x','ɣ'], Uvular:['','ʁ'], Pharyngeal:['ħ','ʕ'], Glottal:['h','']}],
+      ['Affricate',            'affricate',           {Alveolar:['ts',''], Postalveolar:['tʃ','dʒ']}],
+      ['Approximant',          'approximant',         {Bilabial:['','w'], Labiodental:['','ʋ'], Alveolar:['','ɹ'], Palatal:['','j ɥ']}],
+      ['Lateral approximant',  'lateral approximant', {Alveolar:['','l ɫ'], Retroflex:['','ɭ']}]
+    ];
+    var OTHER_CONSONANTS = [
+      ['Co-articulated stops', ['k͡p','ɡ͡b','p͡t']],
+      ['Syllabic consonants', ['l̩']]
+    ];
+    /* vowel chart: [symbol, height 0 (close) … 1 (open), backness 0 (front) … 1 (back), side: -1 unrounded, +1 rounded, 0 centred] */
+    var VOWEL_POINTS = [
+      ['i',0,0,-1], ['y',0,0,1], ['ɨ',0,.5,-1], ['ʉ',0,.5,1], ['ɯ',0,1,-1], ['u',0,1,1],
+      ['ɪ',.16,.2,0], ['ʊ',.16,.82,0],
+      ['e',.33,0,-1], ['o',.33,1,1],
+      ['ə',.5,.5,0],
+      ['ɛ',.67,0,-1], ['œ',.67,0,1], ['ʌ',.67,1,-1], ['ɔ',.67,1,1],
+      ['a',1,0,-1], ['ɑ',1,1,-1]
+    ];
+    var OTHER_VOWELS = [['Nasal vowels', ['ɛ̃','ɑ̃','ɔ̃']], ['Rhotic vowels', ['ɚ']]];
+
+    /* ===================== names (shown on hover, and when a sound is clicked) =====================
+       Standard IPA names: voicing + place + manner, built from the table where possible. */
+    var NAMES = {};
+    MANNERS.forEach(function(row){
+      if (!row[1]) return;
+      PLACES.forEach(function(p){
+        (row[2][p[0]] || []).forEach(function(cell, side){
+          cell.split(' ').forEach(function(sym){
+            if (sym) NAMES[sym] = (side ? 'voiced ' : 'voiceless ') + p[1] + ' ' + row[1];
+          });
+        });
+      });
+    });
+    var MORE_NAMES = {
+      'ts':'voiceless alveolar sibilant affricate',
+      'kʷ':'voiceless labialized velar plosive', 'ɡʷ':'voiced labialized velar plosive',
+      'pʲ':'voiceless palatalized bilabial plosive', 'bʲ':'voiced palatalized bilabial plosive',
+      'ɫ':'voiced velarized alveolar lateral approximant',
+      'k͡p':'voiceless co-articulated labial–velar plosive', 'ɡ͡b':'voiced co-articulated labial–velar plosive', 'p͡t':'voiceless co-articulated labial–alveolar plosive',
+      'w':'voiced labial–velar approximant', 'ɥ':'voiced labial–palatal approximant',
+      'l̩':'syllabic voiced alveolar lateral approximant',
+      'i':'close front unrounded vowel', 'y':'close front rounded vowel',
+      'ɨ':'close central unrounded vowel', 'ʉ':'close central rounded vowel',
+      'ɯ':'close back unrounded vowel', 'u':'close back rounded vowel',
+      'ɪ':'near-close near-front unrounded vowel', 'ʊ':'near-close near-back rounded vowel',
+      'e':'close-mid front unrounded vowel', 'o':'close-mid back rounded vowel',
+      'ə':'mid central vowel',
+      'ɛ':'open-mid front unrounded vowel', 'œ':'open-mid front rounded vowel',
+      'ʌ':'open-mid back unrounded vowel', 'ɔ':'open-mid back rounded vowel',
+      'a':'open front unrounded vowel', 'ɑ':'open back unrounded vowel',
+      'ɛ̃':'open-mid front unrounded nasal vowel', 'ɑ̃':'open back unrounded nasal vowel',
+      'ɔ̃':'open-mid back rounded nasal vowel',
+      'ɚ':'mid central rhotic vowel'
+    };
+    for (var k in MORE_NAMES) NAMES[k] = MORE_NAMES[k];
+    function nameOf(sym){ return NAMES[sym] || sym; }
+
+    /* ===================== generator ===================== */
+    var SHAPE = ['C','V','C','V','C','V'];
+    var state = { section: 'razak', mode: 'cv', word: null, showEng: false, showStress: false, practice: [], parked: [], boost: 8, history: [] };
+    /* parked: Razak-only practice sounds set aside while on Nicole's list, restored on switching back */
+
+    function rand(n){ return Math.floor(Math.random() * n); }
+    function slotsOf(type){ return type === 'C' ? [0, 2, 4] : [1, 3, 5]; }
+    function nonEnglishPool(sec, type){ return type === 'V' ? sec.V.concat(sec.syllabic || []) : sec.C; }
+
+    /* random pick that skips sounds already in the word; practised sounds count `boost` times as much */
+    function pick(list, used, practice, boost){
+      var options = list.filter(function(s){ return used.indexOf(s) === -1; });
+      if (!options.length) options = list;
+      var weights = options.map(function(s){ return practice.indexOf(s) > -1 ? boost : 1; });
+      var total = weights.reduce(function(a, b){ return a + b; }, 0), r = Math.random() * total;
+      for (var i = 0; i < options.length; i++) { r -= weights[i]; if (r < 0) return options[i]; }
+      return options[options.length - 1];
+    }
+
+    /* what a sound is in the current section: {type, eng}, or null if it isn't in play there */
+    function classify(sym){
+      var sec = SECTIONS[state.section];
+      if (ENGLISH.C.indexOf(sym) > -1) return { type: 'C', eng: true };
+      if (ENGLISH.V.indexOf(sym) > -1) return { type: 'V', eng: true };
+      if (sec.C.indexOf(sym) > -1) return { type: 'C', eng: false };
+      if (nonEnglishPool(sec, 'V').indexOf(sym) > -1) return { type: 'V', eng: false };
+      return null;
+    }
+
+    /* which two of the six slots are English */
+    function englishSlots(mode){
+      if (mode === 'cv') return [slotsOf('C')[rand(3)], slotsOf('V')[rand(3)]];
+      var all = [0, 1, 2, 3, 4, 5], first = all.splice(rand(6), 1)[0];
+      return [first, all[rand(5)]];
+    }
+
+    function makeWord(opts){
+      opts = opts || {};
+      var sec = SECTIONS[opts.section || state.section], mode = opts.mode || state.mode;
+      var practice = opts.practice || state.practice, boost = opts.boost != null ? opts.boost : state.boost;
+      var eng = englishSlots(mode), used = [], stressed = rand(3);   /* primary stress on one of the three syllables */
+      return SHAPE.map(function(type, i){
+        var isEng = eng.indexOf(i) > -1;
+        var sym = pick(isEng ? ENGLISH[type] : nonEnglishPool(sec, type), used, practice, boost);
+        used.push(sym);
+        /* the stress mark goes before the syllable, i.e. before its consonant */
+        return { sym: sym, type: type, eng: isEng, stressed: i === stressed * 2, practice: practice.indexOf(sym) > -1 };
+      });
+    }
+
+    function asText(word){ return '[' + word.map(function(s){ return (s.stressed ? 'ˈ' : '') + s.sym; }).join('') + ']'; }
+
+    /* share of words that contain at least one practised sound (quick simulation) */
+    function practiceShare(boost){
+      var n = 800, hits = 0;
+      for (var i = 0; i < n; i++) {
+        var w = makeWord({ boost: boost });
+        if (w.some(function(s){ return state.practice.indexOf(s.sym) > -1; })) hits++;
+      }
+      return Math.round(100 * hits / n);
+    }
+
+    /* ===================== drawing ===================== */
+    var $ = function(id){ return document.getElementById(id); };
+    function el(tag, cls, text){
+      var e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text != null) e.textContent = text;
+      return e;
+    }
+
+    function drawWord(){
+      var w = state.word, box = $('word'), stressAt = -1;
+      w.forEach(function(s, i){ if (s.stressed) stressAt = i; });
+      box.innerHTML = '';
+      box.appendChild(el('span', 'bracket', '['));
+      w.forEach(function(s, i){
+        if (s.stressed) {
+          var mark = el('span', 'slot stress');
+          mark.title = 'primary stress';
+          mark.appendChild(el('span', 'sym', 'ˈ'));
+          mark.appendChild(el('span', 'cv', ' '));
+          box.appendChild(mark);
+        }
+        /* the stressed syllable = its consonant and the vowel after it */
+        var inStressed = i === stressAt || i === stressAt + 1;
+        var slot = el('button', 'slot ' + (s.eng ? 'eng' : 'non') + (inStressed ? ' syl-stress' : '') + (state.practice.indexOf(s.sym) > -1 ? ' picked' : ''));
+        slot.type = 'button';
+        slot.title = nameOf(s.sym) + (s.eng ? ' (English)' : '');
+        slot.setAttribute('aria-label', s.sym + ', ' + nameOf(s.sym) + '. Show it in the chart');
+        slot.addEventListener('click', function(){ showSound(s.sym); });
+        slot.appendChild(el('span', 'sym', s.sym));
+        slot.appendChild(el('span', 'cv', s.type));
+        box.appendChild(slot);
+      });
+      box.appendChild(el('span', 'bracket', ']'));
+      box.setAttribute('aria-label', 'Practice word ' + asText(w));
+      $('sym-info').innerHTML = '';
+      drawHighlights();
+    }
+
+    function drawHighlights(){
+      $('stage').classList.toggle('show-eng', state.showEng);
+      $('stage').classList.toggle('show-stress', state.showStress);
+      $('opt-eng').checked = state.showEng;
+      $('opt-stress').checked = state.showStress;
+    }
+
+    /* clicking a sound in the word: name it, then take you to it in the chart */
+    var bubble = null, bubbleTimer = null;
+    function showSound(sym){
+      $('sym-info').innerHTML = '<b>' + sym + '</b> ' + nameOf(sym);
+      var target = $('charts').querySelector('.ph[data-ph="' + CSS.escape(sym) + '"]');
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+      Array.prototype.forEach.call(document.querySelectorAll('.ph.flash'), function(b){ b.classList.remove('flash'); });
+      void target.offsetWidth;   /* restart the flash animation */
+      target.classList.add('flash');
+      if (bubble) bubble.remove();
+      clearTimeout(bubbleTimer);
+      bubbleTimer = setTimeout(function(){
+        var r = target.getBoundingClientRect();
+        bubble = el('div', 'bubble', nameOf(sym));
+        bubble.style.left = (r.left + r.width / 2 + window.scrollX) + 'px';
+        bubble.style.top = (r.top + window.scrollY - 6) + 'px';
+        document.body.appendChild(bubble);
+        bubbleTimer = setTimeout(function(){ if (bubble) { bubble.remove(); bubble = null; } }, 2600);
+      }, 550);
+    }
+
+    /* recent words are kept whole (sounds, English slots, stress), so clicking one brings it back exactly */
+    function drawHistory(){
+      var list = $('history');
+      list.innerHTML = '';
+      state.history.forEach(function(w){
+        var li = el('li'), b = el('button', 'hist-word', asText(w));
+        b.type = 'button';
+        b.title = 'Show this word again';
+        if (w === state.word) b.setAttribute('aria-current', 'true');
+        b.addEventListener('click', function(){ state.word = w; drawWord(); drawHistory(); });
+        li.appendChild(b);
+        list.appendChild(li);
+      });
+      $('history-empty').hidden = state.history.length > 0;
+    }
+
+    /* one button per sound; its look depends on the section and the practice choice */
+    function phone(sym){
+      var b = el('button', 'ph', sym);
+      b.type = 'button';
+      b.setAttribute('data-ph', sym);
+      return b;
+    }
+
+    function buildCharts(){
+      /* consonant table */
+      var table = $('cons-table'), head = el('tr');
+      head.appendChild(el('th', 'manner', ''));
+      PLACES.forEach(function(p){ var th = el('th', '', p[0]); th.colSpan = 2; head.appendChild(th); });
+      var thead = el('thead'); thead.appendChild(head); table.appendChild(thead);
+      var tbody = el('tbody');
+      MANNERS.forEach(function(row){
+        var tr = el('tr');
+        tr.appendChild(el('th', 'manner', row[0]));
+        PLACES.forEach(function(p){
+          var pair = row[2][p[0]] || ['', ''];
+          pair.forEach(function(cell, side){
+            var td = el('td', side === 0 ? 'vl' : 'vd');
+            cell.split(' ').forEach(function(sym){ if (sym) td.appendChild(phone(sym)); });
+            tr.appendChild(td);
+          });
+        });
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+
+      /* consonants that don't sit in the main table */
+      var other = $('cons-other');
+      OTHER_CONSONANTS.forEach(function(group){
+        var r = el('div', 'other-row');
+        r.appendChild(el('span', 'lab', group[0]));
+        group[1].forEach(function(sym){ r.appendChild(phone(sym)); });
+        other.appendChild(r);
+      });
+
+      /* vowel trapezoid: corners (24,8) (94,8) (94,92) (50,92), in % of the box (room on the left for heights) */
+      var chart = $('vchart');
+      function leftEdge(h){ return 24 + 26 * h; }
+      VOWEL_POINTS.forEach(function(v){
+        var h = v[1], left = leftEdge(h), x = left + v[2] * (94 - left) + v[3] * 3.6, y = 8 + 84 * h;
+        var b = phone(v[0]);
+        b.style.left = x + '%';
+        b.style.top = y + '%';
+        chart.appendChild(b);
+      });
+      [['Front', 22, 1], ['Central', 55, 1], ['Back', 90, 1]].forEach(function(l){
+        var s = el('span', 'vlabel', l[0]); s.style.left = l[1] + '%'; s.style.top = l[2] + '%'; chart.appendChild(s);
+      });
+      /* heights, as on the IPA chart */
+      [['Close', 0], ['Close-mid', 1/3], ['Open-mid', 2/3], ['Open', 1]].forEach(function(l){
+        var s = el('span', 'vlabel vheight', l[0]);
+        s.style.left = (leftEdge(l[1]) - 9.5) + '%';
+        s.style.top = (8 + 84 * l[1]) + '%';
+        chart.appendChild(s);
+      });
+      var extra = $('vextra');
+      OTHER_VOWELS.forEach(function(group){
+        var r = el('div', 'other-row');
+        r.appendChild(el('span', 'lab', group[0]));
+        group[1].forEach(function(sym){ r.appendChild(phone(sym)); });
+        extra.appendChild(r);
+      });
+    }
+
+    /* the picker lists what's in play for the current section */
+    function buildPicker(){
+      var sec = SECTIONS[state.section], box = $('picker-groups');
+      box.innerHTML = '';
+      /* non-English first: they're what people usually practise */
+      [[sec.short + '’s consonants', sec.C], [sec.short + '’s vowels', nonEnglishPool(sec, 'V')],
+       ['English consonants', ENGLISH.C], ['English vowels', ENGLISH.V]]
+        .forEach(function(g){
+          var wrap = el('div', 'picker-group'), list = el('div', 'phs');
+          wrap.appendChild(el('span', 'lab', g[0]));
+          g[1].forEach(function(sym){ list.appendChild(phone(sym)); });
+          wrap.appendChild(list);
+          box.appendChild(wrap);
+        });
+      drawPhones();
+    }
+
+    /* colours and states of every sound button (charts and picker) */
+    function drawPhones(){
+      var sec = SECTIONS[state.section];
+      Array.prototype.forEach.call(document.querySelectorAll('.ph'), function(b){
+        var sym = b.getAttribute('data-ph'), c = classify(sym), on = state.practice.indexOf(sym) > -1;
+        b.classList.toggle('eng', !!(c && c.eng));
+        b.classList.toggle('dim', !c);
+        b.classList.toggle('picked', on);   /* not 'practice': that's the chip's class */
+        b.setAttribute('aria-pressed', String(on));
+        b.setAttribute('aria-disabled', String(!c));
+        b.title = nameOf(sym) + (!c ? ' (not in ' + sec.short + '’s list)' : (on ? ' (practising: tap to drop)' : ''));
+      });
+    }
+
+    function drawSection(){
+      var sec = SECTIONS[state.section];
+      document.body.classList.toggle('sec-razak', state.section === 'razak');
+      document.body.classList.toggle('sec-nicole', state.section === 'nicole');
+      showOption($('legend'), state.section);
+      drawPhones();
+    }
+
+    function drawPractice(){
+      var on = state.practice.length > 0, list = $('practice-list');
+      $('practice-wrap').classList.toggle('on', on);
+      list.textContent = on ? state.practice.join(' ') : 'none';
+      list.classList.toggle('none', !on);
+      list.title = on ? state.practice.map(function(s){ return s + ' ' + nameOf(s); }).join('\n') : '';
+      $('practice-clear').hidden = !on;
+      drawBoostNote();
+    }
+
+    function drawBoostNote(){
+      $('boost-out').textContent = state.boost + '×';
+      var note = $('boost-note');
+      if (!state.practice.length) {
+        note.innerHTML = 'Each practised sound counts ' + state.boost + '× as much as the others when sounds are picked. Choose some sounds to see how often they’ll turn up.';
+        return;
+      }
+      note.innerHTML = 'Each practised sound counts ' + state.boost + '× as much as the others. About <b>' + practiceShare(state.boost) +
+        '%</b> of words will include at least one of them (' + practiceShare(1) + '% with no boost).';
+    }
+
+    /* ===================== actions ===================== */
+    function newWord(){
+      state.word = makeWord();   /* the highlight switches stay as they are */
+      state.history.unshift(state.word);
+      state.history = state.history.slice(0, 12);
+      drawWord();
+      drawHistory();
+    }
+
+    function togglePractice(sym){
+      var i = state.practice.indexOf(sym);
+      if (i > -1) state.practice.splice(i, 1); else state.practice.push(sym);
+      drawPractice();
+      drawPhones();
+      newWord();
+    }
+    function clearPractice(){
+      state.practice = [];
+      state.parked = [];
+      drawPractice();
+      drawPhones();
+      newWord();
+    }
+
+    function openPicker(open){
+      if (open) buildPicker();
+      $('picker').hidden = !open;
+      $('practice-open').setAttribute('aria-expanded', String(open));
+    }
+
+    /* section: one button (top, and again in the charts card) switches Razak <-> Nicole */
+    function showOption(button, value){
+      Array.prototype.forEach.call(button.querySelectorAll('.opt'), function(o){
+        o.classList.toggle('on', o.getAttribute('data-opt') === value);
+      });
+    }
+    function drawToggles(){
+      var sec = SECTIONS[state.section], other = state.section === 'razak' ? 'Nicole' : 'Razak';
+      Array.prototype.forEach.call(document.querySelectorAll('[data-sec-toggle]'), function(b){
+        showOption(b, state.section);
+        b.setAttribute('aria-label', 'TA section: ' + sec.short + '. Switch to ' + other);
+        b.title = 'Switch to ' + other + '’s section';
+      });
+      var any = state.mode === 'any';
+      showOption($('mode-toggle'), state.mode);
+      $('mode-toggle').setAttribute('aria-label', 'English sounds: ' + (any ? 'any 2' : '1 consonant and 1 vowel') + '. Switch');
+      $('mode-toggle').title = any ? 'Switch to 1 English consonant + 1 English vowel' : 'Switch to any 2 English sounds';
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('[data-sec-toggle]'), function(b){
+      b.addEventListener('click', function(){
+        state.section = state.section === 'razak' ? 'nicole' : 'razak';
+        /* sounds Nicole doesn't have are parked, and come back when you switch back to Razak */
+        var all = state.practice.concat(state.parked.filter(function(s){ return state.practice.indexOf(s) < 0; }));
+        state.practice = all.filter(function(s){ return classify(s); });
+        state.parked = all.filter(function(s){ return !classify(s); });
+        drawToggles();
+        drawSection();
+        drawPractice();
+        if (!$('picker').hidden) buildPicker();
+        newWord();
+      });
+    });
+    /* English: one button switches 1 C + 1 V <-> any 2 */
+    $('mode-toggle').addEventListener('click', function(){
+      state.mode = state.mode === 'cv' ? 'any' : 'cv';
+      drawToggles();
+      drawBoostNote();
+      newWord();
+    });
+
+    /* any sound button (chart or picker) adds or drops it from the practice list */
+    document.addEventListener('click', function(e){
+      var b = e.target.closest && e.target.closest('.ph');
+      if (b) {
+        var sym = b.getAttribute('data-ph');
+        if (classify(sym)) togglePractice(sym);       /* faded sounds aren't in this section's list */
+        return;
+      }
+      /* clicking outside the picker closes it, except on the settings (Section, English, switches),
+         so you can change them with the picker still open */
+      if (!$('picker').hidden && !e.target.closest('#picker, #practice-open, .settings-row, [data-sec-toggle]')) openPicker(false);
+    });
+
+    $('practice-open').addEventListener('click', function(){ openPicker($('picker').hidden); });
+    $('picker-done').addEventListener('click', function(){ openPicker(false); });
+    $('picker-clear').addEventListener('click', clearPractice);
+    $('practice-clear').addEventListener('click', clearPractice);
+    $('boost').addEventListener('input', function(e){ state.boost = +e.target.value; $('boost-out').textContent = state.boost + '×'; });
+    $('boost').addEventListener('change', function(){ drawBoostNote(); newWord(); });
+    $('new-word').addEventListener('click', newWord);
+    $('opt-eng').addEventListener('change', function(e){ state.showEng = e.target.checked; drawHighlights(); });
+    $('opt-stress').addEventListener('change', function(e){ state.showStress = e.target.checked; drawHighlights(); });
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && !$('picker').hidden) { openPicker(false); $('practice-open').focus(); return; }
+      if (e.target && /^(BUTTON|INPUT|TEXTAREA|SELECT|A|SUMMARY)$/.test(e.target.tagName)) return;
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); newWord(); }
+      else if (e.key === 'e' || e.key === 'E') { state.showEng = !state.showEng; drawHighlights(); }
+      else if (e.key === 's' || e.key === 'S') { state.showStress = !state.showStress; drawHighlights(); }
+    });
+
+    buildCharts();
+    drawToggles();
+    drawSection();
+    drawPractice();
+    newWord();
+  </script>
 </body>
 </html>
