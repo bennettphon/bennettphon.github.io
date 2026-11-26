@@ -30,7 +30,7 @@
       --tile:#fcf4f3;--tile-hover:#fbe3e0}
     *{box-sizing:border-box}
     body{
-      margin:0;min-height:100vh;padding:28px 16px 96px;
+      margin:0;min-height:100vh;padding:28px 16px 48px;
       font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);
       background-color:#002255;
       background-image:
@@ -57,6 +57,9 @@
     .side-link.on .ico{color:#fff}
     /* where a jump lands: clear of the sticky bar */
     #generator,#consonants,#vowels,#recent{scroll-margin-top:76px}
+    /* narrow screens: the jump bar sticks to the top, so leave room for the R/N wheel on its right */
+    @media (max-width:1099px){ .side{margin-right:62px} }
+    @media (max-width:560px){ .side{margin-right:56px} }
     @media (min-width:1100px){
       .wrap.layout{width:min(100%,1084px);display:grid;grid-template-columns:180px minmax(0,880px);grid-template-areas:". head" "side main";column-gap:24px;align-items:start}
       .head{grid-area:head}
@@ -222,18 +225,9 @@
     .chart-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin-bottom:8px}
     /* ---------- the R/N taichi: switches the set from anywhere on the page ---------- */
     .set-switch{
-      --ss:58px;position:fixed;right:16px;bottom:16px;z-index:60;
+      --ss:54px;position:fixed;right:16px;top:12px;z-index:60;
       display:flex;align-items:center;gap:8px;padding:0;margin:0;border:0;background:none;cursor:pointer;
     }
-    /* [Razak's | Nicole's]: the current set is filled with its colour */
-    .ss-label{
-      display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:#fff;
-      box-shadow:0 6px 18px rgba(0,12,40,.3);white-space:nowrap;
-    }
-    .ss-seg{padding:6px 10px;border-radius:999px;font:700 .8rem/1 Inter,sans-serif;color:#9aa6b8;transition:background .2s,color .2s}
-    body.sec-razak .ss-razak{background:var(--razak);color:#fff}
-    body.sec-nicole .ss-nicole{background:var(--nicole);color:#fff}
-    .set-switch:hover .ss-seg:not(.ss-razak):not(.ss-nicole){color:var(--ink)}
     .ss-yy{display:block;width:var(--ss);height:var(--ss);transition:transform .2s ease}
     .set-switch:hover .ss-yy{transform:scale(1.08)}
     .set-switch:focus-visible{outline:none}
@@ -253,12 +247,10 @@
       font:800 calc(var(--ss) * .3)/1 Inter,Arial,sans-serif;white-space:nowrap;
     }
     body.sec-nicole .ss-yy .ly-unturn{transform:translate(-50%,-50%) rotate(-180deg)}
-    .ss-yy .ly-r{color:#d23b34}   /* R names the blue half, so it's drawn red (and N the other way round) */
-    .ss-yy .ly-n{color:#1c78d6}
-    .ss-yy .ly-r,.ss-yy .ly-n{transition:transform .6s cubic-bezier(.6,0,.4,1),color .3s,opacity .3s}
-    /* the current set's letter: white and full strength; the other one faded */
-    body.sec-razak .ss-yy .ly-r,body.sec-nicole .ss-yy .ly-n{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)}
-    body.sec-razak .ss-yy .ly-n,body.sec-nicole .ss-yy .ly-r{opacity:.5}
+    /* both letters white so they read on either half; the current set's letter is bigger and brighter */
+    .ss-yy .ly-r,.ss-yy .ly-n{color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.45);transition:transform .6s cubic-bezier(.6,0,.4,1),font-size .3s,opacity .3s}
+    body.sec-razak .ss-yy .ly-r,body.sec-nicole .ss-yy .ly-n{font-size:calc(var(--ss) * .34)}
+    body.sec-razak .ss-yy .ly-n,body.sec-nicole .ss-yy .ly-r{font-size:calc(var(--ss) * .25);opacity:.8}
     .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.82rem;color:var(--muted)}
     .legend > span{display:inline-flex;align-items:center;gap:6px}
     .legend i{font:700 1.05rem/1 var(--ipa);font-style:normal}
@@ -325,8 +317,7 @@
 
     @media (max-width:560px){
       h1{font-size:1.5rem}
-      .set-switch{--ss:52px;right:12px;bottom:12px}
-      .ss-seg{padding:5px 8px;font-size:.76rem}
+      .set-switch{--ss:46px;right:12px;top:8px}
       .card-body{padding:16px}
       .other-row .lab{flex-basis:100%}
       .boost input[type=range]{width:140px}
@@ -467,10 +458,8 @@
   </div>
 
   <!-- one switch for the whole page, always on screen: blue half = Razak's set, red half = Nicole's set.
-       The pill shows the current set filled in; on the taichi the current set's letter sits on top in white
-       (half a turn per switch). -->
+       The current set's letter sits on top, bigger (half a turn per switch). Pinned top-right. -->
   <button type="button" class="set-switch" data-sec-toggle>
-    <span class="ss-label" aria-hidden="true"><span class="ss-seg ss-razak">Razak&rsquo;s</span><span class="ss-seg ss-nicole">Nicole&rsquo;s</span></span>
     <span class="ss-yy" aria-hidden="true">
       <span class="yy-idle">
         <span class="ly-disk">
